@@ -6,6 +6,7 @@ import { GameContext } from '../../Context';
 import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
+import { Button } from '@material-ui/core';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -27,7 +28,12 @@ function Fillers(props: { players: number, show: boolean; }) {
     )
 }
 
-function GameBoard() {
+interface GameBoardProps {
+    onOpenBettingDialog: () => void;
+}
+
+function GameBoard(props: GameBoardProps) {
+    const { onOpenBettingDialog } = props;
     const { 
         activePlayer,
         playerNumber,
@@ -52,6 +58,16 @@ function GameBoard() {
         
         if (isSetup) {
             content = username
+        } else if (isBetting && isNil(bet) && isCurrent) {
+            content = (
+                <Button
+                    onClick={onOpenBettingDialog}
+                    color='primary'
+                    variant='contained'
+                >
+                    Place bet
+                </Button>
+            )
         } else if (isBetting && isNil(bet)) {
             content = 'placing bet...';
         } else if (isBetting) {
