@@ -3,7 +3,7 @@ const redis = require("redis");
 const { promisify } = require('util');
 
 const TOTAL_CARDS = 60;
-const client = redis.createClient();
+let client;
 
 const createDeck = () => {
     const cards = [
@@ -23,12 +23,7 @@ const createDeck = () => {
         }
     }
     return cards;
-}
-
-// use promises instead of callbacks
-for (const fn of ['get', 'smembers', 'lrange', 'set', 'sadd']) {
-    client[fn] = promisify(client[fn]).bind(client);
-}
+};
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 const shuffleYourDeck = (array) => {
@@ -39,15 +34,18 @@ const shuffleYourDeck = (array) => {
     return array;
 };
 
+
 const createGame = async () => {
     const gameId = shortid.generate();
     await client.sadd(['games', gameId]);
     return gameId;
 };
 
+
 const getGames = async () => {
     return client.smembers('games');
-}
+};
+
 
 const addPlayerToGame = async (gameId, username) => {
     await client.rpush(`${gameId}-players`, username);
@@ -55,13 +53,16 @@ const addPlayerToGame = async (gameId, username) => {
     return players.indexOf(username);
 };
 
+
 const getGamePlayers = async (gameId) => {
     return client.lrange(`${gameId}-players`, 0, -1);
 };
 
+
 const getPlayerBet = async (gameId, playerId, round) => {
     return client.get(`${gameId}-r${round}-p${playerId}`);
 };
+
 
 const setPlayerBet = async (gameId, playerId, round, bet) => {
     if (bet < 0) {
@@ -78,13 +79,16 @@ const getLeadSuit = async (gameId, round, trick) => {
     return client.get(`${gameId}-r${round}-t${trick}-leadsuit`);
 };
 
+
 const setLeadSuit = async (gameId, round, trick, suit) => {
     return client.set(`${gameId}-r${round}-t${trick}-leadsuit`, suit);
-}
+};
+
 
 const getTrumpSuit = async (gameId, round) => {
     return client.get(`${gameId}-r${round}-trumpsuit`);
 };
+
 
 const getTrickLeader = async (gameId, round, trick) => {
     return client.lrange(`${gameId}-r${round}-trickleaders`, trick, trick + 1);
@@ -102,6 +106,7 @@ const getTrickCards = async (gameId, round, trick) => {
         };
     });
 };
+
 
 const getTrickPlayers = async (gameId, round, trick) => {
     const [players, trickLeader] = await Promise.all([
@@ -140,6 +145,12 @@ const getPlayerCards = async (gameId, playerId, round) => {
 };
 
 
+const setPlayerCards = async (gameId, playerId, round, cards) => {
+    await client.del(`${gameId}-r${round}-p${playerId}-cards`);
+    return client.set(`${gameId}-r${round}-p${playerId}-cards`, cards.map(c => `${c.suit}-${c.value}`));
+};
+
+
 const whosTurnIsIt = async (gameId) => {
     const [round, trick] = await Promise.all(
         getCurrentRound(gameId),
@@ -160,15 +171,17 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
         throw new Error(`Invalid play: It is not this users (${playerId}) turn. Waiting for player ${turnPlayer} to complete their turn`);
     }
     // add the card to the cards played for this trick
-    const [round, trick] = await Promise.all(
+    const [round, trick, players] = await Promise.all(
         getCurrentRound(gameId),
         getCurrentTrick(gameId),
+        getGamePlayers(gameId),
     );
 
     // check if the user should play a different card
-    let [leadSuit, playersCards] = await Promise.all([
+    let [leadSuit, playersCards, trickCards] = await Promise.all([
         getLeadSuit(gameId, round, trick),
         getPlayerCards(gameId, playerId, round),
+        getTrickCards(gameId, round, trick),
     ]);
 
     if (leadSuit === 'jester') {
@@ -186,24 +199,62 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
     }
 
     // play the card
-    return client.rpush(`${gameId}-r${round}-t${trick}-cards`, `${cardSuit}-${cardValue}`);
+    const newCards = playersCards.filter(c => c.suit !== cardSuit || c.value !== cardValue);
+    await Promise.all([
+        client.rpush(`${gameId}-r${round}-t${trick}-cards`, `${cardSuit}-${cardValue}`),
+        client.set(`${gameId}-r${round}-p${playerId}`),
+        setPlayerCards(gameId, playerId, newCards),
+    ]);
+
+    // if this was the last card in the trick, evaluate the trick
+    const trickComplete = Boolean(trickCards.length + 1 === players.length);
+    let trickWinner = null;
+    const roundComplete = trickComplete && trick === round;
+    if (trickComplete) {
+        trickWinner = await evaluateTrick(gameId, round, trick);
+
+        if (!roundComplete) {
+            await setCurrentTrick(trick + 1);
+        } else {
+            await Promise.all([
+                setCurrentTrick(0),
+                setCurrentRound(round + 1),
+            ]);
+        }
+    }
+    return { trickComplete, roundComplete, trickWinner };
 };
+
 
 const getCurrentRound = async (gameId) => {
     return client.get(`${gameId}-current-round`);
 };
 
+
 const getCurrentTrick = async (gameId) => {
     return client.get(`${gameId}-current-trick`);
 };
+
 
 const setCurrentRound = async (gameId, round) => {
     return client.set(`${gameId}-current-round`, round);
 };
 
+
 const setCurrentTrick = async (gameId, trick) => {
     return client.set(`${gameId}-current-trick`, trick);
 };
+
+
+const setPlayerSocket = async (gameId, playerId, socketId) => {
+    return client.set(`${gameId}-p${playerId}-socket`, socketId);
+};
+
+
+const getPlayerSocket = async (gameId, playerId) => {
+    return client.get(`${gameId}-p${playerId}-socket`);
+};
+
 
 const evaluateTrick = async (gameId, round, trick) => {
     const [cards, players, leadSuit, trumpSuit] = await Promise.all([
@@ -254,14 +305,15 @@ const evaluateTrick = async (gameId, round, trick) => {
     return best.playerId;
 };
 
+
 /**
  * shuffles the deck, assigns cards to players and assigns the trump for the current round
  * @param {string} gameId
  */
-const assignCardsToPlayers = async (gameId) => {
+const startRound = async (gameId) => {
     const [players, round] = await Promise.all([
         getGamePlayers(gameId),
-        getCurrentRound(gameId)
+        getCurrentRound(gameId),
     ]);
 
     const deck = shuffleYourDeck(createDeck());
@@ -279,32 +331,26 @@ const assignCardsToPlayers = async (gameId) => {
     const cardsUsed = (round + 1) * players.length;
     const promises = [];
 
+    let trumpSuit = 'jester';
     if (cardsUsed < TOTAL_CARDS) {
         // select a trump card
-        promises.push(client.set(
-            `${gameId}-r${round}-trump`,
-            deck[cardsUsed].suit
-        ));
-    } else {
-        promises.push(client.set(
-            `${gameId}-r${round}-trump`,
-            'jester'
-        ));
+        trumpSuit = deck[cardsUsed].suit;
     }
+    promises.push(client.set(
+        `${gameId}-r${round}-trump`,
+        trumpSuit
+    ));
 
     for (const playerId of Object.keys(cards)) {
-        promises.push(client.rpush(
-            `${gameId}-r${round}-p${playerId}-suits`,
-            cards[playerId].map(c => c.suit)
-        ));
-        promises.push(client.rpush(
-            `${gameId}-r${round}-p${playerId}-values`,
-            cards[playerId].map(c => c.value)
-        ));
+        promises.push(setPlayerCards(gameId, playerId, cards[playerId]));
     }
 
     await Promise.all(promises);
+    return {
+        cards, trump: trumpSuit,
+    };
 };
+
 
 /**
  * This starts the game. At this point all the players are in. It will
@@ -331,12 +377,22 @@ const startGame = async (gameId) => {
         setDealers.push(client.rpush(`${gameId}-r${round}-trickleaders`, trickLeader));
     }
     await Promise.all(setDealers);
+    return startRound(gameId);
+};
+
+const connect = () => {
+    client = redis.createClient();
+    // use promises instead of callbacks
+    for (const fn of ['get', 'smembers', 'lrange', 'set', 'sadd']) {
+        client[fn] = promisify(client[fn]).bind(client);
+    }
+    return client;
 };
 
 
 module.exports = {
     addPlayerToGame,
-    assignCardsToPlayers,
+    startRound,
     createGame,
     evaluateTrick,
     getCurrentRound,
@@ -350,4 +406,9 @@ module.exports = {
     setCurrentTrick,
     setPlayerBet,
     startGame,
+    getPlayerSocket,
+    setPlayerSocket,
+    whosTurnIsIt,
+    connect,
+    close: () => client && client.quit(),
 };

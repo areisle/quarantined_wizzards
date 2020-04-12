@@ -10,15 +10,22 @@
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "express": "^4.17.1",
+    "get-port": "^5.1.1",
+    "http": "0.0.1-security",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "redis": "^3.0.2",
+    "shortid": "^2.2.15",
+    "socket.io": "^2.3.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test:server": "NODE_ENV=test jest --config config/jest.config.js --detectOpenHandles --forceExit",
+    "start:server": "node server/main.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -35,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "jest-circus": "^25.3.0"
   }
 }
