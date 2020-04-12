@@ -1,0 +1,22 @@
+.main {
+    display: grid;
+    grid-template-areas: 
+        'left header right'
+        'left board right'
+        'left footer right';
+    grid-template-rows: 1fr min-content 1fr;
+    grid-template-columns: 1fr min-content 1fr;
+    padding: 5px;
+
+    .game-header {
+        grid-area: header;
+    }
+
+    .game-footer {
+        grid-area: footer;
+    }
+
+    .game-board {
+        grid-area: board;
+    }
+}

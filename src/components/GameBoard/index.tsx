@@ -1,17 +1,13 @@
 import './index.scss';
 
-import React, { useContext, useState, ReactNode } from 'react';
+import React, { useContext, ReactNode } from 'react';
 import { PlayerAvatar } from '../Avatar';
-import { GameContext, Card } from '../../Context';
-import { Button, IconButton } from '@material-ui/core';
-import { ScoreBoardIcon } from '../../icons';
-import { ScoreBoard } from '../ScoreBoard';
+import { GameContext } from '../../Context';
 import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
-const cardToString = (card: Card | null) => card && (card.special ?? `${card?.number} of ${card?.suit}`);
 
 function Fillers(props: { players: number, show: boolean; }) {
     const { players, show } = props;
@@ -41,11 +37,7 @@ function GameBoard() {
         stage,
         trickCards,
         trickLeader,
-        trickNumber,
-        trumpCard,
     } = useContext(GameContext);
-
-    const [scoreboardOpen, setBoardOpen] = useState(false);
     
     const isSetup = stage === 'awaiting-players';
     const isPlaying = stage === 'playing';
@@ -98,10 +90,6 @@ function GameBoard() {
         )
     });
 
-    const handleCloseScoreBoard = () => {
-        setBoardOpen(false);
-    }
-
     return (
         <div 
             className={`
@@ -109,43 +97,10 @@ function GameBoard() {
                 game-board--${isSetup ? MAX_NUMBER_OF_PLAYERS : players.length}-players
             `}
         >
-            <header>
-                {!isSetup && (
-                    <>
-                        <ul className='game-board__stats'>
-                            <li>trump: {cardToString(trumpCard)}</li>
-                            <li>round: {roundNumber + 1}</li>
-                            <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
-                        </ul>
-                        <IconButton
-                            size='small'
-                            onClick={() => setBoardOpen(true)}
-                        >
-                            <ScoreBoardIcon
-                                fontSize='large'
-                            />
-                        </IconButton>
-                    </>
-                )}
-            </header>
             {avatars}
             <Fillers
                 players={players.length}
                 show={stage === 'awaiting-players'}
-            />
-            <footer>
-                {(isSetup && playerNumber === 0) && (
-                    <Button
-                        variant='contained'
-                        color='primary'
-                    >
-                        All players in
-                    </Button>
-                )}
-            </footer>
-            <ScoreBoard 
-                open={scoreboardOpen}
-                onClose={handleCloseScoreBoard}
             />
         </div>
     )
