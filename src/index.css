@@ -13,3 +13,7 @@ html {
 *, *::after, *::before {
     box-sizing: inherit;
 }
+
+.MuiDialogTitle-root {
+    text-align: center;
+}

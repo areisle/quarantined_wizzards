@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useReducer, ReactNode, useState } from 'react';
 
 export interface Card {
     suit?: 'hearts' | 'diamonds' | 'spades' | 'clubs' | null;
@@ -30,6 +30,7 @@ export interface GameState {
     trickLeader: PlayerNumber | null;
     activePlayer: PlayerNumber | null;
     trumpCard: Card | null;
+    gameCode: string | null;
 }
 
 
@@ -45,6 +46,7 @@ const initialState: GameState = {
     trickLeader: null,
     activePlayer: null,
     trumpCard: null,
+    gameCode: (new URLSearchParams(window.location.search)).get('game'),
 }
 
 const GameContext = createContext(initialState);

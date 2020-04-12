@@ -9,6 +9,8 @@ import { GameBoard } from './components/GameBoard';
 import { Header } from './components/Header';
 import { PlayerDeck } from './components/PlayerDeck';
 import { ScoreBoard } from './components/ScoreBoard';
+import { JoinGameDialog } from './components/JoinGameDialog';
+import { StartGameDialog } from './components/StartGameDialog';
 
 function Main() {
     const { 
@@ -17,6 +19,8 @@ function Main() {
         stage,
         trickNumber,
         trumpCard,
+        players,
+        gameCode,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
@@ -49,6 +53,7 @@ function Main() {
             <Footer
                 onAllPlayersIn={console.log}
                 showAllInButton={isSetup && playerNumber === 0}
+                disabled={players.length < 3}
             />
             <PlayerDeck />
             <ScoreBoard 
@@ -60,6 +65,14 @@ function Main() {
                 onClose={() => setBetOpen(false)}
                 onBetPlaced={handleBetSelected}
                 max={trickNumber + 1}
+            />
+            <JoinGameDialog
+                open={Boolean(gameCode && playerNumber === null)}
+                onJoin={console.log}
+            />
+            <StartGameDialog
+                open={!gameCode}
+                onStart={console.log}
             />
         </div>
     )
