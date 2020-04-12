@@ -60,6 +60,7 @@ function ScoreBoard(props: ScoreBoardProps) {
         roundNumber,
         players,
         scores,
+        stage,
     } = useContext(GameContext);
     const [selectedRound, setSelectedRound] = useState(roundNumber);
 
@@ -74,6 +75,8 @@ function ScoreBoard(props: ScoreBoardProps) {
     const rows = players.map((username, index) => {
         const { bet, taken } = scores[selectedRound]?.[index] || {};
         const roundDone = !isNil(bet) && !isNil(taken);
+        const showBet = stage !== 'betting' || selectedRound !== roundNumber;
+
         const roundTotal = getRoundScore(scores, index, selectedRound);
         const totalScore = getScore(scores, index, 60 / players.length - 1)
         return (
@@ -83,7 +86,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                 >
                     {username}
                 </TableCell>
-                <TableCell align='right'>{bet}</TableCell>
+                <TableCell align='right'>{showBet && bet}</TableCell>
                 <TableCell align='right'>{taken}</TableCell>
                 <TableCell align='right'>{roundDone && roundTotal}</TableCell>
                 <TableCell align='right'>{totalScore}</TableCell>
