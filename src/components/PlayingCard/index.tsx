@@ -1,21 +1,16 @@
 import './index.scss';
 
 import React, { HTMLProps } from 'react';
+import { Card } from '../../Context';
 
-export interface MarkerProps {
-    suit?: 'heart' | 'diamond' | 'spade' | 'club' | null;
-    number?: number | null;
-    special?: 'wizard' | 'jester' | null;
-}
-
-interface PlayingCardProps extends MarkerProps {
-    size?: 'medium' | 'large';
+interface PlayingCardProps extends Card {
+    size?: 'medium' | 'large' | 'flexible';
     selected?: boolean;
     onClick?: HTMLProps<HTMLDivElement>['onClick'];
     children?: HTMLProps<HTMLDivElement>['children'];
 }
 
-function Marker(props: MarkerProps) {
+function Marker(props: Card) {
     const { suit, number, special } = props;
     const letter = (suit || special)?.charAt(0).toUpperCase();
     return (

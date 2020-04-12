@@ -21,6 +21,11 @@
         width: 13.125rem;
     }
 
+    &--flexible {
+        height: 100%;
+        width: 60%;
+    }
+
     &--selected {
         outline: 3px solid blue;
     }
@@ -43,11 +48,11 @@
     justify-content: center;
     width: 2.5em;
 
-    &--heart, &--diamond {
+    &--hearts, &--diamonds {
         background-color: red;
     }
 
-    &--spade, &--club {
+    &--spades, &--clubs {
         background-color: black;
     }
 }

@@ -5,3 +5,11 @@ html, body, .app, .root {
     height: 100%;
     min-height: 100vh;
 }
+
+html {
+    box-sizing: border-box;
+}
+
+*, *::after, *::before {
+    box-sizing: inherit;
+}

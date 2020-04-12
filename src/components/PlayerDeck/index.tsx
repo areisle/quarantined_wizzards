@@ -1,15 +1,12 @@
 import './index.scss';
 
-import React, { useState, useCallback } from 'react';
-import { PlayingCard, MarkerProps } from '../PlayingCard';
+import React, { useState, useCallback, useContext } from 'react';
+import { PlayingCard } from '../PlayingCard';
 import SwipeableViews from 'react-swipeable-views';
+import { GameContext } from '../../Context';
 
-interface PlayerDeckProps {
-    cards: MarkerProps[];
-}
-
-function PlayerDeck(props: PlayerDeckProps) {
-    const { cards } = props;
+function PlayerDeck() {
+    const { cards, stage } = useContext(GameContext);
     const [open, setOpen] = useState(false);
     const [selectedIndex, setIndex] = useState(0);
 
@@ -25,6 +22,10 @@ function PlayerDeck(props: PlayerDeckProps) {
     const handleClose = useCallback(() => {
         setOpen(false);
     }, []);
+
+    if (stage === 'awaiting-players') {
+        return null;
+    }
 
     const playingCards = cards.map((card, index) => (
         <PlayingCard 
@@ -42,9 +43,11 @@ function PlayerDeck(props: PlayerDeckProps) {
 
     const swipeableCards = cards.map((card, index) => {
         return (
-            <div className='card-preview__wrapper'>
+            <div 
+                key={index}
+                className='card-preview__wrapper'
+            >
                 <PlayingCard
-                    key={index}
                     {...card}
                     size='large'
                     onClick={(e) => e.stopPropagation()}
