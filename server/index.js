@@ -62,7 +62,7 @@ const server = async ({ port = 3000 }) => {
                 }));
                 callbackFn && callbackFn();
             } catch (err) {
-                console.errror(err);
+                console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
         });
