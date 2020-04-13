@@ -298,7 +298,7 @@ const evaluateTrick = async (redis, gameId, round, trick) => {
             if (card1.number === card2.number) {
                 return 0
             }
-            return card1.number - card2.number;
+            return card2.number - card1.number;
         }
         if (trumpSuit !== 'jester') { // not no trump
             if (card1.suit === trumpSuit) {

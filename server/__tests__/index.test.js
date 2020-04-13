@@ -168,7 +168,7 @@ describe('play-card', () => {
                 gameId,
                 2,
                 'clubs',
-                1,
+                5,
                 resolve
             )));
             await (new Promise(resolve => clientSocket.emit(
@@ -176,16 +176,41 @@ describe('play-card', () => {
                 gameId,
                 0,
                 'clubs',
-                2,
+                6,
                 resolve
             )));
         });
 
-        test('high number', (done) => {
-            clientSocket.on('trick-won', () => {
+        test('high number wins', (done) => {
+            clientSocket.on('trick-won', ({ playerId }) => {
+                expect(playerId).toBe(1);
                 done();
             });
-            clientSocket.emit('play-card', gameId, 1, 'clubs', 3);
+            clientSocket.emit('play-card', gameId, 1, 'clubs', 7);
+        });
+
+        test('low number loses', (done) => {
+            clientSocket.on('trick-won', ({ playerId }) => {
+                expect(playerId).not.toBe(1);
+                done();
+            });
+            clientSocket.emit('play-card', gameId, 1, 'clubs', 1);
+        });
+
+        test('wizard wins', (done) => {
+            clientSocket.on('trick-won', ({ playerId }) => {
+                expect(playerId).toBe(1);
+                done();
+            });
+            clientSocket.emit('play-card', gameId, 1, 'wizard', null);
+        });
+
+        test('jester loses', (done) => {
+            clientSocket.on('trick-won', ({ playerId }) => {
+                expect(playerId).not.toBe(1);
+                done();
+            });
+            clientSocket.emit('play-card', gameId, 1, 'jester', null);
         });
     });
 });
