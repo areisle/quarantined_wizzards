@@ -125,7 +125,7 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('place-bet', async (gameId, playerId, bet, callbackFn) => {
             try {
-                const [round] = await db.getCurrentRound(redis, gameId);
+                const round = await db.getCurrentRound(redis, gameId);
                 const [allBetsIn, trickLeader] = await Promise.all([
                     db.setPlayerBet(redis, gameId, playerId, round, bet),
                     db.getTrickLeader(redis, gameId, round, 0)

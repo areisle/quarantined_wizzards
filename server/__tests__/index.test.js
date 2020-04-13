@@ -125,7 +125,7 @@ describe('game events', () => {
                     expect(SUITS).toContain(card.suit);
                 });
                 expect(cards).toHaveProperty('length', 1);
-                expect(round).toBe('0');
+                expect(round).toBe(0);
                 expect(SUITS).toContain(trump);
                 done();
             });

@@ -291,22 +291,36 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
 
 
 const getCurrentRound = async (redis, gameId) => {
-    return redis.get(`${gameId}-current-round`);
+    const round = await redis.get(`${gameId}-current-round`);
+    // redis is dumb and stores this as a string
+    return Number.parseInt(round, 10);
 };
 
 
 const getCurrentTrick = async (redis, gameId) => {
-    return redis.get(`${gameId}-current-trick`);
+    const trick = await redis.get(`${gameId}-current-trick`);
+    // redis is dumb and stores this as a string
+    return Number.parseInt(trick, 10);
 };
 
 
 const setCurrentRound = async (redis, gameId, round) => {
-    return redis.set(`${gameId}-current-round`, round);
+    return redis.set(
+        `${gameId}-current-round`,
+        typeof round === 'string'
+            ? Number.parseInt(round, 10)
+            : round
+    );
 };
 
 
 const setCurrentTrick = async (redis, gameId, trick) => {
-    return redis.set(`${gameId}-current-trick`, trick);
+    return redis.set(
+        `${gameId}-current-trick`,
+        typeof trick === 'string'
+            ? Number.parseInt(trick, 10)
+            : trick
+    );
 };
 
 
