@@ -142,6 +142,10 @@ const getTrumpSuit = async (redis, gameId, round) => {
     return redis.get(`${gameId}-r${round}-trumpsuit`);
 };
 
+const addTrickLeader = async (redis, gameId, round, trick, playerId) => {
+
+};
+
 
 const getTrickLeader = async (redis, gameId, round, trick) => {
     const leaders = await redis.lrange(`${gameId}-r${round}-trickleaders`, 0, -1);
@@ -340,8 +344,9 @@ const getPlayerSocket = async (redis, gameId, playerId) => {
 
 const getGameState = async (redis, gameId) => {
     // {}[round] -> {}[playerId] -> {bet: number, taken: number}
-    const [currentRound, players] = await Promise.all([
+    const [currentRound, currentTrick, players] = await Promise.all([
         getCurrentRound(redis, gameId),
+        getCurrentTrick(redis, gameId),
         getGamePlayers(redis, gameId),
     ]);
     const rounds = [];
@@ -363,7 +368,12 @@ const getGameState = async (redis, gameId) => {
         }
     });
 
-    return scores;
+    return {
+        scores,
+        trick: currentTrick,
+        round: currentRound,
+        players: players.map((name, playerId) => ({ name, playerId }))
+    };
 };
 
 
