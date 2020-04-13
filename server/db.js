@@ -66,9 +66,9 @@ const addPlayerToGame = async (redis, gameId, username) => {
     return players.indexOf(username);
 };
 
-const getPlayerBet = async (redis, gameId, playerId, round) => {
+const getBets = async (redis, gameId, round) => {
     const bets = await redis.lrange(`${gameId}-r${round}-bets`, 0, -1);
-    return bets[playerId];
+    return bets;
 };
 
 /**
@@ -88,12 +88,12 @@ const setPlayerBet = async (redis, gameId, playerId, round, bet) => {
     if (bet > round + 1) {
         throw new Error(`Invalid bet.Cannot be larger than the possible tricks(${round + 1})`)
     }
-    const currentBet = await getPlayerBet(redis, gameId, playerId, round);
-    if (currentBet >= 0) {
-        throw new Error(`Cannot set bet. Bet has already been set (${currentBet})`);
+    const allBets = await getBets(redis, gameId, round);
+    if (allBets[playerId] >= 0) {
+        throw new Error(`Cannot set bet (${bet}). Bet has already been set (${allBets[playerId]})`);
     }
     await redis.lset(`${gameId}-r${round}-bets`, playerId, bet);
-    const allBets = await redis.lrange(`${gameId}-r${round}-bets`, 0, -1);
+    allBets[playerId] = bet;
     return allBets.every(b => b >= 0);
 };
 
@@ -217,11 +217,16 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
     ]);
 
     // check if the user should play a different card
-    let [leadSuit, playersCards, trickCards] = await Promise.all([
+    let [leadSuit, playersCards, trickCards, bets] = await Promise.all([
         getLeadSuit(redis, gameId, round, trick),
         getPlayerCards(redis, gameId, playerId, round),
         getTrickCards(redis, gameId, round, trick),
+        getBets(redis, gameId, round),
     ]);
+
+    if (bets.some(b => b < 0)) {
+        throw new Error(`Cannot play card before all bets are in`);
+    }
 
     let newLeadSuit = null;
 
@@ -450,7 +455,6 @@ module.exports = {
     getCurrentTrick,
     getGamePlayers,
     getGames,
-    getPlayerBet,
     getPlayerCards,
     getPlayerSocket,
     getPlayerTricksTaken,
