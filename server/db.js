@@ -58,6 +58,7 @@ const getGamePlayers = async (redis, gameId) => {
 
 const addPlayerToGame = async (redis, gameId, username) => {
     let players = await getGamePlayers(redis, gameId);
+
     if (players.length === MAX_PLAYERS) {
         throw new Error(`Game is already full`);
     }

@@ -136,7 +136,17 @@ const server = async ({ port = 3000 }) => {
                 io.to(socket.id).emit('error', err.toString());
             }
         });
+
+        socket.on('get-users', async (gameId, callbackFn) => {
+            const players = await db.getGamePlayers(redis, gameId);
+            callbackFn && callbackFn(
+                players.map((name, index) => ({ name, playerId: index }))
+            );
+        });
+
     });
+
+
     return {
         db: redis,
         close: () => {
