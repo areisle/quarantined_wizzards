@@ -91,6 +91,10 @@ const server = async ({ port = 3000 }) => {
                 // end of round? or start next trick
                 io.to(gameId).emit('card-played', { card: { suit: cardSuit, number: cardValue }, playerId });
 
+                // get the new player
+                const activeUser = await db.whosTurnIsIt(redis, gameId);
+                io.to(gameId).emit('active-user-changed', activeUser);
+
                 if (newLeadSuit) {
                     io.to(gameId).emit('lead-changed', newLeadSuit);
                 }
