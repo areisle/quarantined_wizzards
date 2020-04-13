@@ -27,7 +27,7 @@ const createDeck = () => {
     }
 
     for (const suit of ['spades', 'clubs', 'hearts', 'diamonds']) {
-        for (let value = 0; value < 13; value++) {
+        for (let value = 1; value < 14; value++) {
             cards.push({ suit, number: value });
         }
     }
@@ -377,6 +377,13 @@ const evaluateTrick = async (redis, gameId, round, trick) => {
             if (card1.number === card2.number) {
                 return 0
             }
+            // aces are high cards
+            if (card1.number === 1) {
+                return -1;
+            } if (card2.number === 1) {
+                return 1;
+            }
+            // otherwise use values as normal
             return card2.number - card1.number;
         }
         if (trumpSuit !== 'jester') { // not no trump
