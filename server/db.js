@@ -182,14 +182,14 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
     // check if it is this players turn
     const turnPlayer = await whosTurnIsIt(gameId);
     if (turnPlayer !== playerId) {
-        throw new Error(`Invalid play: It is not this users(${playerId}) turn.Waiting for player ${turnPlayer} to complete their turn`);
+        throw new Error(`Invalid play: It is not this users (${playerId}) turn. Waiting for player ${turnPlayer} to complete their turn`);
     }
     // add the card to the cards played for this trick
-    const [round, trick, players] = await Promise.all(
+    const [round, trick, players] = await Promise.all([
         getCurrentRound(gameId),
         getCurrentTrick(gameId),
         getGamePlayers(gameId),
-    );
+    ]);
 
     // check if the user should play a different card
     let [leadSuit, playersCards, trickCards] = await Promise.all([
@@ -200,7 +200,7 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
 
     let newLeadSuit = null;
 
-    if (leadSuit === 'jester' && leadSuit !== cardSuit) {
+    if ((leadSuit === 'jester' && leadSuit !== cardSuit) || !trickCards.length) {
         // set the lead suit
         await setLeadSuit(gameId, round, trick, cardSuit);
         leadSuit = cardSuit;
@@ -219,7 +219,6 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
     const newCards = playersCards.filter(c => c.suit !== cardSuit || c.number !== cardValue);
     await Promise.all([
         redis.rpush(`${gameId}-r${round}-t${trick}-cards`, `${cardSuit}-${cardValue} `),
-        redis.set(`${gameId}-r${round}-p${playerId} `),
         setPlayerCards(gameId, playerId, round, newCards),
     ]);
 
@@ -378,7 +377,7 @@ const startRound = async (gameId) => {
 const startGame = async (gameId) => {
     const players = await getGamePlayers(gameId);
     if (players.length < MIN_PLAYERS) {
-        throw new Error(`Too few players (${players.length}). Waiting for another player to join`);
+        throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
     }
     const rounds = TOTAL_CARDS / players.length;
     await Promise.all([
