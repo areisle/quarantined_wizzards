@@ -46,20 +46,25 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('start-game', async (gameId, callbackFn) => {
             // deal the cards
-            const { cards, trump } = await db.startGame(gameId);
-            const activeUser = await db.whosTurnIsIt(gameId);
-            // send a private message to each player with their cards
-            io.to(gameId).emit('trump-changed', trump);
-            io.to(gameId).emit('active-user-changed', activeUser);
+            try {
+                const { cards, trump } = await db.startGame(gameId);
+                const activeUser = await db.whosTurnIsIt(gameId);
+                // send a private message to each player with their cards
+                io.to(gameId).emit('trump-changed', trump);
+                io.to(gameId).emit('active-user-changed', activeUser);
 
-            await Promise.all(Object.keys(cards).map(async playerId => {
-                const socketId = await db.getPlayerSocket(gameId, playerId);
-                io.to(socketId).emit(
-                    'cards-dealt',
-                    cards[playerId]
-                );
-            }));
-            callbackFn && callbackFn();
+                await Promise.all(Object.keys(cards).map(async playerId => {
+                    const socketId = await db.getPlayerSocket(gameId, playerId);
+                    io.to(socketId).emit(
+                        'cards-dealt',
+                        cards[playerId]
+                    );
+                }));
+                callbackFn && callbackFn();
+            } catch (err) {
+                console.errror(err);
+                io.to(socket.id).emit('error', err.toString());
+            }
         });
 
         /**
@@ -69,36 +74,41 @@ const server = async ({ port = 3000 }) => {
          * @param {Number} cardValue the number of the card being played
          */
         socket.on('play-card', async (gameId, playerId, cardSuit, cardValue, callbackFn) => {
-            const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
-                gameId, playerId, cardSuit, cardValue
-            );
-            // end of round? or start next trick
-            io.to(gameId).emit('card-played', { card: { suit: cardSuit, number: cardValue }, playerId });
+            try {
+                const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
+                    gameId, playerId, cardSuit, cardValue
+                );
+                // end of round? or start next trick
+                io.to(gameId).emit('card-played', { card: { suit: cardSuit, number: cardValue }, playerId });
 
-            if (newLeadSuit) {
-                io.to(gameId).emit('lead-changed', newLeadSuit);
-            }
-            if (trickComplete) {
-                io.to(gameId).emit('trick-won', { playerId: trickWinner });
-
-                if (roundComplete) {
-                    // re-deal cards
-                    const { cards, trump } = await db.startRound(gameId);
-                    const activeUser = await db.whosTurnIsIt(gameId);
-
-                    io.to(gameId).emit('trump-changed', trump);
-                    io.to(gameId).emit('active-user-changed', activeUser);
-
-                    await Promise.all(Object.keys(cards).map(async playerId => {
-                        const socketId = await db.getPlayerSocket(gameId, playerId);
-                        io.to(socketId).emit(
-                            'cards-dealt',
-                            cards[playerId]
-                        );
-                    }));
+                if (newLeadSuit) {
+                    io.to(gameId).emit('lead-changed', newLeadSuit);
                 }
+                if (trickComplete) {
+                    io.to(gameId).emit('trick-won', { playerId: trickWinner });
+
+                    if (roundComplete) {
+                        // re-deal cards
+                        const { cards, trump } = await db.startRound(gameId);
+                        const activeUser = await db.whosTurnIsIt(gameId);
+
+                        io.to(gameId).emit('trump-changed', trump);
+                        io.to(gameId).emit('active-user-changed', activeUser);
+
+                        await Promise.all(Object.keys(cards).map(async (playerId) => {
+                            const socketId = await db.getPlayerSocket(gameId, playerId);
+                            io.to(socketId).emit(
+                                'cards-dealt',
+                                cards[playerId]
+                            );
+                        }));
+                    }
+                }
+                callbackFn && callbackFn();
+            } catch (err) {
+                console.error(err);
+                io.to(socket.id).emit('error', err.toString());
             }
-            callbackFn && callbackFn();
         });
     });
     return http;
