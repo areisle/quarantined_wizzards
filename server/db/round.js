@@ -54,9 +54,11 @@ const getTrickPlayers = async (redis, gameId, round, trick) => {
         getTrickLeader(redis, gameId, round, trick),
     ]);
 
+    const trickLeaderIndex = players.indexOf(trickLeader);
+
     const trickPlayers = [];
     for (let i = 0; i < players.length; i++) {
-        const playerIndex = (trickLeader + i) % players.length;
+        const playerIndex = (trickLeaderIndex + i) % players.length;
         trickPlayers.push(players[playerIndex])
     }
     return trickPlayers;

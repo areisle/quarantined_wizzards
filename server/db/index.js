@@ -92,7 +92,7 @@ const startGame = async (redis, gameId) => {
             ? players.length - 1
             : dealer - 1;
         setDealers.push(redis.set(`${gameId}-r${round}-dealer`, dealer));
-        setDealers.push(redis.rpush(`${gameId}-r${round}-trickleaders`, trickLeader));
+        setDealers.push(redis.rpush(`${gameId}-r${round}-trickleaders`, players[trickLeader]));
     }
     await Promise.all(setDealers);
     return startRound(redis, gameId);
