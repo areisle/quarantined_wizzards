@@ -378,7 +378,7 @@ const startRound = async (gameId) => {
 const startGame = async (gameId) => {
     const players = await getGamePlayers(gameId);
     if (players.length < MIN_PLAYERS) {
-        throw new Error(`Too few players. Waiting for another player to join`);
+        throw new Error(`Too few players (${players.length}). Waiting for another player to join`);
     }
     const rounds = TOTAL_CARDS / players.length;
     await Promise.all([
