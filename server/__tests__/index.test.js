@@ -165,7 +165,7 @@ describe('game events', () => {
                 expect(SUITS).toContain(suit);
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[players.length - 1], 'clubs', 1);
+            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
         });
 
         test('card-played', (done) => {
@@ -173,7 +173,7 @@ describe('game events', () => {
                 expect(resp).toEqual({ card: { suit: 'clubs', number: 1 }, playerId: players[players.length - 1] })
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[players.length - 1], 'clubs', 1);
+            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
         });
 
         test('card-played (error)', (done) => {
@@ -181,7 +181,7 @@ describe('game events', () => {
                 expect(msg).toContain('Invalid play: It is not this users (0) turn. Waiting for player 2 to complete their turn')
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[0], 'clubs', 1);
+            clientSocket.emit('play-card', gameId, players[0], { suit: 'clubs', number: 1 });
         });
 
         describe('trick-won', () => {
@@ -190,16 +190,14 @@ describe('game events', () => {
                     'play-card',
                     gameId,
                     2,
-                    'clubs',
-                    5,
+                    { suit: 'clubs', number: 5 },
                     resolve
                 )));
                 await (new Promise(resolve => clientSocket.emit(
                     'play-card',
                     gameId,
                     0,
-                    'clubs',
-                    6,
+                    { suit: 'clubs', number: 6 },
                     resolve
                 )));
             });
@@ -209,7 +207,7 @@ describe('game events', () => {
                     expect(playerId).toBe(1);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, 'clubs', 7);
+                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 7 });
             });
 
             test('low number loses', (done) => {
@@ -217,7 +215,7 @@ describe('game events', () => {
                     expect(playerId).not.toBe(1);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, 'clubs', 1);
+                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 1 });
             });
 
             test('wizard wins', (done) => {
@@ -225,7 +223,7 @@ describe('game events', () => {
                     expect(playerId).toBe(1);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, 'wizard', null);
+                clientSocket.emit('play-card', gameId, 1, { suit: 'wizard', number: null });
             });
 
             test('jester loses', (done) => {
@@ -233,7 +231,7 @@ describe('game events', () => {
                     expect(playerId).not.toBe(1);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, 'jester', null);
+                clientSocket.emit('play-card', gameId, 1, { suit: 'jester', number: null });
             });
         });
     });

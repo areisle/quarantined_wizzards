@@ -79,7 +79,7 @@ const server = async ({ port = 3000 }) => {
          * @param {string} cardSuit the suit of the card being played
          * @param {Number} cardValue the number of the card being played
          */
-        socket.on('play-card', async (gameId, playerId, cardSuit, cardValue, callbackFn) => {
+        socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, callbackFn) => {
             try {
                 const [round, trick] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
