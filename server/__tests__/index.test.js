@@ -13,6 +13,12 @@ let port,
     clientSocket,
     server;
 
+const promisifyEventEmitter = (eventName, ...args) => {
+    return new Promise((resolve) => {
+        clientSocket.emit(eventName, ...args, resolve);
+    });
+};
+
 
 beforeAll(async () => {
     port = await getPort();
@@ -27,25 +33,20 @@ afterAll(async () => {
 
 afterEach(() => {
     clientSocket.removeAllListeners();
-})
+});
 
 describe('create-game', () => {
-    test('callback', (done) => {
-        clientSocket.emit('create-game', (gameId) => {
-            expect(typeof gameId).toBe('string');
-            done();
-        });
+    test('callback', async () => {
+        const gameId = await promisifyEventEmitter('create-game');
+        expect(typeof gameId).toBe('string');
     });
 });
 
 describe('game events', () => {
     let gameId;
 
-    beforeEach((done) => {
-        clientSocket.emit('create-game', (gameIdIn) => {
-            gameId = gameIdIn;
-            done();
-        });
+    beforeEach(async () => {
+        gameId = await promisifyEventEmitter('create-game');
     });
 
     afterEach(async () => {
@@ -54,11 +55,9 @@ describe('game events', () => {
 
     describe('join-game', () => {
 
-        test('callback', (done) => {
-            clientSocket.emit('join-game', gameId, 'blargh', (playerId) => {
-                expect(playerId).toBe(0);
-                done();
-            });
+        test('callback', async () => {
+            const playerId = await promisifyEventEmitter('join-game', gameId, 'blargh');
+            expect(playerId).toBe(0);
         });
 
         test('users-changed', (done) => {
@@ -74,33 +73,27 @@ describe('game events', () => {
     describe('get-users', () => {
 
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
-                return new Promise((resolve) => {
-                    clientSocket.emit('join-game', gameId, name, resolve);
-                });
-            }));
+            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
+                'join-game', gameId, name
+            )));
         });
 
-        test('callback', (done) => {
-            clientSocket.emit('get-users', gameId, (players) => {
-                expect(players).toHaveProperty('length', 3);
-                expect(players).toEqual([
-                    { playerId: 0, name: 'blargh' },
-                    { playerId: 1, name: 'monkeys' },
-                    { playerId: 2, name: 'fishmonger' },
-                ]);
-                done();
-            });
+        test('callback', async () => {
+            const players = await promisifyEventEmitter('get-users', gameId)
+            expect(players).toHaveProperty('length', 3);
+            expect(players).toEqual([
+                { playerId: 0, name: 'blargh' },
+                { playerId: 1, name: 'monkeys' },
+                { playerId: 2, name: 'fishmonger' },
+            ]);
         });
     });
 
     describe('start-game', () => {
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
-                return new Promise((resolve) => {
-                    clientSocket.emit('join-game', gameId, name, resolve);
-                });
-            }));
+            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
+                'join-game', gameId, name
+            )));
         });
 
         test('trump-changed', (done) => {
@@ -144,20 +137,14 @@ describe('game events', () => {
         let players;
 
         beforeEach(async () => {
-            players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
-                return new Promise((resolve) => {
-                    clientSocket.emit('join-game', gameId, name, resolve);
-                });
-            }));
-            await new Promise((resolve) => {
-                clientSocket.emit('start-game', gameId, resolve);
-            });
+            players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
+                'join-game', gameId, name
+            )));
+            await promisifyEventEmitter('start-game', gameId);
 
-            await Promise.all([0, 1, 2].map(playerId => {
-                return new Promise((resolve) => {
-                    clientSocket.emit('place-bet', gameId, playerId, 1, resolve);
-                });
-            }));
+            await Promise.all([0, 1, 2].map(playerId => promisifyEventEmitter(
+                'place-bet', gameId, playerId, 1
+            )));
         });
 
         test('lead-changed', (done) => {
@@ -194,20 +181,18 @@ describe('game events', () => {
 
         describe('trick-won', () => {
             beforeEach(async () => {
-                await (new Promise(resolve => clientSocket.emit(
+                await promisifyEventEmitter(
                     'play-card',
                     gameId,
                     2,
-                    { suit: 'clubs', number: 5 },
-                    resolve
-                )));
-                await (new Promise(resolve => clientSocket.emit(
+                    { suit: 'clubs', number: 5 }
+                );
+                await promisifyEventEmitter(
                     'play-card',
                     gameId,
                     0,
-                    { suit: 'clubs', number: 6 },
-                    resolve
-                )));
+                    { suit: 'clubs', number: 6 }
+                );
             });
 
             test('high number wins', (done) => {
@@ -223,7 +208,7 @@ describe('game events', () => {
                     expect(playerId).not.toBe(1);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 1 });
+                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 2 });
             });
 
             test('wizard wins', (done) => {
@@ -241,20 +226,24 @@ describe('game events', () => {
                 });
                 clientSocket.emit('play-card', gameId, 1, { suit: 'jester', number: null });
             });
+
+            test('aces are high', (done) => {
+                clientSocket.on('trick-won', ({ playerId }) => {
+                    expect(playerId).toBe(1);
+                    done();
+                });
+                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 1 });
+            });
         });
     });
 
     describe('place-bet', () => {
 
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
-                return new Promise((resolve) => {
-                    clientSocket.emit('join-game', gameId, name, resolve);
-                });
-            }));
-            await new Promise((resolve) => {
-                clientSocket.emit('start-game', gameId, resolve);
-            });
+            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
+                'join-game', gameId, name
+            )));
+            await promisifyEventEmitter('start-game', gameId);
         });
 
         test('bet-placed (error too low)', (done) => {
