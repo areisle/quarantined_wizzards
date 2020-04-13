@@ -1,6 +1,6 @@
 const Redis = require("ioredis");
 
-const { createGame, deleteGame, getPlayers, addPlayer } = require('./game');
+const { createGame, deleteGame, getPlayers, addPlayer, getPlayerIndex, playerExists } = require('./game');
 const { getPlayerSocket, setPlayerSocket } = require('./player');
 const {
     evaluateTrick,
@@ -49,8 +49,8 @@ const getGameState = async (redis, gameId) => {
     const scores = {};
     allBets.forEach((bets, round) => {
         scores[round] = {};
-        players.forEach((username, playerId) => {
-            scores[round][playerId] = { bet: bets[playerId], taken: 0 };
+        players.forEach((playerId, playerIndex) => {
+            scores[round][playerId] = { bet: bets[playerIndex], taken: 0 };
         });
 
         for (const trickWinner of trickWinners[round]) {
@@ -62,7 +62,7 @@ const getGameState = async (redis, gameId) => {
         scores,
         trick: currentTrick,
         round: currentRound,
-        players: players.map((name, playerId) => ({ name, playerId }))
+        players: players
     };
 };
 
@@ -109,6 +109,7 @@ module.exports = {
     getCurrentRound,
     getCurrentTrick,
     getGamePlayers: getPlayers,
+    getPlayerIndex,
     getPlayerCards,
     getPlayerSocket,
     getTrickLeader,
@@ -120,4 +121,5 @@ module.exports = {
     startGame,
     startRound,
     whosTurnIsIt,
+    playerExists,
 };

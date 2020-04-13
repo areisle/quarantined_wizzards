@@ -26,6 +26,7 @@ const server = async ({ port = 3000 }) => {
 
         await Promise.all(Object.keys(cards).map(async playerId => {
             const socketId = await db.getPlayerSocket(redis, gameId, playerId);
+
             io.to(socketId).emit(
                 'round-started',
                 { cards: cards[playerId], round, trump }
@@ -47,15 +48,15 @@ const server = async ({ port = 3000 }) => {
          * @param {string} username the name user joining the game
          * @param {function} callbackFn callback which is passed the newly created playerId
          */
-        socket.on('join-game', async (gameId, username, callbackFn) => {
+        socket.on('join-game', async (gameId, playerId, callbackFn) => {
             socket.join(gameId);
-            const playerId = await db.addPlayerToGame(redis, gameId, username);
+            await db.addPlayerToGame(redis, gameId, playerId);
             const [, players] = await Promise.all([
                 db.setPlayerSocket(redis, gameId, playerId, socket.id),
                 db.getGamePlayers(redis, gameId),
             ]);
             callbackFn && callbackFn(playerId);
-            io.to(gameId).emit('users-changed', players.map((name, index) => ({ name, playerId: index })));
+            io.to(gameId).emit('users-changed', players);
             // TODO: check if this is the last possible user?
         });
 
@@ -81,7 +82,8 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, callbackFn) => {
             try {
-                const [round, trick] = await Promise.all([
+                const [, round, trick] = await Promise.all([
+                    db.playerExists(redis, gameId, playerId),
                     db.getCurrentRound(redis, gameId),
                     db.getCurrentTrick(redis, gameId),
                 ]);
@@ -125,7 +127,10 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('place-bet', async (gameId, playerId, bet, callbackFn) => {
             try {
-                const round = await db.getCurrentRound(redis, gameId);
+                const [round,] = await Promise.all([
+                    db.getCurrentRound(redis, gameId),
+                    db.playerExists(redis, gameId, playerId),
+                ]);
                 const [allBetsIn, trickLeader] = await Promise.all([
                     db.setPlayerBet(redis, gameId, playerId, round, bet),
                     db.getTrickLeader(redis, gameId, round, 0)
@@ -143,9 +148,7 @@ const server = async ({ port = 3000 }) => {
 
         socket.on('get-users', async (gameId, callbackFn) => {
             const players = await db.getGamePlayers(redis, gameId);
-            callbackFn && callbackFn(
-                players.map((name, index) => ({ name, playerId: index }))
-            );
+            callbackFn && callbackFn(players);
         });
 
     });

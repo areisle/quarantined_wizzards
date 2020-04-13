@@ -8,6 +8,24 @@ const getPlayers = async (redis, gameId) => {
 };
 
 
+const getPlayerIndex = async (redis, gameId, playerId) => {
+    const players = await getPlayers(redis, gameId);
+    return players.indexOf(playerId);
+};
+
+const getPlayerId = async (redis, gameId, playerIndex) => {
+    const players = await getPlayers(redis, gameId);
+    return players[playerIndex];
+};
+
+const playerExists = async (redis, gameId, playerId) => {
+    const players = await getPlayers(redis, gameId);
+    if (!players.includes(playerId)) {
+        throw new Error(`Invalid player. Player (${playerId}) does not exist`);
+    }
+}
+
+
 const addPlayer = async (redis, gameId, username) => {
     let players = await getPlayers(redis, gameId);
 
@@ -43,4 +61,4 @@ const deleteGame = async (redis, gameId) => {
 };
 
 
-module.exports = { getPlayers, createGame, deleteGame, addPlayer };
+module.exports = { getPlayers, createGame, deleteGame, addPlayer, getPlayerIndex, getPlayerId, playerExists };

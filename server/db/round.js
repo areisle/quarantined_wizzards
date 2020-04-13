@@ -1,4 +1,4 @@
-const { getPlayers } = require('./game');
+const { getPlayers, getPlayerIndex } = require('./game');
 
 const TOTAL_CARDS = 60;
 
@@ -56,8 +56,8 @@ const getTrickPlayers = async (redis, gameId, round, trick) => {
 
     const trickPlayers = [];
     for (let i = 0; i < players.length; i++) {
-        const playerId = (trickLeader + i) % players.length;
-        trickPlayers.push(playerId)
+        const playerIndex = (trickLeader + i) % players.length;
+        trickPlayers.push(players[playerIndex])
     }
     return trickPlayers;
 };
@@ -80,7 +80,7 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
     // check if it is this players turn
     const turnPlayer = await whosTurnIsIt(redis, gameId);
     if (turnPlayer !== playerId) {
-        throw new Error(`Invalid play: It is not this users (${playerId}) turn. Waiting for player ${turnPlayer} to complete their turn`);
+        throw new Error(`Invalid play: It is not this users (${playerId}) turn. Waiting for another player (${turnPlayer}) to complete their turn`);
     }
     // add the card to the cards played for this trick
     const [round, trick, players] = await Promise.all([
@@ -98,7 +98,12 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
     ]);
 
     if (bets.some(b => b < 0)) {
-        throw new Error(`Cannot play card before all bets are in`);
+        const betsWaiting = bets.map(
+            (bet, index) => bet < 0
+                ? players[index]
+                : null
+        ).filter(p => p !== null);
+        throw new Error(`Cannot play card before all bets are in. Waiting for players (${betsWaiting.join(', ')})`);
     }
 
     let newLeadSuit = null;
@@ -164,7 +169,7 @@ const setCurrentTrick = async (redis, gameId, trick) => {
 
 
 const evaluateTrick = async (redis, gameId, round, trick) => {
-    const [cards, players, leadSuit, trumpSuit] = await Promise.all([
+    const [cards, trickPlayers, leadSuit, trumpSuit] = await Promise.all([
         getTrickCards(redis, gameId, round, trick),
         getTrickPlayers(redis, gameId, round, trick),
         getLeadSuit(redis, gameId, round, trick),
@@ -172,7 +177,7 @@ const evaluateTrick = async (redis, gameId, round, trick) => {
     ]);
 
     const trickCards = cards.map((c, index) => {
-        return { ...c, playerId: players[index] };
+        return { ...c, playerId: trickPlayers[index] };
     });
 
     // a wizard was played. the first one played is the winner
@@ -318,11 +323,12 @@ const startRound = async (redis, gameId) => {
     const cards = {}
 
     for (let trick = 0; trick < round + 1; trick++) {
-        for (let playerId = 0; playerId < players.length; playerId++) {
+        for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+            const playerId = players[playerIndex];
             if (cards[playerId] === undefined) {
                 cards[playerId] = [];
             }
-            cards[playerId].push(deck[trick + playerId]);
+            cards[playerId].push(deck[trick + playerIndex]);
         }
     }
 
@@ -376,12 +382,16 @@ const setPlayerBet = async (redis, gameId, playerId, round, bet) => {
     if (bet > round + 1) {
         throw new Error(`Invalid bet.Cannot be larger than the possible tricks(${round + 1})`)
     }
-    const allBets = await getPlayerBets(redis, gameId, round);
-    if (allBets[playerId] >= 0) {
-        throw new Error(`Cannot set bet (${bet}). Bet has already been set (${allBets[playerId]})`);
+    const [allBets, playerIndex] = await Promise.all([
+        getPlayerBets(redis, gameId, round),
+        getPlayerIndex(redis, gameId, playerId),
+    ]);
+
+    if (allBets[playerIndex] >= 0) {
+        throw new Error(`Cannot set bet (${bet}). Bet has already been set (${allBets[playerIndex]})`);
     }
-    await redis.lset(`${gameId}-r${round}-bets`, playerId, bet);
-    allBets[playerId] = bet;
+    await redis.lset(`${gameId}-r${round}-bets`, playerIndex, bet);
+    allBets[playerIndex] = bet;
     return allBets.every(b => b >= 0);
 };
 

@@ -8,6 +8,7 @@ Error.stackTraceLimit = Infinity;
 
 
 const SUITS = ['wizard', 'jester', 'hearts', 'spades', 'diamonds', 'clubs'];
+const playerIds = ['blargh', 'monkeys', 'fishmonger'];
 
 let port,
     clientSocket,
@@ -57,13 +58,12 @@ describe('game events', () => {
 
         test('callback', async () => {
             const playerId = await promisifyEventEmitter('join-game', gameId, 'blargh');
-            expect(playerId).toBe(0);
+            expect(playerId).toBe('blargh');
         });
 
         test('users-changed', (done) => {
             clientSocket.on('users-changed', (players) => {
-                expect(players.length).toBeGreaterThanOrEqual(1);
-                expect(players[0]).toHaveProperty('playerId', 0);
+                expect(players).toEqual(['monkeys']);
                 done();
             });
             clientSocket.emit('join-game', gameId, 'monkeys');
@@ -81,18 +81,14 @@ describe('game events', () => {
         test('callback', async () => {
             const players = await promisifyEventEmitter('get-users', gameId)
             expect(players).toHaveProperty('length', 3);
-            expect(players).toEqual([
-                { playerId: 0, name: 'blargh' },
-                { playerId: 1, name: 'monkeys' },
-                { playerId: 2, name: 'fishmonger' },
-            ]);
+            expect(players).toEqual(playerIds);
         });
     });
 
     describe('start-game', () => {
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
-                'join-game', gameId, name
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
+                'join-game', gameId, playerId
             )));
         });
 
@@ -106,8 +102,8 @@ describe('game events', () => {
 
         test('active-user-changed', (done) => {
             clientSocket.on('active-user-changed', (playerId) => {
-                expect(playerId).toBeLessThanOrEqual(2);
-                expect(playerId).toBeGreaterThanOrEqual(0);
+                // should be left of the dealer (first dealer is always the first user)
+                expect(playerId).toEqual(playerIds[playerIds.length - 1]);
                 done();
             });
             clientSocket.emit('start-game', gameId);
@@ -134,15 +130,14 @@ describe('game events', () => {
     });
 
     describe('play-card', () => {
-        let players;
 
         beforeEach(async () => {
-            players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
-                'join-game', gameId, name
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
+                'join-game', gameId, playerId
             )));
             await promisifyEventEmitter('start-game', gameId);
 
-            await Promise.all([0, 1, 2].map(playerId => promisifyEventEmitter(
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
                 'place-bet', gameId, playerId, 1
             )));
         });
@@ -152,31 +147,31 @@ describe('game events', () => {
                 expect(SUITS).toContain(suit);
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit('play-card', gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
         });
 
         test('active-user-changed', (done) => {
             clientSocket.on('active-user-changed', (playerId) => {
-                expect(playerId).toBe(0);
+                expect(playerId).toBe(playerIds[0]);
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit('play-card', gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
         });
 
         test('card-played', (done) => {
             clientSocket.on('card-played', (resp) => {
-                expect(resp).toEqual({ card: { suit: 'clubs', number: 1 }, playerId: players[players.length - 1] })
+                expect(resp).toEqual({ card: { suit: 'clubs', number: 1 }, playerId: playerIds[playerIds.length - 1] })
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit('play-card', gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
         });
 
         test('card-played (error)', (done) => {
             clientSocket.on('error', (msg) => {
-                expect(msg).toContain('Invalid play: It is not this users (0) turn. Waiting for player 2 to complete their turn')
+                expect(msg).toContain('Invalid play: It is not this users (blargh) turn. Waiting for another player (fishmonger) to complete their turn')
                 done();
             });
-            clientSocket.emit('play-card', gameId, players[0], { suit: 'clubs', number: 1 });
+            clientSocket.emit('play-card', gameId, playerIds[0], { suit: 'clubs', number: 1 });
         });
 
         describe('trick-won', () => {
@@ -184,55 +179,55 @@ describe('game events', () => {
                 await promisifyEventEmitter(
                     'play-card',
                     gameId,
-                    2,
+                    playerIds[2],
                     { suit: 'clubs', number: 5 }
                 );
                 await promisifyEventEmitter(
                     'play-card',
                     gameId,
-                    0,
+                    playerIds[0],
                     { suit: 'clubs', number: 6 }
                 );
             });
 
             test('high number wins', (done) => {
                 clientSocket.on('trick-won', ({ playerId }) => {
-                    expect(playerId).toBe(1);
+                    expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 7 });
+                clientSocket.emit('play-card', gameId, playerIds[1], { suit: 'clubs', number: 7 });
             });
 
             test('low number loses', (done) => {
                 clientSocket.on('trick-won', ({ playerId }) => {
-                    expect(playerId).not.toBe(1);
+                    expect(playerId).not.toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 2 });
+                clientSocket.emit('play-card', gameId, playerIds[1], { suit: 'clubs', number: 2 });
             });
 
             test('wizard wins', (done) => {
                 clientSocket.on('trick-won', ({ playerId }) => {
-                    expect(playerId).toBe(1);
+                    expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'wizard', number: null });
+                clientSocket.emit('play-card', gameId, playerIds[1], { suit: 'wizard', number: null });
             });
 
             test('jester loses', (done) => {
                 clientSocket.on('trick-won', ({ playerId }) => {
-                    expect(playerId).not.toBe(1);
+                    expect(playerId).not.toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'jester', number: null });
+                clientSocket.emit('play-card', gameId, playerIds[1], { suit: 'jester', number: null });
             });
 
             test('aces are high', (done) => {
                 clientSocket.on('trick-won', ({ playerId }) => {
-                    expect(playerId).toBe(1);
+                    expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit('play-card', gameId, 1, { suit: 'clubs', number: 1 });
+                clientSocket.emit('play-card', gameId, playerIds[1], { suit: 'clubs', number: 1 });
             });
         });
     });
@@ -250,22 +245,22 @@ describe('game events', () => {
             clientSocket.on('error', () => {
                 done();
             });
-            clientSocket.emit('place-bet', gameId, 0, -1);
+            clientSocket.emit('place-bet', gameId, playerIds[0], -1);
         });
 
         test('bet-placed (error too high)', (done) => {
             clientSocket.on('error', () => {
                 done();
             });
-            clientSocket.emit('place-bet', gameId, 0, 2);
+            clientSocket.emit('place-bet', gameId, playerIds[0], 2);
         });
 
         test('bet-placed', (done) => {
             clientSocket.on('bet-placed', (resp) => {
-                expect(resp).toEqual({ playerId: 0, bet: 1 });
+                expect(resp).toEqual({ playerId: playerIds[0], bet: 1 });
                 done();
             });
-            clientSocket.emit('place-bet', gameId, 0, 1);
+            clientSocket.emit('place-bet', gameId, playerIds[0], 1);
         });
     });
 });
