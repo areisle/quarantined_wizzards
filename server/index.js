@@ -49,15 +49,19 @@ const server = async ({ port = 3000 }) => {
          * @param {function} callbackFn callback which is passed the newly created playerId
          */
         socket.on('join-game', async (gameId, playerId, callbackFn) => {
-            socket.join(gameId);
-            await db.addPlayerToGame(redis, gameId, playerId);
-            const [, players] = await Promise.all([
-                db.setPlayerSocket(redis, gameId, playerId, socket.id),
-                db.getGamePlayers(redis, gameId),
-            ]);
-            callbackFn && callbackFn(playerId);
-            io.to(gameId).emit('users-changed', players);
-            // TODO: check if this is the last possible user?
+            try {
+                socket.join(gameId);
+                await db.addPlayerToGame(redis, gameId, playerId);
+                const [, players] = await Promise.all([
+                    db.setPlayerSocket(redis, gameId, playerId, socket.id),
+                    db.getGamePlayers(redis, gameId),
+                ]);
+                callbackFn && callbackFn(playerId);
+                io.to(gameId).emit('users-changed', players);
+            } catch (err) {
+                console.error(err);
+                io.to(socket.id).emit('error', err.toString());
+            }
         });
 
         /**
