@@ -19,14 +19,10 @@ const server = async ({ port = 3000 }) => {
         const { cards, trump, round } = await (firstRound
             ? db.startGame(redis, gameId)
             : db.startRound(redis, gameId));
-        const [activeUser, trickLeader] = await Promise.all([
-            db.whosTurnIsIt(redis, gameId),
-            db.getTrickLeader(redis, gameId, round, 0)
-        ]);
+        const activeUser = await db.whosTurnIsIt(redis, gameId);
 
         io.to(gameId).emit('active-user-changed', activeUser);
         io.to(gameId).emit('trump-changed', trump);
-        io.to(gameId).emit('trick-started', { trick: 0, round, leader: trickLeader });
 
         await Promise.all(Object.keys(cards).map(async playerId => {
             const socketId = await db.getPlayerSocket(redis, gameId, playerId);
