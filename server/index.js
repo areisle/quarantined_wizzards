@@ -22,7 +22,7 @@ const server = async ({ port = 3000 }) => {
             const playerId = await db.addPlayerToGame(gameId, username);
             const [, players] = await Promise.all([
                 db.setPlayerSocket(playerId, socket.id),
-                await db.getGamePlayers(gameId),
+                db.getGamePlayers(gameId),
             ]);
             io.to(socket.id).emit('user-joined', playerId);
             io.to(gameId).emit('users-changed', players.map((name, index) => ({ name, playerId: index })));

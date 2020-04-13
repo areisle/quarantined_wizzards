@@ -13,10 +13,10 @@
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "http": "0.0.1-security",
+    "ioredis": "^4.16.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "redis": "^3.0.2",
     "shortid": "^2.2.15",
     "socket.io": "^2.3.0",
     "typescript": "^3.7.5"
