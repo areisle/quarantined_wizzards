@@ -101,14 +101,20 @@ describe('start-game', () => {
         clientSocket.emit('start-game', gameId);
     });
 
-    test('cards-dealt', (done) => {
-        clientSocket.on('cards-dealt', (cards) => {
+    test('round-started', (done) => {
+        clientSocket.on('round-started', (resp) => {
+            expect(resp).toHaveProperty('cards');
+            expect(resp).toHaveProperty('round');
+            expect(resp).toHaveProperty('trump');
+            const { cards, round, trump } = resp;
             cards.forEach((card) => {
                 expect(card).toHaveProperty('number');
                 expect(card).toHaveProperty('suit');
                 expect(SUITS).toContain(card.suit);
             });
             expect(cards).toHaveProperty('length', 1);
+            expect(round).toBe('0');
+            expect(SUITS).toContain(trump);
             done();
         });
         clientSocket.emit('start-game', gameId);
@@ -212,5 +218,52 @@ describe('play-card', () => {
             });
             clientSocket.emit('play-card', gameId, 1, 'jester', null);
         });
+    });
+});
+
+
+
+describe('play-card', () => {
+    let gameId,
+        players;
+
+    beforeEach(async () => {
+        gameId = await new Promise((resolve) => {
+            clientSocket.emit('create-game', resolve);
+        });
+        players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
+            return new Promise((resolve) => {
+                clientSocket.emit('join-game', gameId, name, resolve);
+            });
+        }));
+        await new Promise((resolve) => {
+            clientSocket.emit('start-game', gameId, resolve);
+        });
+    });
+
+    afterEach(async () => {
+        await db.deleteGame(server.db, gameId);
+    });
+
+    test('bet-placed (error too low)', (done) => {
+        clientSocket.on('error', (msg) => {
+            done();
+        });
+        clientSocket.emit('place-bet', gameId, 0, -1);
+    });
+
+    test('bet-placed (error too high)', (done) => {
+        clientSocket.on('error', (msg) => {
+            done();
+        });
+        clientSocket.emit('place-bet', gameId, 0, 2);
+    });
+
+    test('bet-placed', (done) => {
+        clientSocket.on('bet-placed', (resp) => {
+            expect(resp).toEqual({ playerId: 0, bet: 1 });
+            done();
+        });
+        clientSocket.emit('place-bet', gameId, 0, 1);
     });
 });

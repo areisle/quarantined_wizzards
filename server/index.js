@@ -14,6 +14,24 @@ const server = async ({ port = 3000 }) => {
         res.sendFile(__dirname + '/tester.html');
     });
 
+    const startRoundEvents = async (gameId, firstRound = false) => {
+        // send a private message to each player with their cards
+        const { cards, trump, round } = await (firstRound
+            ? db.startGame(redis, gameId)
+            : db.startRound(redis, gameId));
+        const activeUser = await db.whosTurnIsIt(redis, gameId);
+
+        io.to(gameId).emit('active-user-changed', activeUser);
+        io.to(gameId).emit('trump-changed', trump);
+
+        await Promise.all(Object.keys(cards).map(async playerId => {
+            const socketId = await db.getPlayerSocket(redis, gameId, playerId);
+            io.to(socketId).emit(
+                'round-started',
+                { cards: cards[playerId], round, trump }
+            );
+        }));
+    };
 
     io.on('connection', function (socket) {
         /**
@@ -47,19 +65,7 @@ const server = async ({ port = 3000 }) => {
         socket.on('start-game', async (gameId, callbackFn) => {
             // deal the cards
             try {
-                const { cards, trump } = await db.startGame(redis, gameId);
-                const activeUser = await db.whosTurnIsIt(redis, gameId);
-                // send a private message to each player with their cards
-                io.to(gameId).emit('trump-changed', trump);
-                io.to(gameId).emit('active-user-changed', activeUser);
-
-                await Promise.all(Object.keys(cards).map(async playerId => {
-                    const socketId = await db.getPlayerSocket(redis, gameId, playerId);
-                    io.to(socketId).emit(
-                        'cards-dealt',
-                        cards[playerId]
-                    );
-                }));
+                await startRoundEvents(gameId, true);
                 callbackFn && callbackFn();
             } catch (err) {
                 console.error(err);
@@ -89,21 +95,21 @@ const server = async ({ port = 3000 }) => {
 
                     if (roundComplete) {
                         // re-deal cards
-                        const { cards, trump } = await db.startRound(redis, gameId);
-                        const activeUser = await db.whosTurnIsIt(redis, gameId);
-
-                        io.to(gameId).emit('trump-changed', trump);
-                        io.to(gameId).emit('active-user-changed', activeUser);
-
-                        await Promise.all(Object.keys(cards).map(async (playerId) => {
-                            const socketId = await db.getPlayerSocket(redis, gameId, playerId);
-                            io.to(socketId).emit(
-                                'cards-dealt',
-                                cards[playerId]
-                            );
-                        }));
+                        await startRoundEvents(gameId, false);
                     }
                 }
+                callbackFn && callbackFn();
+            } catch (err) {
+                console.error(err);
+                io.to(socket.id).emit('error', err.toString());
+            }
+        });
+
+        socket.on('place-bet', async (gameId, playerId, bet, callbackFn) => {
+            try {
+                const [round] = await db.getCurrentRound(redis, gameId);
+                await db.setPlayerBet(redis, gameId, playerId, round, bet);
+                io.to(gameId).emit('bet-placed', { playerId, bet });
                 callbackFn && callbackFn();
             } catch (err) {
                 console.error(err);
