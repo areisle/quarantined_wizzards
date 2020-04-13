@@ -168,6 +168,14 @@ describe('game events', () => {
             clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
         });
 
+        test('active-user-changed', (done) => {
+            clientSocket.on('active-user-changed', (playerId) => {
+                expect(playerId).toBe(0);
+                done();
+            });
+            clientSocket.emit('play-card', gameId, players[players.length - 1], { suit: 'clubs', number: 1 });
+        });
+
         test('card-played', (done) => {
             clientSocket.on('card-played', (resp) => {
                 expect(resp).toEqual({ card: { suit: 'clubs', number: 1 }, playerId: players[players.length - 1] })
