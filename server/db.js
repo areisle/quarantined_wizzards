@@ -63,6 +63,10 @@ const getGamePlayers = async (redis, gameId) => {
 const addPlayerToGame = async (redis, gameId, username) => {
     let players = await getGamePlayers(redis, gameId);
 
+    if (players.includes(username)) {
+        throw new Error(`cannot add username. This username already exists`);
+    }
+
     if (players.length === MAX_PLAYERS) {
         throw new Error(`Game is already full`);
     }
@@ -87,11 +91,11 @@ const initializePlayerBets = async (redis, gameId, round) => {
 
 /**
  *
- * @param {*} redis
- * @param {*} gameId
- * @param {*} playerId
- * @param {*} round
- * @param {*} bet
+ * @param {object} redis
+ * @param {string} gameId
+ * @param {Number} playerId
+ * @param {Number} round
+ * @param {Number} bet
  *
  * @returns {boolean} true if all players have made their bet
  */
