@@ -124,6 +124,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                             >
                                 {Array(roundNumber + 1).fill(null).map((_, index) => (
                                     <option 
+                                        key={index}
                                         value={index}
                                     >
                                         round {index + 1}
