@@ -25,6 +25,10 @@ afterAll(async () => {
     await clientSocket.close();
 });
 
+afterEach(() => {
+    clientSocket.removeAllListeners();
+})
+
 describe('create-game', () => {
     test('callback', (done) => {
         clientSocket.emit('create-game', (gameId) => {
