@@ -304,18 +304,6 @@ const setCurrentRound = async (redis, gameId, round) => {
     );
 };
 
-
-const setPlayerSocket = async (redis, gameId, playerId, socketId) => {
-    return redis.set(`${gameId}-p${playerId}-socket`, socketId);
-};
-
-
-const getPlayerSocket = async (redis, gameId, playerId) => {
-    return redis.get(`${gameId}-p${playerId}-socket`);
-};
-
-
-
 /**
  * shuffles the deck, assigns cards to players and assigns the trump for the current round
  * @param {string} gameId
