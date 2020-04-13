@@ -70,6 +70,34 @@ describe('game events', () => {
         });
     });
 
+    describe('rejoin-game', () => {
+
+        beforeEach(async () => {
+            await promisifyEventEmitter('join-game', gameId, 'blargh');
+        });
+
+        test('callback', async () => {
+            const playerId = await promisifyEventEmitter('rejoin-game', gameId, 'blargh');
+            expect(playerId).toBe('blargh');
+        });
+
+        test('users-changed', (done) => {
+            clientSocket.on('users-changed', (players) => {
+                expect(players).toEqual(['blargh']);
+                done();
+            });
+            clientSocket.emit('rejoin-game', gameId, 'blargh');
+        });
+
+        test('error (on non-existant player id)', (done) => {
+            clientSocket.on('error', (msg) => {
+                expect(msg).toContain('does not exist');
+                done();
+            });
+            clientSocket.emit('rejoin-game', gameId, 'monkeys');
+        });
+    });
+
     describe('get-users', () => {
 
         beforeEach(async () => {

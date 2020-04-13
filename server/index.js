@@ -62,6 +62,27 @@ const server = async ({ port = 3000 }) => {
 
         /**
          * @param {string} gameId the game id
+         * @param {string} username the name user joining the game
+         * @param {function} callbackFn callback which is passed the newly created playerId
+         */
+        socket.on('rejoin-game', async (gameId, playerId, callbackFn) => {
+            try {
+                await db.playerExists(redis, gameId, playerId);
+                socket.join(gameId);
+                const [, players] = await Promise.all([
+                    db.setPlayerSocket(redis, gameId, playerId, socket.id),
+                    db.getGamePlayers(redis, gameId),
+                ]);
+                callbackFn && callbackFn(playerId);
+                io.to(gameId).emit('users-changed', players);
+            } catch (err) {
+                console.error(err);
+                io.to(socket.id).emit('error', err.toString());
+            }
+        });
+
+        /**
+         * @param {string} gameId the game id
          */
         socket.on('start-game', async (gameId, callbackFn) => {
             // deal the cards
