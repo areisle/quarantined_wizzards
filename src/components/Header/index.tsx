@@ -1,11 +1,11 @@
 import './index.scss';
 
 import React from 'react';
-import { Card, GameState } from '../../Context';
+import { Card, GameState } from '../../types';
 import { IconButton } from '@material-ui/core';
 import { ScoreBoardIcon } from '../../icons';
 
-const cardToString = (card: Card | null) => card && (card.special ?? `${card?.number} of ${card?.suit}`);
+const cardToString = (card: Card | null) => card && (card.number ? `${card.number} of ${card.suit}` : card.suit);
 
 interface HeaderProps {
     onScoreBoardOpen: () => void;

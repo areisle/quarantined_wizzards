@@ -2,7 +2,7 @@ import './index.scss';
 import '../Avatar/index.scss';
 
 import React, { useContext, useState, useEffect } from 'react';
-import { GameContext, GameState } from '../../Context';
+import { GameContext } from '../../Context';
 import { 
     Table, 
     TableCell, 
@@ -15,6 +15,7 @@ import isNil from 'lodash.isnil';
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
+import { GameState } from '../../types';
 
 interface ScoreBoardProps {
     open: boolean;

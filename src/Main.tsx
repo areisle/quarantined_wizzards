@@ -21,6 +21,9 @@ function Main() {
         trumpCard,
         players,
         gameCode,
+        startNewGame,
+        joinGame,
+        allPlayersIn,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
@@ -51,7 +54,7 @@ function Main() {
                 onOpenBettingDialog={() => setBetOpen(true)}
             />
             <Footer
-                onAllPlayersIn={console.log}
+                onAllPlayersIn={allPlayersIn}
                 showAllInButton={isSetup && playerNumber === 0}
                 disabled={players.length < 3}
             />
@@ -68,11 +71,11 @@ function Main() {
             />
             <JoinGameDialog
                 open={Boolean(gameCode && playerNumber === null)}
-                onJoin={console.log}
+                onJoin={joinGame}
             />
             <StartGameDialog
                 open={!gameCode}
-                onStart={console.log}
+                onStart={startNewGame}
             />
         </div>
     )
