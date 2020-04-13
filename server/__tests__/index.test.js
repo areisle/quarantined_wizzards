@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 const getPort = require('get-port');
 
-const { server: createServer, close: closeServer } = require('../');
+const { server: createServer } = require('../');
 const db = require('../db');
 
 Error.stackTraceLimit = Infinity;
@@ -10,17 +10,18 @@ Error.stackTraceLimit = Infinity;
 const SUITS = ['wizard', 'jester', 'hearts', 'spades', 'diamonds', 'clubs'];
 
 let port,
-    clientSocket;
+    clientSocket,
+    server;
 
 
 beforeAll(async () => {
     port = await getPort();
     clientSocket = await io(`http://localhost:${port}`);
-    await createServer({ port });
+    server = await createServer({ port });
 });
 
 afterAll(async () => {
-    closeServer();
+    server.close();
     await clientSocket.close();
 });
 
@@ -62,14 +63,13 @@ describe('join-game', () => {
 });
 
 describe('start-game', () => {
-    let gameId,
-        players;
+    let gameId;
 
     beforeEach(async () => {
         gameId = await new Promise((resolve) => {
             clientSocket.emit('create-game', resolve);
         });
-        players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
+        await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
             return new Promise((resolve) => {
                 clientSocket.emit('join-game', gameId, name, resolve);
             });
@@ -77,7 +77,7 @@ describe('start-game', () => {
     });
 
     afterEach(async () => {
-        await db.deleteGame(gameId);
+        await db.deleteGame(server.db, gameId);
     });
 
     test('trump-changed', (done) => {
@@ -130,7 +130,7 @@ describe('play-card', () => {
     });
 
     afterEach(async () => {
-        await db.deleteGame(gameId);
+        await db.deleteGame(server.db, gameId);
     });
 
     test('lead-changed', (done) => {
@@ -178,7 +178,7 @@ describe('play-card', () => {
         });
 
         test('high number', (done) => {
-            clientSocket.on('trick-won', (resp) => {
+            clientSocket.on('trick-won', () => {
                 done();
             });
             clientSocket.emit('play-card', gameId, 1, 'clubs', 3);

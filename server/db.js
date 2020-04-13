@@ -4,10 +4,9 @@ const Redis = require("ioredis");
 const TOTAL_CARDS = 60;
 const MAX_PLAYERS = 6;
 const MIN_PLAYERS = 3;
-let redis;
 
 const connect = async () => {
-    redis = new Redis();
+    const redis = new Redis();
     try {
         await redis.connect();
     } catch (err) { }
@@ -41,33 +40,33 @@ const shuffleYourDeck = (array) => {
 };
 
 
-const createGame = async () => {
+const createGame = async (redis) => {
     const gameId = shortid.generate();
     await redis.sadd(['games', gameId]);
     return gameId;
 };
 
 
-const getGames = async () => {
+const getGames = async (redis) => {
     return redis.smembers('games');
 };
 
-const getGamePlayers = async (gameId) => {
+const getGamePlayers = async (redis, gameId) => {
     return redis.lrange(`${gameId}-players`, 0, -1);
 };
 
 
-const addPlayerToGame = async (gameId, username) => {
-    let players = await getGamePlayers(gameId);
+const addPlayerToGame = async (redis, gameId, username) => {
+    let players = await getGamePlayers(redis, gameId);
     if (players.length === MAX_PLAYERS) {
         throw new Error(`Game is already full`);
     }
     await redis.rpush(`${gameId}-players`, username);
-    players = await getGamePlayers(gameId);
+    players = await getGamePlayers(redis, gameId);
     return players.indexOf(username);
 };
 
-const setPlayerBet = async (gameId, playerId, round, bet) => {
+const setPlayerBet = async (redis, gameId, playerId, round, bet) => {
     if (bet < 0) {
         throw new Error(`Invalid bet.Must be a number greater than or equal to 0`);
     }
@@ -77,33 +76,33 @@ const setPlayerBet = async (gameId, playerId, round, bet) => {
     return redis.set(`${gameId}-r${round}-p${playerId}-bet`, bet);
 };
 
-const getPlayerBet = async (gameId, playerId, round) => {
+const getPlayerBet = async (redis, gameId, playerId, round) => {
     return redis.get(`${gameId}-r${round}-p${playerId}-bet`);
 };
 
 
-const getLeadSuit = async (gameId, round, trick) => {
+const getLeadSuit = async (redis, gameId, round, trick) => {
     return redis.get(`${gameId}-r${round}-t${trick}-leadsuit`);
 };
 
 
-const setLeadSuit = async (gameId, round, trick, suit) => {
+const setLeadSuit = async (redis, gameId, round, trick, suit) => {
     return redis.set(`${gameId}-r${round}-t${trick}-leadsuit`, suit);
 };
 
 
-const getTrumpSuit = async (gameId, round) => {
+const getTrumpSuit = async (redis, gameId, round) => {
     return redis.get(`${gameId}-r${round}-trumpsuit`);
 };
 
 
-const getTrickLeader = async (gameId, round, trick) => {
+const getTrickLeader = async (redis, gameId, round, trick) => {
     const leaders = await redis.lrange(`${gameId}-r${round}-trickleaders`, 0, -1);
     return leaders[trick];
 };
 
 
-const getTrickCards = async (gameId, round, trick) => {
+const getTrickCards = async (redis, gameId, round, trick) => {
     const cards = await redis.lrange(`${gameId}-r${round}-t${trick}-cards`, 0, -1);
     return cards.map(card => {
         const [suit, value] = card.split('-');
@@ -117,10 +116,10 @@ const getTrickCards = async (gameId, round, trick) => {
 };
 
 
-const getTrickPlayers = async (gameId, round, trick) => {
+const getTrickPlayers = async (redis, gameId, round, trick) => {
     const [players, trickLeader] = await Promise.all([
-        getGamePlayers(gameId),
-        getTrickLeader(gameId, round, trick),
+        getGamePlayers(redis, gameId),
+        getTrickLeader(redis, gameId, round, trick),
     ]);
 
     const trickPlayers = [];
@@ -138,9 +137,9 @@ const getTrickPlayers = async (gameId, round, trick) => {
  * @param {Nuber} playerId
  * @param {Number?} round assumes the current round if this is not given
  */
-const getPlayerCards = async (gameId, playerId, round) => {
+const getPlayerCards = async (redis, gameId, playerId, round) => {
     if (round === undefined) {
-        round = await getCurrentRound(gameId);
+        round = await getCurrentRound(redis, gameId);
     }
     const cards = await redis.lrange(`${gameId}-r${round}-p${playerId}-cards`, 0, -1);
     return cards.map(card => {
@@ -155,7 +154,7 @@ const getPlayerCards = async (gameId, playerId, round) => {
 };
 
 
-const setPlayerCards = async (gameId, playerId, round, cards) => {
+const setPlayerCards = async (redis, gameId, playerId, round, cards) => {
     await redis.del(`${gameId}-r${round}-p${playerId}-cards`);
     return redis.rpush(
         `${gameId}-r${round}-p${playerId}-cards`,
@@ -164,45 +163,44 @@ const setPlayerCards = async (gameId, playerId, round, cards) => {
 };
 
 
-const whosTurnIsIt = async (gameId) => {
+const whosTurnIsIt = async (redis, gameId) => {
     const [round, trick] = await Promise.all([
-        getCurrentRound(gameId),
-        getCurrentTrick(gameId),
+        getCurrentRound(redis, gameId),
+        getCurrentTrick(redis, gameId),
     ]);
-    const trickPlayers = await getTrickPlayers(gameId, round, trick);
-    const [trickCards] = await Promise.all([
-
-        getTrickCards(gameId, round, trick),
+    const [trickPlayers, trickCards] = await Promise.all([
+        getTrickPlayers(redis, gameId, round, trick),
+        getTrickCards(redis, gameId, round, trick),
     ]);
     return trickPlayers[trickCards.length];
 };
 
 
-const playCard = async (gameId, playerId, cardSuit, cardValue) => {
+const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
     // check if it is this players turn
-    const turnPlayer = await whosTurnIsIt(gameId);
+    const turnPlayer = await whosTurnIsIt(redis, gameId);
     if (turnPlayer !== playerId) {
         throw new Error(`Invalid play: It is not this users (${playerId}) turn. Waiting for player ${turnPlayer} to complete their turn`);
     }
     // add the card to the cards played for this trick
     const [round, trick, players] = await Promise.all([
-        getCurrentRound(gameId),
-        getCurrentTrick(gameId),
-        getGamePlayers(gameId),
+        getCurrentRound(redis, gameId),
+        getCurrentTrick(redis, gameId),
+        getGamePlayers(redis, gameId),
     ]);
 
     // check if the user should play a different card
     let [leadSuit, playersCards, trickCards] = await Promise.all([
-        getLeadSuit(gameId, round, trick),
-        getPlayerCards(gameId, playerId, round),
-        getTrickCards(gameId, round, trick),
+        getLeadSuit(redis, gameId, round, trick),
+        getPlayerCards(redis, gameId, playerId, round),
+        getTrickCards(redis, gameId, round, trick),
     ]);
 
     let newLeadSuit = null;
 
     if ((leadSuit === 'jester' && leadSuit !== cardSuit) || !trickCards.length) {
         // set the lead suit
-        await setLeadSuit(gameId, round, trick, cardSuit);
+        await setLeadSuit(redis, gameId, round, trick, cardSuit);
         leadSuit = cardSuit;
         newLeadSuit = cardSuit;
     }
@@ -219,7 +217,7 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
     const newCards = playersCards.filter(c => c.suit !== cardSuit || c.number !== cardValue);
     await Promise.all([
         redis.rpush(`${gameId}-r${round}-t${trick}-cards`, `${cardSuit}-${cardValue} `),
-        setPlayerCards(gameId, playerId, round, newCards),
+        setPlayerCards(redis, gameId, playerId, round, newCards),
     ]);
 
     // if this was the last card in the trick, evaluate the trick
@@ -227,14 +225,14 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
     let trickWinner = null;
     const roundComplete = trickComplete && trick === round;
     if (trickComplete) {
-        trickWinner = await evaluateTrick(gameId, round, trick);
+        trickWinner = await evaluateTrick(redis, gameId, round, trick);
 
         if (!roundComplete) {
-            await setCurrentTrick(trick + 1);
+            await setCurrentTrick(redis, trick + 1);
         } else {
             await Promise.all([
-                setCurrentTrick(0),
-                setCurrentRound(round + 1),
+                setCurrentTrick(redis, 0),
+                setCurrentRound(redis, round + 1),
             ]);
         }
     }
@@ -242,42 +240,42 @@ const playCard = async (gameId, playerId, cardSuit, cardValue) => {
 };
 
 
-const getCurrentRound = async (gameId) => {
+const getCurrentRound = async (redis, gameId) => {
     return redis.get(`${gameId}-current-round`);
 };
 
 
-const getCurrentTrick = async (gameId) => {
+const getCurrentTrick = async (redis, gameId) => {
     return redis.get(`${gameId}-current-trick`);
 };
 
 
-const setCurrentRound = async (gameId, round) => {
+const setCurrentRound = async (redis, gameId, round) => {
     return redis.set(`${gameId}-current-round`, round);
 };
 
 
-const setCurrentTrick = async (gameId, trick) => {
+const setCurrentTrick = async (redis, gameId, trick) => {
     return redis.set(`${gameId}-current-trick`, trick);
 };
 
 
-const setPlayerSocket = async (gameId, playerId, socketId) => {
+const setPlayerSocket = async (redis, gameId, playerId, socketId) => {
     return redis.set(`${gameId}-p${playerId}-socket`, socketId);
 };
 
 
-const getPlayerSocket = async (gameId, playerId) => {
+const getPlayerSocket = async (redis, gameId, playerId) => {
     return redis.get(`${gameId}-p${playerId}-socket`);
 };
 
 
-const evaluateTrick = async (gameId, round, trick) => {
+const evaluateTrick = async (redis, gameId, round, trick) => {
     const [cards, players, leadSuit, trumpSuit] = await Promise.all([
-        getTrickCards(gameId, round, trick),
-        getTrickPlayers(gameId, round, trick),
-        getLeadSuit(gameId, round, trick),
-        getTrumpSuit(gameId, round),
+        getTrickCards(redis, gameId, round, trick),
+        getTrickPlayers(redis, gameId, round, trick),
+        getLeadSuit(redis, gameId, round, trick),
+        getTrumpSuit(redis, gameId, round),
     ]);
 
     const trickCards = cards.map((c, index) => {
@@ -326,10 +324,10 @@ const evaluateTrick = async (gameId, round, trick) => {
  * shuffles the deck, assigns cards to players and assigns the trump for the current round
  * @param {string} gameId
  */
-const startRound = async (gameId) => {
+const startRound = async (redis, gameId) => {
     const [players, round] = await Promise.all([
-        getGamePlayers(gameId),
-        getCurrentRound(gameId),
+        getGamePlayers(redis, gameId),
+        getCurrentRound(redis, gameId),
     ]);
 
     const deck = shuffleYourDeck(createDeck());
@@ -358,7 +356,7 @@ const startRound = async (gameId) => {
     ));
 
     for (const playerId of Object.keys(cards)) {
-        promises.push(setPlayerCards(gameId, playerId, round, cards[playerId]));
+        promises.push(setPlayerCards(redis, gameId, playerId, round, cards[playerId]));
     }
 
     await Promise.all(promises);
@@ -374,15 +372,15 @@ const startRound = async (gameId) => {
  *
  * @param {string} gameId
  */
-const startGame = async (gameId) => {
-    const players = await getGamePlayers(gameId);
+const startGame = async (redis, gameId) => {
+    const players = await getGamePlayers(redis, gameId);
     if (players.length < MIN_PLAYERS) {
         throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
     }
     const rounds = TOTAL_CARDS / players.length;
     await Promise.all([
-        setCurrentRound(gameId, 0),
-        setCurrentTrick(gameId, 0)
+        setCurrentRound(redis, gameId, 0),
+        setCurrentTrick(redis, gameId, 0)
     ]);
 
     // set the dealers and trick leaders for each round
@@ -396,10 +394,10 @@ const startGame = async (gameId) => {
         setDealers.push(redis.rpush(`${gameId}-r${round}-trickleaders`, trickLeader));
     }
     await Promise.all(setDealers);
-    return startRound(gameId);
+    return startRound(redis, gameId);
 };
 
-const deleteGame = async (gameId) => {
+const deleteGame = async (redis, gameId) => {
     const keys = await redis.keys(`${gameId}*`);
     // Use pipeline instead of sending
     // one command each time to improve the
@@ -414,7 +412,7 @@ const deleteGame = async (gameId) => {
 
 module.exports = {
     addPlayerToGame,
-    close: () => redis && redis.quit(),
+    close: (redis) => redis && redis.quit(),
     connect,
     createGame,
     deleteGame,

@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 const db = require('./db');
 
 const server = async ({ port = 3000 }) => {
-    db.connect();
+    const redis = await db.connect();
     await http.listen(port);
     console.log(`listening on localhost:${port}`);
     // WARNING: app.listen(80) will NOT work here!
@@ -20,7 +20,7 @@ const server = async ({ port = 3000 }) => {
          * @param {function} callbackFn callback which is passed the newly created gameId
          */
         socket.on('create-game', async (callbackFn) => {
-            const gameId = await db.createGame();
+            const gameId = await db.createGame(redis);
             callbackFn && callbackFn(gameId);
         });
 
@@ -31,10 +31,10 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('join-game', async (gameId, username, callbackFn) => {
             socket.join(gameId);
-            const playerId = await db.addPlayerToGame(gameId, username);
+            const playerId = await db.addPlayerToGame(redis, gameId, username);
             const [, players] = await Promise.all([
-                db.setPlayerSocket(gameId, playerId, socket.id),
-                db.getGamePlayers(gameId),
+                db.setPlayerSocket(redis, gameId, playerId, socket.id),
+                db.getGamePlayers(redis, gameId),
             ]);
             callbackFn && callbackFn(playerId);
             io.to(gameId).emit('users-changed', players.map((name, index) => ({ name, playerId: index })));
@@ -47,14 +47,14 @@ const server = async ({ port = 3000 }) => {
         socket.on('start-game', async (gameId, callbackFn) => {
             // deal the cards
             try {
-                const { cards, trump } = await db.startGame(gameId);
-                const activeUser = await db.whosTurnIsIt(gameId);
+                const { cards, trump } = await db.startGame(redis, gameId);
+                const activeUser = await db.whosTurnIsIt(redis, gameId);
                 // send a private message to each player with their cards
                 io.to(gameId).emit('trump-changed', trump);
                 io.to(gameId).emit('active-user-changed', activeUser);
 
                 await Promise.all(Object.keys(cards).map(async playerId => {
-                    const socketId = await db.getPlayerSocket(gameId, playerId);
+                    const socketId = await db.getPlayerSocket(redis, gameId, playerId);
                     io.to(socketId).emit(
                         'cards-dealt',
                         cards[playerId]
@@ -76,7 +76,7 @@ const server = async ({ port = 3000 }) => {
         socket.on('play-card', async (gameId, playerId, cardSuit, cardValue, callbackFn) => {
             try {
                 const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
-                    gameId, playerId, cardSuit, cardValue
+                    redis, gameId, playerId, cardSuit, cardValue
                 );
                 // end of round? or start next trick
                 io.to(gameId).emit('card-played', { card: { suit: cardSuit, number: cardValue }, playerId });
@@ -89,14 +89,14 @@ const server = async ({ port = 3000 }) => {
 
                     if (roundComplete) {
                         // re-deal cards
-                        const { cards, trump } = await db.startRound(gameId);
-                        const activeUser = await db.whosTurnIsIt(gameId);
+                        const { cards, trump } = await db.startRound(redis, gameId);
+                        const activeUser = await db.whosTurnIsIt(redis, gameId);
 
                         io.to(gameId).emit('trump-changed', trump);
                         io.to(gameId).emit('active-user-changed', activeUser);
 
                         await Promise.all(Object.keys(cards).map(async (playerId) => {
-                            const socketId = await db.getPlayerSocket(gameId, playerId);
+                            const socketId = await db.getPlayerSocket(redis, gameId, playerId);
                             io.to(socketId).emit(
                                 'cards-dealt',
                                 cards[playerId]
@@ -111,13 +111,15 @@ const server = async ({ port = 3000 }) => {
             }
         });
     });
-    return http;
+    return {
+        db: redis,
+        close: () => {
+            http.close();
+            db.close(redis);
+        }
+    };
 };
 
 module.exports = {
     server,
-    close: () => {
-        http.close();
-        db.close();
-    }
 };
