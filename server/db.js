@@ -458,6 +458,7 @@ module.exports = {
     getPlayerCards,
     getPlayerSocket,
     getPlayerTricksTaken,
+    getTrickLeader,
     playCard,
     setCurrentRound,
     setCurrentTrick,

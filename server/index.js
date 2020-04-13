@@ -19,10 +19,14 @@ const server = async ({ port = 3000 }) => {
         const { cards, trump, round } = await (firstRound
             ? db.startGame(redis, gameId)
             : db.startRound(redis, gameId));
-        const activeUser = await db.whosTurnIsIt(redis, gameId);
+        const [activeUser, trickLeader] = await Promise.all([
+            db.whosTurnIsIt(redis, gameId),
+            db.getTrickLeader(redis, gameId, round, 0)
+        ]);
 
         io.to(gameId).emit('active-user-changed', activeUser);
         io.to(gameId).emit('trump-changed', trump);
+        io.to(gameId).emit('trick-started', { trick: 0, round, leader: trickLeader });
 
         await Promise.all(Object.keys(cards).map(async playerId => {
             const socketId = await db.getPlayerSocket(redis, gameId, playerId);
@@ -81,6 +85,10 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('play-card', async (gameId, playerId, cardSuit, cardValue, callbackFn) => {
             try {
+                const [round, trick] = await Promise.all([
+                    db.getCurrentRound(redis, gameId),
+                    db.getCurrentTrick(redis, gameId),
+                ]);
                 const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
                     redis, gameId, playerId, cardSuit, cardValue
                 );
@@ -96,6 +104,10 @@ const server = async ({ port = 3000 }) => {
                     if (roundComplete) {
                         // re-deal cards
                         await startRoundEvents(gameId, false);
+                    } else {
+                        // start new trick
+                        const trickLeader = await db.getTrickLeader(redis, gameId, round, trick);
+                        io.to(gameId).emit('trick-started', { round, trick, leader: trickLeader });
                     }
                 }
                 callbackFn && callbackFn();
@@ -105,11 +117,23 @@ const server = async ({ port = 3000 }) => {
             }
         });
 
+        /**
+         * @param {string} gameId the game the bet is for
+         * @param {Number} playerId the player the bet is for
+         * @param {Number} bet the bet being placed
+         * @param {function} callbackFn
+         */
         socket.on('place-bet', async (gameId, playerId, bet, callbackFn) => {
             try {
                 const [round] = await db.getCurrentRound(redis, gameId);
-                await db.setPlayerBet(redis, gameId, playerId, round, bet);
+                const [allBetsIn, trickLeader] = await Promise.all([
+                    db.setPlayerBet(redis, gameId, playerId, round, bet),
+                    db.getTrickLeader(redis, gameId, round, 0)
+                ]);
                 io.to(gameId).emit('bet-placed', { playerId, bet });
+                if (allBetsIn) {
+                    io.to(gameId).emit('trick-started', { trick: 0, leader: trickLeader });
+                }
                 callbackFn && callbackFn();
             } catch (err) {
                 console.error(err);

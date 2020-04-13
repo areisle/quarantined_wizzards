@@ -137,6 +137,12 @@ describe('play-card', () => {
         await new Promise((resolve) => {
             clientSocket.emit('start-game', gameId, resolve);
         });
+
+        await Promise.all([0, 1, 2].map(playerId => {
+            return new Promise((resolve) => {
+                clientSocket.emit('place-bet', gameId, playerId, 1, resolve);
+            });
+        }));
     });
 
     afterEach(async () => {
@@ -223,15 +229,14 @@ describe('play-card', () => {
 
 
 
-describe('play-card', () => {
-    let gameId,
-        players;
+describe('place-bet', () => {
+    let gameId;
 
     beforeEach(async () => {
         gameId = await new Promise((resolve) => {
             clientSocket.emit('create-game', resolve);
         });
-        players = await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
+        await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => {
             return new Promise((resolve) => {
                 clientSocket.emit('join-game', gameId, name, resolve);
             });
