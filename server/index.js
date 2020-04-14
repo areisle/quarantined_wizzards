@@ -165,6 +165,9 @@ const server = async ({ port = 3000 }) => {
                 ]);
                 io.to(gameId).emit('bet-placed', { playerId, bet });
                 if (allBetsIn) {
+                    // get the new player
+                    const activeUser = await db.whosTurnIsIt(redis, gameId);
+                    io.to(gameId).emit('active-user-changed', activeUser);
                     io.to(gameId).emit('trick-started', { roundNumber, trickNumber: 0, trickLeader });
                 }
                 onSuccess && onSuccess();
