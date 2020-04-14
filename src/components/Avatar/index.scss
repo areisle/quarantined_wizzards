@@ -1,0 +1,63 @@
+.avatar {
+    color: white !important;
+    position: relative;
+    text-shadow: 0px 0px 3px black;
+
+    &--leader__icon {
+        fill: yellow !important;
+        left: 0;
+        position: absolute;
+        stroke-width: 2px;
+        stroke: black;
+        top: 0;
+        transform: translate(-35%, -35%) rotate(45deg);
+    }
+
+    &--square {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        min-height: 2rem;
+        min-width: 2rem;
+    }
+
+    &--player-1 {
+        background-color: #1143C5;
+        grid-area: avatar-1;
+    }
+
+    &--player-2 {
+        background-color: #E8750B;
+        grid-area: avatar-2;
+    }
+
+    &--player-3 {
+        background-color: #5EAE0D;
+        grid-area: avatar-3;
+    }
+
+    &--player-4 {
+        background-color: #D905AA;
+        grid-area: avatar-4;
+    }
+
+    &--player-5 {
+        background-color: #720BC4;
+        grid-area: avatar-5;
+    }
+
+    &--player-6 {
+        background-color: #E8180B;
+        grid-area: avatar-6;
+    }
+
+    &--empty {
+        border: 5px dashed grey;
+        color: black;
+        background-color: transparent;
+    }
+
+    &--active {
+        outline: 3px solid blue;
+    } 
+}

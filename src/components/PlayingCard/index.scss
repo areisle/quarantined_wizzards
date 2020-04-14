@@ -1,0 +1,63 @@
+.playing-card {
+    background-color: white;
+    border: 5px solid black;
+    border-radius: 5px;
+    display: grid;
+    grid-template-areas: 
+        'marker-1 . .'
+        '. center .'
+        '. . marker-2';
+    grid-template-columns: min-content 1fr min-content;
+    grid-template-rows: min-content 1fr min-content;
+    text-align: center;
+
+    &--medium {
+        height: 15rem;
+        width: 8.75rem;
+    }
+
+    &--large {
+        font-size: 1.5rem;
+        height: 22.5rem;
+        width: 13.125rem;
+    }
+
+    &--flexible {
+        height: 100%;
+        width: 60%;
+    }
+
+    &--selected {
+        outline: 3px solid blue;
+    }
+
+    .marker:first-of-type {
+        grid-area: marker-1;
+    }
+
+    .marker:last-of-type {
+        grid-area: marker-2;
+    }
+
+    &__content {
+        grid-area: center;
+    }
+}
+
+.marker {
+    align-items: center;
+    background-color: royalblue;
+    color: white;
+    display: flex;
+    height: 2.5em;
+    justify-content: center;
+    width: 2.5em;
+
+    &--hearts, &--diamonds {
+        background-color: red;
+    }
+
+    &--spades, &--clubs {
+        background-color: black;
+    }
+}
