@@ -24,6 +24,7 @@
         display: grid;
         grid-auto-rows: 3.125rem;
         grid-template-columns: repeat(auto-fit, 3.125rem);
+        justify-content: center;
 
         .playing-card {
             box-shadow: -2px -2px 10px 0px rgba(0, 0, 0, 0.5);
