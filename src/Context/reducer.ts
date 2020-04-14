@@ -9,15 +9,15 @@ export interface CardPlayedParams {
     card: Card;
 }
 
-export interface RoundStartedParams { 
-    round: number;
-    leftOfDealer: PlayerId;
-    cards: Card[]; 
+export interface RoundStartedParams {
+    roundNumber: number;
+    trickLeader: PlayerId;
+    cards: Card[];
 }
 
 export interface TrickStartedParam {
-    trick: number;
-    leader: PlayerId;
+    trickNumber: number;
+    trickLeader: PlayerId;
 }
 
 export interface BetPlacedParams {
@@ -50,7 +50,7 @@ const gameReducer = createReducer<GameState>({
     [SERVER_EVENTS.TRICK_WON]: (state, playerId: PlayerId) => {
         return produce(state, (draft) => {
             update(
-                draft, 
+                draft,
                 ['scores', state.roundNumber, playerId, 'taken'],
                 (previous) => (previous || 0) + 1,
             );
@@ -65,7 +65,7 @@ const gameReducer = createReducer<GameState>({
         const { playerId, bet } = params;
         return produce(state, (draft) => {
             update(
-                draft, 
+                draft,
                 ['scores', state.roundNumber, playerId, 'bet'],
                 () => bet,
             )
@@ -85,13 +85,13 @@ const gameReducer = createReducer<GameState>({
     [SERVER_EVENTS.ROUND_STARTED]: (state, params: RoundStartedParams) => ({
         ...state,
         cards: params.cards,
-        roundNumber: params.round,
-        trickLeader: params.leftOfDealer,
+        roundNumber: params.roundNumber,
+        trickLeader: params.trickLeader,
     }),
     [SERVER_EVENTS.TRICK_STARTED]: (state, params: TrickStartedParam) => ({
         ...state,
-        trickNumber: params.trick,
-        trickLeader: params.leader,
+        trickNumber: params.trickNumber,
+        trickLeader: params.trickLeader,
         trickWinner: null,
         stage: 'playing',
     }),
@@ -106,7 +106,7 @@ const gameReducer = createReducer<GameState>({
     [USER_EVENTS.PLAY_CARD]: (state, cardIndex: number) => ({
         ...state,
         cards: [
-            ...state.cards.slice(0, cardIndex), 
+            ...state.cards.slice(0, cardIndex),
             ...state.cards.slice(cardIndex + 1),
         ]
     }),
