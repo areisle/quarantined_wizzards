@@ -69,7 +69,9 @@ const getGameState = async (redis, gameId, playerId) => {
         });
 
         for (const trickWinner of trickWinners[round]) {
-            scores[round][trickWinner].taken += 1;
+            if (trickWinner) {
+                scores[round][trickWinner].taken += 1;
+            }
         }
     });
 

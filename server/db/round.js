@@ -372,7 +372,7 @@ const startRound = async (redis, gameId) => {
     }
     // default bets to -1
     promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-bets`, players.length));
-    promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-taken`, roundNumber + 1));
+    promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-taken`, roundNumber + 1, ''));
 
     await Promise.all(promises);
     return {
