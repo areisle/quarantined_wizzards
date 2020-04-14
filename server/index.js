@@ -116,6 +116,7 @@ const server = async ({ port = 3000 }) => {
                 const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
                     redis, gameId, playerId, cardSuit, cardValue
                 );
+                onSuccess && onSuccess();
                 io.to(gameId).emit('card-played', { card: { suit: cardSuit, number: cardValue }, playerId });
 
                 // get the new player
@@ -139,7 +140,6 @@ const server = async ({ port = 3000 }) => {
                         });
                     }
                 }
-                onSuccess && onSuccess();
             } catch (err) {
                 onError && onError(err);
                 console.error(err);
