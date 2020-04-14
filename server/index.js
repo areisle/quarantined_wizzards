@@ -16,7 +16,7 @@ const server = async ({ port = 3000 }) => {
 
     const startRoundEvents = async (gameId, firstRound = false) => {
         // send a private message to each player with their cards
-        const { cards, trump, round } = await (firstRound
+        const { cards, trump, roundNumber } = await (firstRound
             ? db.startGame(redis, gameId)
             : db.startRound(redis, gameId));
         const activeUser = await db.whosTurnIsIt(redis, gameId);
@@ -28,7 +28,7 @@ const server = async ({ port = 3000 }) => {
 
             io.to(socketId).emit(
                 'round-started',
-                { cards: cards[playerId], round, trump, leftOfDealer: activeUser }
+                { cards: cards[playerId], roundNumber, trump, trickLeader: activeUser }
             );
         }));
     };
@@ -75,7 +75,7 @@ const server = async ({ port = 3000 }) => {
                 socket.join(gameId);
                 const [, gameState] = await Promise.all([
                     db.setPlayerSocket(redis, gameId, playerId, socket.id),
-                    db.getGameState(redis, gameId),
+                    db.getGameState(redis, gameId, playerId),
                 ]);
                 onSuccess && onSuccess(gameState);
             } catch (err) {
@@ -108,7 +108,7 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
-                const [, round, trick] = await Promise.all([
+                const [, roundNumber, trickNumber] = await Promise.all([
                     db.playerExists(redis, gameId, playerId),
                     db.getCurrentRound(redis, gameId),
                     db.getCurrentTrick(redis, gameId),
@@ -133,8 +133,10 @@ const server = async ({ port = 3000 }) => {
                         await startRoundEvents(gameId, false);
                     } else {
                         // start new trick
-                        const trickLeader = await db.getTrickLeader(redis, gameId, round, trick);
-                        io.to(gameId).emit('trick-started', { round, trick, leader: trickLeader });
+                        const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber);
+                        io.to(gameId).emit('trick-started', {
+                            roundNumber, trickNumber, trickLeader
+                        });
                     }
                 }
                 onSuccess && onSuccess();
@@ -153,17 +155,17 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on('place-bet', async (gameId, playerId, bet, onSuccess, onError) => {
             try {
-                const [round,] = await Promise.all([
+                const [roundNumber,] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
                     db.playerExists(redis, gameId, playerId),
                 ]);
                 const [allBetsIn, trickLeader] = await Promise.all([
-                    db.setPlayerBet(redis, gameId, playerId, round, bet),
-                    db.getTrickLeader(redis, gameId, round, 0)
+                    db.setPlayerBet(redis, gameId, playerId, roundNumber, bet),
+                    db.getTrickLeader(redis, gameId, roundNumber, 0)
                 ]);
                 io.to(gameId).emit('bet-placed', { playerId, bet });
                 if (allBetsIn) {
-                    io.to(gameId).emit('trick-started', { trick: 0, leader: trickLeader });
+                    io.to(gameId).emit('trick-started', { roundNumber, trickNumber: 0, trickLeader });
                 }
                 onSuccess && onSuccess();
             } catch (err) {

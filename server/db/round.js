@@ -334,7 +334,7 @@ const setCurrentRound = async (redis, gameId, round) => {
  * @todo let the player decide trump when wizard comes up
  */
 const startRound = async (redis, gameId) => {
-    const [players, round] = await Promise.all([
+    const [players, roundNumber] = await Promise.all([
         getPlayers(redis, gameId),
         getCurrentRound(redis, gameId),
     ]);
@@ -342,7 +342,7 @@ const startRound = async (redis, gameId) => {
     const deck = shuffleYourDeck(createDeck());
     const cards = {}
 
-    for (let trick = 0; trick < round + 1; trick++) {
+    for (let trick = 0; trick < roundNumber + 1; trick++) {
         for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
             const playerId = players[playerIndex];
             if (cards[playerId] === undefined) {
@@ -352,7 +352,7 @@ const startRound = async (redis, gameId) => {
         }
     }
 
-    const cardsUsed = (round + 1) * players.length;
+    const cardsUsed = (roundNumber + 1) * players.length;
     const promises = [];
 
     let trumpSuit = 'jester';
@@ -368,15 +368,15 @@ const startRound = async (redis, gameId) => {
     promises.push(setTrumpSuit(redis, gameId, trumpSuit));
 
     for (const playerId of Object.keys(cards)) {
-        promises.push(setPlayerCards(redis, gameId, playerId, round, cards[playerId]));
+        promises.push(setPlayerCards(redis, gameId, playerId, roundNumber, cards[playerId]));
     }
     // default bets to -1
-    promises.push(initializeArrayField(redis, `${gameId}-r${round}-bets`, players.length));
-    promises.push(initializeArrayField(redis, `${gameId}-r${round}-taken`, round + 1));
+    promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-bets`, players.length));
+    promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-taken`, roundNumber + 1));
 
     await Promise.all(promises);
     return {
-        cards, trump: trumpSuit, round
+        cards, trump: trumpSuit, roundNumber
     };
 };
 

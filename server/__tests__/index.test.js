@@ -77,16 +77,15 @@ describe('game events', () => {
         });
 
         test('callback', async () => {
-            const playerId = await promisifyEventEmitter('rejoin-game', gameId, 'blargh');
-            expect(playerId).toBe('blargh');
-        });
-
-        test('users-changed', (done) => {
-            clientSocket.on('users-changed', (players) => {
-                expect(players).toEqual(['blargh']);
-                done();
-            });
-            clientSocket.emit('rejoin-game', gameId, 'blargh');
+            const gameState = await promisifyEventEmitter('rejoin-game', gameId, 'blargh');
+            expect(gameState).toHaveProperty('activePlayer', 'blargh');
+            expect(gameState).toHaveProperty('cards');
+            expect(gameState).toHaveProperty('roundNumber');
+            expect(gameState).toHaveProperty('trickNumber');
+            expect(gameState).toHaveProperty('trickCards');
+            expect(gameState).toHaveProperty('trickLeader');
+            expect(gameState).toHaveProperty('scores');
+            expect(gameState).toHaveProperty('players', ['blargh']);
         });
 
         test('error (on non-existant player id)', (done) => {
@@ -131,17 +130,17 @@ describe('game events', () => {
         test('round-started', (done) => {
             clientSocket.on('round-started', (resp) => {
                 expect(resp).toHaveProperty('cards');
-                expect(resp).toHaveProperty('round');
+                expect(resp).toHaveProperty('roundNumber');
                 expect(resp).toHaveProperty('trump');
-                expect(resp).toHaveProperty('leftOfDealer', playerIds[playerIds.length - 1]);
-                const { cards, round, trump } = resp;
+                expect(resp).toHaveProperty('trickLeader', playerIds[playerIds.length - 1]);
+                const { cards, roundNumber, trump } = resp;
                 cards.forEach((card) => {
                     expect(card).toHaveProperty('number');
                     expect(card).toHaveProperty('suit');
                     expect(SUITS).toContain(card.suit);
                 });
                 expect(cards).toHaveProperty('length', 1);
-                expect(round).toBe(0);
+                expect(roundNumber).toEqual(0);
                 expect(SUITS).toContain(trump);
                 done();
             });
