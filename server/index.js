@@ -73,12 +73,11 @@ const server = async ({ port = 3000 }) => {
             try {
                 await db.playerExists(redis, gameId, playerId);
                 socket.join(gameId);
-                const [, players] = await Promise.all([
+                const [, gameState] = await Promise.all([
                     db.setPlayerSocket(redis, gameId, playerId, socket.id),
-                    db.getGamePlayers(redis, gameId),
+                    db.getGameState(redis, gameId),
                 ]);
-                onSuccess && onSuccess(playerId);
-                io.to(gameId).emit('users-changed', players);
+                onSuccess && onSuccess(gameState);
             } catch (err) {
                 onError && onError(err);
                 console.error(err);

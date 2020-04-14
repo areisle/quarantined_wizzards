@@ -58,11 +58,14 @@ const getGameState = async (redis, gameId) => {
         }
     });
 
+    const activePlayer = await whosTurnIsIt(redis, gameId);
+
     return {
         scores,
         trick: currentTrick,
         round: currentRound,
-        players: players
+        players: players,
+        activePlayer
     };
 };
 
@@ -109,6 +112,7 @@ module.exports = {
     getCurrentRound,
     getCurrentTrick,
     getGamePlayers: getPlayers,
+    getGameState,
     getPlayerIndex,
     getPlayerCards,
     getPlayerSocket,
