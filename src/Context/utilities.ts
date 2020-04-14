@@ -1,3 +1,5 @@
+import { PlayerId } from "../types";
+
 type handler<T> = (state: T, payload: any) => T;
 
 function createReducer<S>(
@@ -17,18 +19,17 @@ const setQueryStringParam = (key: string, value: unknown) => {
     window.location.search = params.toString();
 }
 
-const getPlayerNumber = (gameCode: string) => {
-    const playerNumber = localStorage.getItem(`game-${gameCode}`);
-    return playerNumber ? Number(playerNumber) : null;
+const getPlayerId = (gameCode: string) => {
+    return localStorage.getItem(`game-${gameCode}`);
 }
 
-const setPlayerNumber = (gameCode: string | null, playerNumber: number) => {
-    localStorage.setItem(`game-${gameCode}`, String(playerNumber));
+const setPlayerId = (gameCode: string | null, playerId: PlayerId) => {
+    localStorage.setItem(`game-${gameCode}`, playerId);
 }
 
 export {
     createReducer,
     setQueryStringParam,
-    getPlayerNumber,
-    setPlayerNumber,
+    getPlayerId,
+    setPlayerId,
 }

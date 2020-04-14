@@ -110,8 +110,10 @@ const gameReducer = createReducer<GameState>({
             ...state.cards.slice(cardIndex + 1),
         ]
     }),
-    // @todo not supported by server
-    [USER_EVENTS.REJOIN_GAME]: (state) => state,
+    [USER_EVENTS.REJOIN_GAME]: (state, gameState: Partial<GameState>) => ({
+        ...state,
+        ...gameState,
+    }),
 })
 
 export {
