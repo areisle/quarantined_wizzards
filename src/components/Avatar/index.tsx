@@ -1,7 +1,7 @@
 import './index.scss';
 
 import { Star } from '@material-ui/icons';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, HTMLProps } from 'react';
 
 interface PlayerAvatarProps {
     player: number | null;
@@ -9,10 +9,18 @@ interface PlayerAvatarProps {
     active?: boolean;
     leader?: boolean;
     empty?: boolean;
+    style?: HTMLProps<HTMLDivElement>['style'];
 }
 
 function PlayerAvatar(props: PlayerAvatarProps) {
-    const { player, children, active, leader, empty } = props;
+    const { 
+        player, 
+        children, 
+        active, 
+        leader, 
+        empty,
+        ...rest
+    } = props;
 
     return (
         <div
@@ -24,6 +32,7 @@ function PlayerAvatar(props: PlayerAvatarProps) {
                 ${leader ? 'avatar--leader' : ''}
                 ${empty ? 'avatar--empty' : ''}
             `}
+            {...rest}
         >
             {children}
             {leader && (

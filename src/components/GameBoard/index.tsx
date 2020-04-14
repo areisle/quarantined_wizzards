@@ -6,7 +6,7 @@ import { GameContext } from '../../Context';
 import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
-import { Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -36,7 +36,7 @@ function GameBoard(props: GameBoardProps) {
     const { onOpenBettingDialog } = props;
     const { 
         activePlayer,
-        playerNumber,
+        playerId,
         players,
         roundNumber,
         scores,
@@ -50,14 +50,16 @@ function GameBoard(props: GameBoardProps) {
     const isBetting = stage === 'betting';
 
     const avatars = players.map((username, index) => {
-        const { bet } = scores[roundNumber]?.[index] ?? {};
+        const { bet } = scores[roundNumber]?.[username] ?? {};
 
         let content: ReactNode = null;
-        const isActive = activePlayer === index;
-        const isCurrent = playerNumber === index;
+        const isActive = activePlayer === username;
+        const isCurrent = playerId === username;
         
         if (isSetup) {
-            content = username
+            content = (
+                <Typography>{username}</Typography>
+            )
         } else if (isBetting && isNil(bet) && isCurrent) {
             content = (
                 <Button
@@ -81,24 +83,28 @@ function GameBoard(props: GameBoardProps) {
                     }}
                 />
             )
-        } else if (isPlaying && trickCards[index]) {
+        } else if (isPlaying && trickCards[username]) {
             content = (
                 <PlayingCard
-                    {...trickCards[index]}
+                    {...trickCards[username]}
                     size='flexible'
                 />
             )
         } else if (isPlaying && isActive && isCurrent) {
-            content = 'it\'s your turn to pick a card...';
+            
+            content = (
+                <Typography>it's your turn to pick a card...</Typography>
+            );
         } else if (isPlaying && isActive) {
-            content = 'picking a card...';
-
+            content = (
+                <Typography>'picking a card...'</Typography>
+            )
         }
         return (
             <PlayerAvatar
                 key={index}
-                active={index === activePlayer}
-                leader={trickLeader === index}
+                active={isActive}
+                leader={trickLeader === username}
                 player={index + 1}
             >
                 {content}

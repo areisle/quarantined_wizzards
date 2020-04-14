@@ -4,11 +4,12 @@
     border-radius: 5px;
     display: grid;
     grid-template-areas: 
-        'marker-1 top top'
-        'center center center'
-        'bottom bottom marker-2';
+        'marker-1 . .'
+        '. center .'
+        '. . marker-2';
     grid-template-columns: min-content 1fr min-content;
     grid-template-rows: min-content 1fr min-content;
+    text-align: center;
 
     &--medium {
         height: 15rem;
@@ -34,8 +35,12 @@
         grid-area: marker-1;
     }
 
-    .marker:nth-of-type(2) {
+    .marker:last-of-type {
         grid-area: marker-2;
+    }
+
+    &__content {
+        grid-area: center;
     }
 }
 

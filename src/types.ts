@@ -3,32 +3,44 @@ export interface Card {
     number?: number | null;
 }
 
-type PlayerNumber = number;
-type RoundNumber = number;
+/**
+ * username of the player
+ */
+export type PlayerId = string;
 
-// for now player ids can just be numbers?
+interface Score {
+    bet?: number | null;
+    taken?: number | null;
+}
+
 export interface GameState {
-    players: string[];
-    scores: Record<
-        RoundNumber, 
+    /**
+     * the usernames of players where index is players position
+     */
+    players: PlayerId[];
+    /**
+     * scores per round where index is roundNumber
+     */
+    scores: (
         Record<
-            PlayerNumber, 
-            Partial<Record<'bet' | 'taken', number | null>>
+            PlayerId, 
+            Score
         >
-    >;
-    roundNumber: RoundNumber;
+    )[];
+    roundNumber: number;
     trickNumber: number;
-    stage: 'awaiting-players' | 'betting' | 'playing';
+    stage: 'awaiting-players' | 'betting' | 'playing' | 'trick-won';
     cards: Card[];
-    trickCards: Record<PlayerNumber, Card | null>;
-    playerNumber: PlayerNumber | null;
-    trickLeader: PlayerNumber | null;
-    activePlayer: PlayerNumber | null;
-    trumpCard: Card | null;
+    trickCards: Record<PlayerId, Card | null>;
+    trickWinner: PlayerId | null;
+    playerId: PlayerId | null;
+    trickLeader: PlayerId | null;
+    activePlayer: PlayerId | null;
+    trumpSuit: Card['suit'] | null;
     gameCode: string | null;
 }
 
 export interface CardPlayedParams {
-    playerId: number;
+    playerId: PlayerId;
     card: Card;
 }

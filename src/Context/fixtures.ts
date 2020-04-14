@@ -4,16 +4,17 @@ import { GameState } from "../types";
 export const newGameState: GameState = {
     players: [],
     cards: [],
-    scores: {},
+    scores: [],
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
     stage: 'awaiting-players',
-    playerNumber: 0,
+    playerId: 'abbey',
     trickLeader: null,
     activePlayer: null,
-    trumpCard: null,
+    trumpSuit: null,
     gameCode: null,
+    trickWinner: null,
 }
 
 export const startState: GameState = {
@@ -23,16 +24,17 @@ export const startState: GameState = {
         'karen', 
     ],
     cards: [],
-    scores: {},
+    scores: [],
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
     stage: 'awaiting-players',
-    playerNumber: 0,
+    playerId: 'abbey',
     trickLeader: null,
     activePlayer: null,
-    trumpCard: null,
+    trumpSuit: null,
     gameCode: '1234',
+    trickWinner: null,
 }
 
 export const bettingState: GameState = {
@@ -66,22 +68,23 @@ export const bettingState: GameState = {
         { suit: 'clubs', number: 3 },
         { suit: 'clubs', number: 12 },
     ],
-    scores: {
-        0: {
-            1: { bet: 0 },
-            2: { bet: 1 },
-            5: { bet: 1 },
-        },
-    },
+    scores: [
+        {
+            'abbey': { bet: 0 },
+            'karen': { bet: 1 },
+            'natalie': { bet: 1 },
+        }
+    ],
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
     stage: 'betting',
-    playerNumber: 0,
-    trickLeader: 0,
+    playerId: 'abbey',
+    trickLeader: 'abbey',
     activePlayer: null,
-    trumpCard: { suit: 'diamonds', number: 2 },
+    trumpSuit: 'diamonds',
     gameCode: '1234',
+    trickWinner: null,
 }
 
 export const playingState: GameState = {
@@ -98,33 +101,34 @@ export const playingState: GameState = {
         { suit: 'hearts', number: 1 },
         { suit: 'clubs', number: 12 },
     ],
-    scores: {
-        0: {
-            0: { bet: 0, taken: 0 },
-            1: { bet: 0, taken: 0 },
-            2: { bet: 0, taken: 0 },
-            3: { bet: 1, taken: 0 },
-            4: { bet: 1, taken: 0 },
-            5: { bet: 1, taken: 1 },
+    scores: [
+        {
+            'abbey': { bet: 0, taken: 0 },
+            'fritz': { bet: 0, taken: 0 },
+            'karen': { bet: 0, taken: 0 },
+            'martin': { bet: 1, taken: 0 },
+            'caralyn': { bet: 1, taken: 0 },
+            'natalie': { bet: 1, taken: 1 },
         },
-        1: {
-            0: { bet: 0, taken: 0 },
-            1: { bet: 0, taken: 1 },
-            2: { bet: 2, taken: 1 },
-            3: { bet: 1, taken: 0 },
-            4: { bet: 1, taken: 0 },
-            5: { bet: 0, taken: 0 },
+        {
+            'abbey': { bet: 0, taken: 0 },
+            'fritz': { bet: 0, taken: 1 },
+            'karen': { bet: 2, taken: 1 },
+            'martin': { bet: 1, taken: 0 },
+            'caralyn': { bet: 1, taken: 0 },
+            'natalie': { bet: 0, taken: 0 },
         }
-    },
+    ],
     roundNumber: 2,
     trickNumber: 0,
     trickCards: {},
     stage: 'playing',
-    playerNumber: 0,
-    trickLeader: 0,
+    playerId: 'abbey',
+    trickLeader: 'abbey',
     activePlayer: null,
-    trumpCard: { suit: 'diamonds', number: 2 },
+    trumpSuit: 'diamonds',
     gameCode: '1234',
+    trickWinner: null,
 }
 
 export const playingDuringTrickState: GameState = {
@@ -140,35 +144,36 @@ export const playingDuringTrickState: GameState = {
         { suit: 'jester' },
         { suit: 'clubs', number: 12 },
     ],
-    scores: {
-        0: {
-            0: { bet: 0, taken: 0 },
-            1: { bet: 0, taken: 0 },
-            2: { bet: 0, taken: 0 },
-            3: { bet: 1, taken: 0 },
-            4: { bet: 1, taken: 0 },
-            5: { bet: 1, taken: 1 },
+    scores: [
+        {
+            'abbey': { bet: 0, taken: 0 },
+            'fritz': { bet: 0, taken: 0 },
+            'karen': { bet: 0, taken: 0 },
+            'martin': { bet: 1, taken: 0 },
+            'caralyn': { bet: 1, taken: 0 },
+            'natalie': { bet: 1, taken: 1 },
         },
-        1: {
-            0: { bet: 0, taken: 0 },
-            1: { bet: 0, taken: 1 },
-            2: { bet: 2, taken: 1 },
-            3: { bet: 1, taken: 0 },
-            4: { bet: 1, taken: 0 },
-            5: { bet: 0, taken: 0 },
+        {
+            'abbey': { bet: 0, taken: 0 },
+            'fritz': { bet: 0, taken: 1 },
+            'karen': { bet: 2, taken: 1 },
+            'martin': { bet: 1, taken: 0 },
+            'caralyn': { bet: 1, taken: 0 },
+            'natalie': { bet: 0, taken: 0 },
         }
-    },
+    ],
     roundNumber: 2,
     trickNumber: 0,
     trickCards: {
-        0: { suit: 'hearts', number: 1 },
-        1: { suit: 'hearts', number: 7 },
-        2: { suit: 'jester' },
+        'abbey': { suit: 'hearts', number: 1 },
+        'fritz': { suit: 'hearts', number: 7 },
+        'karen': { suit: 'jester' },
     },
     stage: 'playing',
-    playerNumber: 0,
-    trickLeader: 0,
-    activePlayer: 3,
-    trumpCard: { suit: 'diamonds', number: 2 },
+    playerId: 'abbey',
+    trickLeader: 'abbey',
+    activePlayer: 'martin',
+    trumpSuit: 'diamonds',
     gameCode: '1234',
+    trickWinner: null,
 }

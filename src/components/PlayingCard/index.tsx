@@ -25,7 +25,8 @@ function PlayingCard(props: PlayingCardProps) {
         size = 'medium',
         suit, 
         number, 
-        selected, 
+        selected,
+        children,
         ...rest
     } = props;
     
@@ -35,6 +36,9 @@ function PlayingCard(props: PlayingCardProps) {
             className={`playing-card playing-card--${size} ${selected ? 'playing-card--selected' : ''}`}
         >
             <Marker suit={suit} number={number} />
+            <div className='playing-card__content'>
+            {children}
+            </div>
             <Marker suit={suit} number={number} />
         </div>
     )
@@ -42,4 +46,5 @@ function PlayingCard(props: PlayingCardProps) {
 
 export {
     PlayingCard,
+    Marker,
 }

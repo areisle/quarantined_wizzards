@@ -22,7 +22,7 @@ const getPlayerNumber = (gameCode: string) => {
     return playerNumber ? Number(playerNumber) : null;
 }
 
-const setPlayerNumber = (gameCode: string, playerNumber: number) => {
+const setPlayerNumber = (gameCode: string | null, playerNumber: number) => {
     localStorage.setItem(`game-${gameCode}`, String(playerNumber));
 }
 

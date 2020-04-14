@@ -11,23 +11,29 @@ import { PlayerDeck } from './components/PlayerDeck';
 import { ScoreBoard } from './components/ScoreBoard';
 import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
+import { TrickWonDialog } from './components/TrickWonDialog';
+import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
 
 function Main() {
     const { 
-        playerNumber,
+        playerId,
         roundNumber,
         stage,
         trickNumber,
-        trumpCard,
+        trickWinner,
+        trumpSuit,
         players,
         gameCode,
         startNewGame,
         joinGame,
         allPlayersIn,
+        placeBet,
+        playCard,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
+
     const isSetup = stage === 'awaiting-players';
 
     const handleCloseScoreBoard = () => {
@@ -39,13 +45,14 @@ function Main() {
      */
     const handleBetSelected = (bet: number) => {
         setBetOpen(false);
+        placeBet(bet);
     }
-    
+
     return (
         <div className='main'>
             <Header
                 onScoreBoardOpen={() => setBoardOpen(true)}
-                trump={trumpCard}
+                trump={trumpSuit}
                 round={roundNumber}
                 trick={trickNumber}
                 stage={stage}
@@ -55,10 +62,12 @@ function Main() {
             />
             <Footer
                 onAllPlayersIn={allPlayersIn}
-                showAllInButton={isSetup && playerNumber === 0}
+                showAllInButton={isSetup && playerId === players[0]}
                 disabled={players.length < 3}
             />
-            <PlayerDeck />
+            <PlayerDeck
+                onPlaceCard={playCard}
+            />
             <ScoreBoard 
                 open={scoreboardOpen}
                 onClose={handleCloseScoreBoard}
@@ -69,12 +78,22 @@ function Main() {
                 onBetPlaced={handleBetSelected}
                 max={trickNumber + 1}
             />
+            <TrickWonDialog
+                playerNumber={players.indexOf(trickWinner as string)}
+                winner={trickWinner}
+                round={roundNumber}
+                trick={trickNumber}
+            />
             <JoinGameDialog
-                open={Boolean(gameCode && playerNumber === null)}
+                open={Boolean(gameCode && playerId === null)}
                 onJoin={joinGame}
             />
             <StartGameDialog
                 open={!gameCode}
+                onStart={startNewGame}
+            />
+            <ChooseTrumpDialog
+                open={false}
                 onStart={startNewGame}
             />
         </div>

@@ -1,44 +1,74 @@
 import React, { createContext, useReducer, ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import * as io from 'socket.io-client';
-import { API, SERVER_EVENTS, USER_EVENTS } from './contants';
-import { setQueryStringParam } from './utilities';
-import { initialState, gameReducer, CardPlayedParams } from './reducer';
-import { GameState, Card } from '../types';
+import { API, SERVER_EVENTS, USER_EVENTS } from './constants';
+import { setQueryStringParam, setPlayerNumber } from './utilities';
+import { initialState, gameReducer, CardPlayedParams, RoundStartedParams, TrickStartedParam, BetPlacedParams } from './reducer';
+import { GameState, Card, PlayerId } from '../types';
+import { Snackbar, SnackbarContent } from '@material-ui/core';
 
 interface ContextValue extends GameState {
     startNewGame: () => void;
     joinGame: (username: string) => void;
     playCard: (cardIndex: number) => void;
     allPlayersIn: () => void;
+    placeBet: (bet: number) => void;
 }
 
 const GameContext = createContext<ContextValue>({
     ...initialState,
     startNewGame: () => {},
-    joinGame: (username: string) => {},
+    joinGame: (username: PlayerId) => {},
     playCard: (cardIndex: number) => {},
     allPlayersIn: () => {},
+    placeBet: (bet: number) => {},
 });
 
-type PlayersChangedParams = { playerId: number, name: string }[];
+type PlayersChangedParams = PlayerId[];
+
+function logger<T extends (...args: any) => any = any>(func: T): typeof func {
+    return ((...args: any[]) => {
+        if (process.env.NODE_ENV === 'development') {
+            console.log(...args);
+        }
+        return func(...args);
+    }) as unknown as typeof func
+}
+
+interface SnackbarState {
+    open: boolean;
+    message?: string | null;
+}
 
 function GameContextProvider(props: { children: ReactNode }) {
     const { children } = props;
-    const [state, dispatch] = useReducer(gameReducer, initialState);
+    const [state, dispatch] = useReducer(logger(gameReducer), initialState);
     const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
 
+    const [snackbar, setSnackbar] = useState<SnackbarState>({
+        open: false,
+    });
+    
     const {
-        gameCode
+        gameCode,
+        playerId,
+        cards,
     } = state;
 
     useEffect(() => {
         const nextSocket = io.connect(API);
         setSocket(nextSocket);
 
-        nextSocket.on(SERVER_EVENTS.ACTIVE_PLAYER_CHANGED, (playerIndex: number) => {
+        nextSocket.on(SERVER_EVENTS.ACTIVE_PLAYER_CHANGED, (playerId: PlayerId) => {
             dispatch({
                 type: SERVER_EVENTS.ACTIVE_PLAYER_CHANGED,
-                payload: playerIndex,
+                payload: playerId,
+            });
+        });
+
+        nextSocket.on(SERVER_EVENTS.BET_PLACED, (params: BetPlacedParams) => {
+            dispatch({
+                type: SERVER_EVENTS.BET_PLACED,
+                payload: params,
             });
         });
 
@@ -49,29 +79,21 @@ function GameContextProvider(props: { children: ReactNode }) {
             });
         });
 
-        nextSocket.on(SERVER_EVENTS.CARDS_DEALT, (cards: Card[]) => {
-            dispatch({
-                type: SERVER_EVENTS.CARDS_DEALT,
-                payload: cards,
-            });
-        });
-
         nextSocket.on(SERVER_EVENTS.PLAYERS_CHANGED, (players: PlayersChangedParams) => {
-            console.log(SERVER_EVENTS.PLAYERS_CHANGED, players)
             dispatch({
                 type: SERVER_EVENTS.PLAYERS_CHANGED,
-                payload: players.map((player) => player.name),
+                payload: players,
             });
         });
 
-        nextSocket.on(SERVER_EVENTS.ROUND_STARTED, (roundNumber: number) => {
+        nextSocket.on(SERVER_EVENTS.ROUND_STARTED, (params: RoundStartedParams) => {
             dispatch({
                 type: SERVER_EVENTS.ROUND_STARTED,
-                payload: roundNumber,
+                payload: params,
             });
         });
 
-        nextSocket.on(SERVER_EVENTS.TRICK_WON, (playerId: number) => {
+        nextSocket.on(SERVER_EVENTS.TRICK_WON, ({ playerId }: { playerId: PlayerId }) => {
             dispatch({
                 type: SERVER_EVENTS.TRICK_WON,
                 payload: playerId,
@@ -85,17 +107,23 @@ function GameContextProvider(props: { children: ReactNode }) {
             });
         });
 
-        nextSocket.on(SERVER_EVENTS.TRICK_STARTED, (trickNumber: number) => {
+        nextSocket.on(SERVER_EVENTS.TRICK_STARTED, (params: TrickStartedParam) => {
             dispatch({
                 type: SERVER_EVENTS.TRICK_STARTED,
-                payload: trickNumber,
+                payload: params,
             });
+        });
+
+        nextSocket.on(SERVER_EVENTS.ERROR, (error: unknown) => {
+            setSnackbar({
+                open: true,
+                message: String(error),
+            })
         });
 
         return () => {
             nextSocket.disconnect();
         }
-
     }, [dispatch]);
 
     const startNewGame = useCallback(() => {
@@ -114,17 +142,18 @@ function GameContextProvider(props: { children: ReactNode }) {
                 type: USER_EVENTS.JOIN_GAME,
                 payload: playerId,
             });
+            setPlayerNumber(gameCode, playerId);
         })
     }, [gameCode, socket]);
 
-    const playCard = useCallback(() => {
-        socket?.emit(USER_EVENTS.PLAY_CARD, (cardIndex: number) => {
+    const playCard = useCallback((cardIndex: number) => {
+        socket?.emit(USER_EVENTS.PLAY_CARD, gameCode, playerId, cards[cardIndex], () => {
             dispatch({
                 type: USER_EVENTS.PLAY_CARD,
                 payload: cardIndex,
             });
-        })
-    }, [socket]);
+        });
+    }, [cards, gameCode, playerId, socket]);
 
     const allPlayersIn = useCallback(() => {
         socket?.emit(USER_EVENTS.START_GAME, gameCode, () => {
@@ -134,17 +163,41 @@ function GameContextProvider(props: { children: ReactNode }) {
         })
     }, [gameCode, socket]);
 
+    const placeBet = useCallback((bet: number) => {
+        socket?.emit(USER_EVENTS.PLACE_BET, gameCode, playerId, bet);
+    }, [gameCode, playerId, socket]);
+
+    useEffect(() => {
+        if (gameCode) {
+            socket?.emit(USER_EVENTS.GET_PLAYERS, gameCode, (players: PlayersChangedParams) => {
+                dispatch({
+                    type: SERVER_EVENTS.PLAYERS_CHANGED,
+                    payload: players,
+                });
+            })
+        }
+    }, [gameCode, socket]);
+
     const value = useMemo(() => ({
         ...state,
         startNewGame,
         joinGame,
         playCard,
         allPlayersIn,
-    }), [allPlayersIn, joinGame, playCard, startNewGame, state]);
+        placeBet,
+    }), [allPlayersIn, joinGame, placeBet, playCard, startNewGame, state]);
 
     return (
         <GameContext.Provider value={value}>
             {children}
+            <Snackbar 
+                open={snackbar.open} 
+                onClose={() => setSnackbar({ open: false })}
+            >
+                <SnackbarContent
+                    message={snackbar.message}
+                />
+            </Snackbar>
         </GameContext.Provider>
     )
 }

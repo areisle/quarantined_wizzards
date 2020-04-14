@@ -4,11 +4,28 @@ import React, { useState, useCallback, useContext } from 'react';
 import { PlayingCard } from '../PlayingCard';
 import SwipeableViews from 'react-swipeable-views';
 import { GameContext } from '../../Context';
+import { Button } from '@material-ui/core';
 
-function PlayerDeck() {
-    const { cards, stage } = useContext(GameContext);
+interface PlayerDeckProps {
+    onPlaceCard: (cardIndex: number) => void;
+}
+
+function PlayerDeck(props: PlayerDeckProps) {
+    const { onPlaceCard } = props;
+    const { 
+        cards, 
+        stage,
+        playerId,
+        activePlayer, 
+    } = useContext(GameContext);
+
     const [open, setOpen] = useState(false);
     const [selectedIndex, setIndex] = useState(0);
+
+    const showPlaceCard = (
+        activePlayer === playerId
+        && stage === 'playing'
+    );
 
     const handleChangeIndex = useCallback((index: number) => {
         setIndex(index);
@@ -22,6 +39,11 @@ function PlayerDeck() {
     const handleClose = useCallback(() => {
         setOpen(false);
     }, []);
+
+    const handlePlaceCard = useCallback((card: number) => {
+        setOpen(false);
+        onPlaceCard(card);
+    }, [onPlaceCard]);
 
     if (stage === 'awaiting-players') {
         return null;
@@ -51,7 +73,17 @@ function PlayerDeck() {
                     {...card}
                     size='large'
                     onClick={(e) => e.stopPropagation()}
-                />
+                >
+                    {showPlaceCard && (
+                        <Button
+                            onClick={() => handlePlaceCard(index)}
+                            variant='contained'
+                            color='primary'
+                        >
+                            Place Card
+                        </Button>
+                    )}
+                </PlayingCard>
             </div>
         )
     });

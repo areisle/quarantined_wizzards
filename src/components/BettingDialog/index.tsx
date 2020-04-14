@@ -26,7 +26,6 @@ function BettingDialog(props: BettingDialogProps) {
     const [bet, setBet] = useState<number | null>(null);
 
     const handleChange: TextFieldProps['onChange'] = (e) => {
-        console.log('input', e.target.value)
         const value = e.target.value;
         setBet(value ? Number(value) : null);
     }
@@ -34,8 +33,6 @@ function BettingDialog(props: BettingDialogProps) {
     const handleBetPlaced = () => {
         onBetPlaced(bet as number);
     }
-
-    console.log(bet)
 
     return (
         <Dialog 

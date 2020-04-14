@@ -16,6 +16,7 @@ import isNil from 'lodash.isnil';
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
 import { GameState } from '../../types';
+import { Rules } from '../Rules';
 
 interface ScoreBoardProps {
     open: boolean;
@@ -145,6 +146,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                 </TableHead>
                 <TableBody>{rows}</TableBody>
             </Table>
+            <Rules />
         </div>
     )
 }
