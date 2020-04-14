@@ -8,18 +8,18 @@ import { ScoreBoardIcon } from '../../icons';
 interface HeaderProps {
     onScoreBoardOpen: () => void;
     stage: GameState['stage'];
-    round: GameState['roundNumber'];
-    trick: GameState['trickNumber'];
-    trump: GameState['trumpSuit'];
+    roundNumber: GameState['roundNumber'];
+    trickNumber: GameState['trickNumber'];
+    trumpSuit: GameState['trumpSuit'];
 }
 
 function Header(props: HeaderProps) {
     const {
         onScoreBoardOpen,
-        round,
+        roundNumber,
         stage,
-        trick,
-        trump,
+        trickNumber,
+        trumpSuit,
     } = props;
     
     const isSetup = stage === 'awaiting-players';
@@ -30,9 +30,9 @@ function Header(props: HeaderProps) {
             {!isSetup && (
                 <>
                     <ul className='game-header__stats'>
-                        <li>trump: {trump}</li>
-                        <li>round: {round + 1}</li>
-                        <li>trick: {isBetting ? 'waiting for bets...' : trick + 1}</li>
+                        <li>trump: {trumpSuit}</li>
+                        <li>round: {roundNumber + 1}</li>
+                        <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
                     </ul>
                     <IconButton
                         size='small'

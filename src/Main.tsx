@@ -39,7 +39,7 @@ function Main() {
     const handleCloseScoreBoard = () => {
         setBoardOpen(false);
     }
-    
+
     const handleBetSelected = (bet: number) => {
         setBetOpen(false);
         placeBet(bet);
@@ -49,9 +49,9 @@ function Main() {
         <div className='main'>
             <Header
                 onScoreBoardOpen={() => setBoardOpen(true)}
-                trump={trumpSuit}
-                round={roundNumber}
-                trick={trickNumber}
+                trumpSuit={trumpSuit}
+                roundNumber={roundNumber}
+                trickNumber={trickNumber}
                 stage={stage}
             />
             <GameBoard
