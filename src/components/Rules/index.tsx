@@ -1,11 +1,7 @@
 import React from 'react';
 import { Typography, Table, TableBody, TableRow, TableCell, TableHead, Card, CardContent } from '@material-ui/core';
 
-interface RulesProps {
-
-}
-
-function Rules(props: RulesProps) {
+function Rules() {
     return (
         <Card style={{ overflow: 'scroll' }}>
             <CardContent>

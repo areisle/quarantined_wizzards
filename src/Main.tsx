@@ -39,10 +39,7 @@ function Main() {
     const handleCloseScoreBoard = () => {
         setBoardOpen(false);
     }
-
-    /**
-     * @todo handle bet value
-     */
+    
     const handleBetSelected = (bet: number) => {
         setBetOpen(false);
         placeBet(bet);

@@ -1,4 +1,8 @@
-// fixed game states for helping in development components
+/**
+ * TESTING ONLY
+ * 
+ * fixed game states for helping in developing components
+ */
 import { GameState } from "../types";
 
 export const newGameState: GameState = {
