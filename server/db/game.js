@@ -60,5 +60,25 @@ const deleteGame = async (redis, gameId) => {
     return pipeline.exec();
 };
 
+const setGameStarted = async (redis, gameId) => {
+    await redis.set(`${gameId}-started`, true);
+    return true;
+};
 
-module.exports = { getPlayers, createGame, deleteGame, addPlayer, getPlayerIndex, getPlayerId, playerExists };
+const getGameStarted = async (redis, gameId) => {
+    const started = await redis.get(`${gameId}-started`);
+    return Boolean(started && started.toString() === 'true');
+};
+
+
+module.exports = {
+    addPlayer,
+    createGame,
+    deleteGame,
+    getGameStarted,
+    getPlayerId,
+    getPlayerIndex,
+    getPlayers,
+    playerExists,
+    setGameStarted,
+};
