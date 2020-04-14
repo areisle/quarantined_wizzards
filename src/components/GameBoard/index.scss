@@ -1,0 +1,71 @@
+.game-board {
+    --avatar-size: 44vw;
+    --grid-column-gap: 4vw;
+    --grid-row-gap: 4vw;
+
+    @media (min-aspect-ratio: 5/9) {
+        --avatar-size: 43vw;
+        --grid-column-gap: 4vw;
+        --grid-row-gap: 4vw;
+    }
+
+    @media (min-aspect-ratio: 21/36) {
+        --grid-row-gap: 2vw;
+    }
+
+    @media (min-aspect-ratio: 11/18) {
+        --avatar-size: 40vw;
+    }
+
+    @media (min-aspect-ratio: 6/9) {
+        --avatar-size: 32vw;
+        --grid-column-gap: 4vw;
+    }
+
+    @media (min-aspect-ratio: 7/9) {
+        --avatar-size: 27vw;
+        --grid-row-gap: 1vw;
+    }
+
+    @media (min-aspect-ratio: 8/9) {
+        --avatar-size: 28vh;
+        --grid-column-gap: 2vh;
+        --grid-row-gap: 2vh;
+    }
+
+    @media (min-aspect-ratio: 4/3) {
+        --avatar-size: 32vh;
+    }
+
+    align-content: center;
+    column-gap: var(--grid-column-gap);
+    display: grid;
+    grid-template-columns: repeat(2, var(--avatar-size));
+    justify-content: center;
+    row-gap: var(--grid-row-gap);
+
+    &--5-players, &--6-players {
+        grid-template-areas: 
+            'avatar-1 avatar-2'
+            'avatar-6 avatar-3'
+            'avatar-5 avatar-4';
+        grid-template-rows: repeat(3, var(--avatar-size));
+    }
+
+    @media (min-aspect-ratio: 8/9) {
+        &--5-players, &--6-players {
+            grid-template-areas: 
+                'avatar-1 avatar-2 avatar-3'
+                'avatar-6 avatar-5 avatar-4';
+            grid-template-columns: repeat(3, var(--avatar-size));
+            grid-template-rows: repeat(2, var(--avatar-size));
+        }
+    }
+
+    &--3-players, &--4-players {
+        grid-template-areas: 
+            'avatar-1 avatar-2'
+            'avatar-4 avatar-3';
+        grid-template-rows: repeat(2, var(--avatar-size));
+    }
+}

@@ -1,0 +1,57 @@
+.score-board {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    left: 0;
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+
+    transition: background-color 0.3s;
+
+    &--open {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    &--closed {
+        visibility: hidden;
+    }
+    
+    &__table {
+        background-color: white;
+        position: relative;
+    }
+
+    &__round-score {
+        display: grid;
+        grid-template-areas: 
+        'total bet'
+        'total taken';
+        grid-template-columns: 1fr min-content;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .round-score__bet, .round-score__taken {
+        border-left: 1px solid grey;
+        padding: 10px;
+    }
+
+    .round-score__bet {
+        grid-area: bet;
+    }
+
+    .round-score__taken {
+        grid-area: taken;
+    }
+
+    .overlay__close-button {
+        padding: 20px 18px;
+
+        svg {
+            font-size: 3rem;
+        }
+    }
+}

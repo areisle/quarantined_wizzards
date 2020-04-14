@@ -1,0 +1,14 @@
+.game-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    &__stats {
+        list-style: none;
+
+        &, li {
+            margin: 0;
+            padding: 0;
+        }
+    }
+}
