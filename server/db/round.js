@@ -317,6 +317,8 @@ const setCurrentRound = async (redis, gameId, round) => {
 /**
  * shuffles the deck, assigns cards to players and assigns the trump for the current round
  * @param {string} gameId
+ *
+ * @todo let the player decide trump when wizard comes up
  */
 const startRound = async (redis, gameId) => {
     const [players, round] = await Promise.all([
