@@ -85,6 +85,7 @@ describe('game events', () => {
             expect(gameState).toHaveProperty('trickCards');
             expect(gameState).toHaveProperty('trickLeader');
             expect(gameState).toHaveProperty('scores');
+            expect(gameState).toHaveProperty('gameStarted', false);
             expect(gameState).toHaveProperty('players', ['blargh']);
         });
 

@@ -1,6 +1,15 @@
 const Redis = require("ioredis");
 
-const { createGame, deleteGame, getPlayers, addPlayer, getPlayerIndex, playerExists } = require('./game');
+const {
+    addPlayer,
+    createGame,
+    deleteGame,
+    getGameStarted,
+    getPlayerIndex,
+    getPlayers,
+    playerExists,
+    setGameStarted,
+} = require('./game');
 const { getPlayerSocket, setPlayerSocket } = require('./player');
 const {
     evaluateTrick,
@@ -8,7 +17,6 @@ const {
     getCurrentTrick,
     getPlayerBets,
     getPlayerCards,
-    getTrickCards,
     getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
@@ -36,10 +44,11 @@ const connect = async () => {
 
 const getGameState = async (redis, gameId, playerId) => {
     // {}[round] -> {}[playerId] -> {bet: number, taken: number}
-    const [currentRound, currentTrick, players] = await Promise.all([
+    const [currentRound, currentTrick, players, gameStarted] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
         getPlayers(redis, gameId),
+        getGameStarted(redis, gameId),
     ]);
     const rounds = [];
     for (let round = 0; round < currentRound + 1; round++) {
@@ -76,14 +85,15 @@ const getGameState = async (redis, gameId, playerId) => {
     });
 
     return {
+        activePlayer,
         cards,
+        gameStarted,
+        players: players,
+        roundNumber: currentRound,
         scores,
         trickCards,
         trickLeader: trickLeader || null,
         trickNumber: currentTrick,
-        roundNumber: currentRound,
-        players: players,
-        activePlayer
     };
 };
 
@@ -102,7 +112,8 @@ const startGame = async (redis, gameId) => {
     const rounds = TOTAL_CARDS / players.length;
     await Promise.all([
         setCurrentRound(redis, gameId, 0),
-        setCurrentTrick(redis, gameId, 0)
+        setCurrentTrick(redis, gameId, 0),
+        setGameStarted(redis, gameId),
     ]);
 
     // set the dealers and trick leaders for each round
