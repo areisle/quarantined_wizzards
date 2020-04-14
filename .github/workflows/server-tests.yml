@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x, 12.x]
-        redis-version: [5]
 
     steps:
     - uses: actions/checkout@v2
@@ -24,6 +23,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - uses: shogo82148/actions-setup-redis@v1
+      with:
+        redis-version: '5.x'
+    - run: redis-cli ping
     - run: npm ci
     - run: npm run test:server
       env:
