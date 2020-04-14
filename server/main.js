@@ -1,3 +1,3 @@
 const { server } = require('.');
 
-server(3000);
+server({ port: 5000 });
