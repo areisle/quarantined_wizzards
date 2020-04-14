@@ -65,6 +65,19 @@ const getTrickPlayers = async (redis, gameId, round, trick) => {
 };
 
 
+const getTrickCardsByPlayer = async (redis, gameId, round, trick) => {
+    const [trickCards, trickPlayers] = await Promise.all([
+        getTrickCards(redis, gameId, round, trick),
+        getTrickPlayers(redis, gameId, round, trick),
+    ]);
+    const tricks = {};
+    trickCards.forEach((card, index) => {
+        tricks[trickPlayers[index]] = card;
+    });
+    return tricks;
+};
+
+
 const whosTurnIsIt = async (redis, gameId) => {
     const [round, trick] = await Promise.all([
         getCurrentRound(redis, gameId),
@@ -411,6 +424,7 @@ module.exports = {
     getCurrentTrick,
     getPlayerBets,
     getPlayerCards,
+    getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
     playCard,

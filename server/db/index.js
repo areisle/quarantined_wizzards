@@ -8,6 +8,8 @@ const {
     getCurrentTrick,
     getPlayerBets,
     getPlayerCards,
+    getTrickCards,
+    getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
     playCard,
@@ -43,8 +45,11 @@ const getGameState = async (redis, gameId) => {
     for (let round = 0; round < currentRound + 1; round++) {
         rounds.push(round);
     }
-    const allBets = await Promise.all(rounds.map(async round => getPlayerBets(redis, gameId, round)));
-    const trickWinners = await Promise.all(rounds.map(async round => getTrickWinners(redis, gameId, round)));
+    const [allBets, trickWinners, trickCards] = await Promise.all([
+        Promise.all(rounds.map(async round => getPlayerBets(redis, gameId, round))),
+        Promise.all(rounds.map(async round => getTrickWinners(redis, gameId, round))),
+        getTrickCardsByPlayer(redis, gameId, currentRound, currentTrick)
+    ]);
 
     const scores = {};
     allBets.forEach((bets, round) => {
@@ -62,6 +67,7 @@ const getGameState = async (redis, gameId) => {
 
     return {
         scores,
+        trickCards,
         trick: currentTrick,
         round: currentRound,
         players: players,
