@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import * as io from 'socket.io-client';
 import { API, SERVER_EVENTS, USER_EVENTS } from './constants';
-import { setQueryStringParam, setPlayerNumber } from './utilities';
+import { setQueryStringParam, setPlayerId, getPlayerId } from './utilities';
 import { initialState, gameReducer, CardPlayedParams, RoundStartedParams, TrickStartedParam, BetPlacedParams } from './reducer';
 import { GameState, Card, PlayerId } from '../types';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
@@ -53,6 +53,25 @@ function GameContextProvider(props: { children: ReactNode }) {
         playerId,
         cards,
     } = state;
+
+    useEffect(() => {
+        if (!gameCode || playerId) {
+            return;
+        }
+        const storedId = getPlayerId(gameCode);
+
+        if (!storedId) { return; }
+        
+        socket?.emit(USER_EVENTS.REJOIN_GAME, gameCode, storedId, (gameState: Partial<GameState>) => {
+            dispatch({
+                type: USER_EVENTS.REJOIN_GAME,
+                payload: {
+                    ...gameState,
+                    playerId: storedId,
+                },
+            });
+        });
+    }, [gameCode, playerId, socket]);
 
     useEffect(() => {
         const nextSocket = io.connect(API);
@@ -137,12 +156,12 @@ function GameContextProvider(props: { children: ReactNode }) {
     }, [socket]);
 
     const joinGame = useCallback((username: string) => {
-        socket?.emit(USER_EVENTS.JOIN_GAME, gameCode, username, (playerId: number) => {
+        socket?.emit(USER_EVENTS.JOIN_GAME, gameCode, username, (playerId: PlayerId) => {
             dispatch({
                 type: USER_EVENTS.JOIN_GAME,
                 payload: playerId,
             });
-            setPlayerNumber(gameCode, playerId);
+            setPlayerId(gameCode, playerId);
         })
     }, [gameCode, socket]);
 
