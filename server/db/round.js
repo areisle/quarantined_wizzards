@@ -256,9 +256,12 @@ const shuffleYourDeck = (array) => {
 
 
 const getTrumpSuit = async (redis, gameId, round) => {
-    return redis.get(`${gameId}-r${round}-trumpsuit`);
+    return redis.get(`${gameId}-r${round}-trump`);
 };
 
+const setTrumpSuit = async (redis, gameId, round, trump) => {
+    return redis.set(`${gameId}-r${round}-trump`, trump);
+};
 
 
 /**
@@ -342,10 +345,12 @@ const startRound = async (redis, gameId) => {
         // select a trump card
         trumpSuit = deck[cardsUsed].suit;
     }
-    promises.push(redis.set(
-        `${gameId}-r${round}-trump`,
-        trumpSuit
-    ));
+    if (trumpSuit === 'wizards') {
+        // TODO: let the player decide, currently pick random
+        trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)];
+    }
+
+    promises.push(setTrumpSuit(redis, gameId, trumpSuit));
 
     for (const playerId of Object.keys(cards)) {
         promises.push(setPlayerCards(redis, gameId, playerId, round, cards[playerId]));
