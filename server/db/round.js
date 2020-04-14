@@ -365,7 +365,7 @@ const startRound = async (redis, gameId) => {
         trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)];
     }
 
-    promises.push(setTrumpSuit(redis, gameId, trumpSuit));
+    promises.push(setTrumpSuit(redis, gameId, roundNumber, trumpSuit));
 
     for (const playerId of Object.keys(cards)) {
         promises.push(setPlayerCards(redis, gameId, playerId, roundNumber, cards[playerId]));
