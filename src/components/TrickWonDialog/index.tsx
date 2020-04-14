@@ -4,6 +4,7 @@ import {
     DialogContent,
     Typography,
 } from '@material-ui/core';
+import isNil from 'lodash.isnil';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId } from '../../types';
 
@@ -35,7 +36,7 @@ function TrickWonDialog(props: TrickWonDialogProps) {
         >
             <DialogContent>
                 <PlayerAvatar
-                    player={playerNumber}
+                    player={!isNil(playerNumber) ? playerNumber + 1 : playerNumber}
                     style={{
                         width: 120,
                         height: 120,
