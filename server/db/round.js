@@ -143,8 +143,8 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
             await setCurrentTrick(redis, trick + 1);
         } else {
             await Promise.all([
-                setCurrentTrick(redis, 0),
-                setCurrentRound(redis, round + 1),
+                setCurrentTrick(redis, gameId, 0),
+                setCurrentRound(redis, gameId, round + 1),
             ]);
         }
     }
@@ -379,10 +379,10 @@ const getPlayerBets = async (redis, gameId, round) => {
  */
 const setPlayerBet = async (redis, gameId, playerId, round, bet) => {
     if (bet < 0) {
-        throw new Error(`Invalid bet.Must be a number greater than or equal to 0`);
+        throw new Error(`Invalid bet. Must be a number greater than or equal to 0`);
     }
     if (bet > round + 1) {
-        throw new Error(`Invalid bet.Cannot be larger than the possible tricks(${round + 1})`)
+        throw new Error(`Invalid bet. Cannot be larger than the possible tricks (${round + 1})`)
     }
     const [allBets, playerIndex] = await Promise.all([
         getPlayerBets(redis, gameId, round),

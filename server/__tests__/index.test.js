@@ -128,20 +128,12 @@ describe('game events', () => {
             clientSocket.emit('start-game', gameId);
         });
 
-        test('active-user-changed', (done) => {
-            clientSocket.on('active-user-changed', (playerId) => {
-                // should be left of the dealer (first dealer is always the first user)
-                expect(playerId).toEqual(playerIds[playerIds.length - 1]);
-                done();
-            });
-            clientSocket.emit('start-game', gameId);
-        });
-
         test('round-started', (done) => {
             clientSocket.on('round-started', (resp) => {
                 expect(resp).toHaveProperty('cards');
                 expect(resp).toHaveProperty('round');
                 expect(resp).toHaveProperty('trump');
+                expect(resp).toHaveProperty('leftOfDealer', playerIds[playerIds.length - 1]);
                 const { cards, round, trump } = resp;
                 cards.forEach((card) => {
                     expect(card).toHaveProperty('number');
@@ -156,6 +148,24 @@ describe('game events', () => {
             clientSocket.emit('start-game', gameId);
         });
     });
+
+    describe('trick-started', () => {
+        beforeEach(async () => {
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
+                'join-game', gameId, playerId
+            )));
+            await promisifyEventEmitter('start-game', gameId);
+
+            await promisifyEventEmitter('place-bet', gameId, playerIds[0], 1);
+            await promisifyEventEmitter('place-bet', gameId, playerIds[1], 1);
+        });
+
+        test('gets trick-started when last bet is placed', async () => {
+            clientSocket.on()
+            await promisifyEventEmitter('place-bet', gameId, playerIds[2], 1);
+
+        })
+    })
 
     describe('play-card', () => {
 

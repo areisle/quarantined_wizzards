@@ -21,7 +21,6 @@ const server = async ({ port = 3000 }) => {
             : db.startRound(redis, gameId));
         const activeUser = await db.whosTurnIsIt(redis, gameId);
 
-        io.to(gameId).emit('active-user-changed', activeUser);
         io.to(gameId).emit('trump-changed', trump);
 
         await Promise.all(Object.keys(cards).map(async playerId => {
@@ -29,26 +28,26 @@ const server = async ({ port = 3000 }) => {
 
             io.to(socketId).emit(
                 'round-started',
-                { cards: cards[playerId], round, trump }
+                { cards: cards[playerId], round, trump, leftOfDealer: activeUser }
             );
         }));
     };
 
     io.on('connection', function (socket) {
         /**
-         * @param {function} callbackFn callback which is passed the newly created gameId
+         * @param {function} onSuccess callback which is passed the newly created gameId
          */
-        socket.on('create-game', async (callbackFn) => {
+        socket.on('create-game', async (onSuccess) => {
             const gameId = await db.createGame(redis);
-            callbackFn && callbackFn(gameId);
+            onSuccess && onSuccess(gameId);
         });
 
         /**
          * @param {string} gameId the game id
          * @param {string} username the name user joining the game
-         * @param {function} callbackFn callback which is passed the newly created playerId
+         * @param {function} onSuccess callback which is passed the newly created playerId
          */
-        socket.on('join-game', async (gameId, playerId, callbackFn) => {
+        socket.on('join-game', async (gameId, playerId, onSuccess, onError) => {
             try {
                 socket.join(gameId);
                 await db.addPlayerToGame(redis, gameId, playerId);
@@ -56,9 +55,10 @@ const server = async ({ port = 3000 }) => {
                     db.setPlayerSocket(redis, gameId, playerId, socket.id),
                     db.getGamePlayers(redis, gameId),
                 ]);
-                callbackFn && callbackFn(playerId);
+                onSuccess && onSuccess(playerId);
                 io.to(gameId).emit('users-changed', players);
             } catch (err) {
+                onError && onError(err);
                 console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
@@ -67,9 +67,9 @@ const server = async ({ port = 3000 }) => {
         /**
          * @param {string} gameId the game id
          * @param {string} username the name user joining the game
-         * @param {function} callbackFn callback which is passed the newly created playerId
+         * @param {function} onSuccess callback which is passed the newly created playerId
          */
-        socket.on('rejoin-game', async (gameId, playerId, callbackFn) => {
+        socket.on('rejoin-game', async (gameId, playerId, onSuccess, onError) => {
             try {
                 await db.playerExists(redis, gameId, playerId);
                 socket.join(gameId);
@@ -77,9 +77,10 @@ const server = async ({ port = 3000 }) => {
                     db.setPlayerSocket(redis, gameId, playerId, socket.id),
                     db.getGamePlayers(redis, gameId),
                 ]);
-                callbackFn && callbackFn(playerId);
+                onSuccess && onSuccess(playerId);
                 io.to(gameId).emit('users-changed', players);
             } catch (err) {
+                onError && onError(err);
                 console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
@@ -88,12 +89,13 @@ const server = async ({ port = 3000 }) => {
         /**
          * @param {string} gameId the game id
          */
-        socket.on('start-game', async (gameId, callbackFn) => {
+        socket.on('start-game', async (gameId, onSuccess, onError) => {
             // deal the cards
             try {
                 await startRoundEvents(gameId, true);
-                callbackFn && callbackFn();
+                onSuccess && onSuccess();
             } catch (err) {
+                onError && onError(err);
                 console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
@@ -105,7 +107,7 @@ const server = async ({ port = 3000 }) => {
          * @param {string} cardSuit the suit of the card being played
          * @param {Number} cardValue the number of the card being played
          */
-        socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, callbackFn) => {
+        socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
                 const [, round, trick] = await Promise.all([
                     db.playerExists(redis, gameId, playerId),
@@ -137,8 +139,9 @@ const server = async ({ port = 3000 }) => {
                         io.to(gameId).emit('trick-started', { round, trick, leader: trickLeader });
                     }
                 }
-                callbackFn && callbackFn();
+                onSuccess && onSuccess();
             } catch (err) {
+                onError && onError(err);
                 console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
@@ -148,9 +151,9 @@ const server = async ({ port = 3000 }) => {
          * @param {string} gameId the game the bet is for
          * @param {Number} playerId the player the bet is for
          * @param {Number} bet the bet being placed
-         * @param {function} callbackFn
+         * @param {function} onSuccess
          */
-        socket.on('place-bet', async (gameId, playerId, bet, callbackFn) => {
+        socket.on('place-bet', async (gameId, playerId, bet, onSuccess, onError) => {
             try {
                 const [round,] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
@@ -164,16 +167,17 @@ const server = async ({ port = 3000 }) => {
                 if (allBetsIn) {
                     io.to(gameId).emit('trick-started', { trick: 0, leader: trickLeader });
                 }
-                callbackFn && callbackFn();
+                onSuccess && onSuccess();
             } catch (err) {
+                onError && onError(err);
                 console.error(err);
                 io.to(socket.id).emit('error', err.toString());
             }
         });
 
-        socket.on('get-users', async (gameId, callbackFn) => {
+        socket.on('get-users', async (gameId, onSuccess) => {
             const players = await db.getGamePlayers(redis, gameId);
-            callbackFn && callbackFn(players);
+            onSuccess && onSuccess(players);
         });
 
     });
