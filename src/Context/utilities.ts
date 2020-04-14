@@ -20,11 +20,11 @@ const setQueryStringParam = (key: string, value: unknown) => {
 }
 
 const getPlayerId = (gameCode: string) => {
-    return localStorage.getItem(`game-${gameCode}`);
+    return sessionStorage.getItem(`game-${gameCode}`);
 }
 
 const setPlayerId = (gameCode: string | null, playerId: PlayerId) => {
-    localStorage.setItem(`game-${gameCode}`, playerId);
+    sessionStorage.setItem(`game-${gameCode}`, playerId);
 }
 
 export {
