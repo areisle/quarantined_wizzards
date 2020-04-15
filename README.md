@@ -13,9 +13,11 @@ Before the server can be run redis should be installed and the redis server runn
 ```bash
 redis-server
 ```
-
-Next start the server
-
+Next build the server and start it
+```bash
+npm run buid:server:dev
+```
+and 
 ```bash
 npm run start:server
 ```
