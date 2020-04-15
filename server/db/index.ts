@@ -68,7 +68,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     ]);
 
     const scores = {};
-    allBets.forEach((bets, roundNumber) => {
+    allBets.forEach((bets, roundNumber: number) => {
         scores[roundNumber] = {};
         players.forEach((playerId, playerIndex) => {
             scores[roundNumber][playerId] = {
@@ -87,6 +87,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     });
 
     return {
+        allBetsIn: gameStarted && scores[currentRound].every(b => b !== null),
         activePlayer,
         cards,
         gameStarted,
