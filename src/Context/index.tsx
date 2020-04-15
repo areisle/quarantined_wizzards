@@ -166,12 +166,7 @@ function GameContextProvider(props: { children: ReactNode }) {
     }, [gameCode, socket]);
 
     const playCard = useCallback((cardIndex: number) => {
-        socket?.emit(USER_EVENTS.PLAY_CARD, gameCode, playerId, cards[cardIndex], () => {
-            dispatch({
-                type: USER_EVENTS.PLAY_CARD,
-                payload: cardIndex,
-            });
-        });
+        socket?.emit(USER_EVENTS.PLAY_CARD, gameCode, playerId, cards[cardIndex]);
     }, [cards, gameCode, playerId, socket]);
 
     const allPlayersIn = useCallback(() => {
