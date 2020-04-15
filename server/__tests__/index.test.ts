@@ -1,8 +1,8 @@
-const io = require('socket.io-client');
-const getPort = require('get-port');
+import io from 'socket.io';
+import getPort from 'get-port';
 
-const { server: createServer } = require('../');
-const db = require('../db');
+import { server as createServer } from '../';
+import * as db from '../db';
 
 Error.stackTraceLimit = Infinity;
 

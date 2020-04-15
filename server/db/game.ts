@@ -71,7 +71,7 @@ const getGameStarted = async (redis, gameId) => {
 };
 
 
-module.exports = {
+export {
     addPlayer,
     createGame,
     deleteGame,

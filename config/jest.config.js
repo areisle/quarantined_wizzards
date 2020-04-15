@@ -8,7 +8,7 @@ module.exports = {
     collectCoverage: true,
     coverageDirectory: 'coverage',
     collectCoverageFrom: [
-        'server/**js'
+        'server/**ts'
     ],
     coverageReporters: [
         'clover',
@@ -17,8 +17,13 @@ module.exports = {
         'json-summary',
         'lcov',
     ],
+    globals: {
+        "ts-jest": {
+          "tsConfig": "tsconfig.server.json"
+        }
+    },
     testRunner: 'jest-circus/runner',
-    testRegex: '.*\\.test\\.js',
+    testRegex: '.*\\.test\\.ts',
     testEnvironment: 'node',
     testPathIgnorePatterns: [
         '/node_modules/',
@@ -26,5 +31,7 @@ module.exports = {
     moduleFileExtensions: [
         'js',
         'json',
+        'ts',
     ],
+    preset: 'ts-jest'
 };

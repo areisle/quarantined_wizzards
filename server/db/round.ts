@@ -1,9 +1,9 @@
-const { getPlayers, getPlayerIndex } = require('./game');
+import { getPlayers, getPlayerIndex } from './game';
 
 const TOTAL_CARDS = 60;
 
 
-const initializeArrayField = async (redis, field, length, value = -1) => {
+const initializeArrayField = async (redis, field, length, value: number | string = -1) => {
     await redis.del(field);
     const fill = Array.from({ length }, () => value);
     await redis.rpush(field, ...fill);
@@ -153,7 +153,7 @@ const playCard = async (redis, gameId, playerId, cardSuit, cardValue) => {
         trickWinner = await evaluateTrick(redis, gameId, roundNumber, trickNumber);
 
         if (!roundComplete) {
-            await setCurrentTrick(redis, trickNumber + 1);
+            await setCurrentTrick(redis, gameId, trickNumber + 1);
         } else {
             await Promise.all([
                 setCurrentTrick(redis, gameId, 0),
@@ -418,7 +418,7 @@ const setPlayerBet = async (redis, gameId, playerId, roundNumber, bet) => {
 };
 
 
-module.exports = {
+export {
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
