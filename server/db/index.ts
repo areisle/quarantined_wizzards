@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import IORedis, { Redis } from 'ioredis';
 import {
     addPlayer,
     createGame,
@@ -32,7 +32,7 @@ const MIN_PLAYERS = 3;
 
 
 const connect = async () => {
-    const redis = new Redis();
+    const redis = new IORedis();
     try {
         await redis.connect();
     } catch (err) { }
@@ -40,7 +40,7 @@ const connect = async () => {
 };
 
 
-const getGameState = async (redis, gameId: string, playerId: string) => {
+const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     const [currentRound, currentTrick, players, gameStarted] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -62,7 +62,7 @@ const getGameState = async (redis, gameId: string, playerId: string) => {
         Promise.all(rounds.map(async roundNumber => getPlayerBets(redis, gameId, roundNumber))),
         Promise.all(rounds.map(async roundNumber => getTrickWinners(redis, gameId, roundNumber))),
         getTrickCardsByPlayer(redis, gameId, currentRound, currentTrick),
-        getTrickLeader(redis, gameId, getCurrentRound, currentTrick),
+        getTrickLeader(redis, gameId, currentRound, currentTrick),
         whosTurnIsIt(redis, gameId),
         getPlayerCards(redis, gameId, playerId, currentRound)
     ]);
@@ -71,7 +71,12 @@ const getGameState = async (redis, gameId: string, playerId: string) => {
     allBets.forEach((bets, roundNumber) => {
         scores[roundNumber] = {};
         players.forEach((playerId, playerIndex) => {
-            scores[roundNumber][playerId] = { bet: bets[playerIndex], taken: 0 };
+            scores[roundNumber][playerId] = {
+                bet: bets[playerIndex] >= 0
+                    ? bets[playerIndex]
+                    : null,
+                taken: 0
+            };
         });
 
         for (const trickWinner of trickWinners[roundNumber]) {
@@ -99,7 +104,7 @@ const getGameState = async (redis, gameId: string, playerId: string) => {
  * This starts the game. At this point all the players are in. It will
  * initialize the score board for the number of players
  */
-const startGame = async (redis, gameId: string) => {
+const startGame = async (redis: Redis, gameId: string) => {
     const players = await getPlayers(redis, gameId);
     if (players.length < MIN_PLAYERS) {
         throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
@@ -125,7 +130,7 @@ const startGame = async (redis, gameId: string) => {
     return startRound(redis, gameId);
 };
 
-const close = (redis) => redis && redis.quit();
+const close = (redis: Redis) => redis && redis.quit();
 
 export {
     addPlayer as addPlayerToGame,
