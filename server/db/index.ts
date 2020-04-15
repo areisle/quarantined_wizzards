@@ -1,6 +1,5 @@
-const Redis = require("ioredis");
-
-const {
+import Redis from 'ioredis';
+import {
     addPlayer,
     createGame,
     deleteGame,
@@ -9,9 +8,9 @@ const {
     getPlayers,
     playerExists,
     setGameStarted,
-} = require('./game');
-const { getPlayerSocket, setPlayerSocket } = require('./player');
-const {
+} from './game';
+import { getPlayerSocket, setPlayerSocket } from './player';
+import {
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
@@ -26,7 +25,7 @@ const {
     setPlayerBet,
     startRound,
     whosTurnIsIt,
-} = require('./round');
+} from './round';
 
 const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
@@ -130,17 +129,17 @@ const startGame = async (redis, gameId) => {
     return startRound(redis, gameId);
 };
 
-
-module.exports = {
-    addPlayerToGame: addPlayer,
-    close: (redis) => redis && redis.quit(),
+const close = (redis) => redis && redis.quit();
+export {
+    addPlayer as addPlayerToGame,
+    close,
     connect,
     createGame,
     deleteGame,
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
-    getGamePlayers: getPlayers,
+    getPlayers as getGamePlayers,
     getGameState,
     getPlayerIndex,
     getPlayerCards,

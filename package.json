@@ -8,21 +8,24 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "@types/express": "^4.17.6",
+    "@types/ioredis": "^4.14.9",
     "@types/jest": "^24.9.1",
+    "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.isnil": "^4.0.6",
     "@types/lodash.update": "^4.10.6",
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "@types/react-swipeable-views-utils": "^0.13.2",
+    "@types/socket.io": "^2.1.4",
+    "@types/socket.io-client": "^1.4.32",
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "http": "0.0.1-security",
-    "ioredis": "^4.16.2",
-    "shortid": "^2.2.15",
-    "socket.io": "^2.3.0",
-    "@types/react-swipeable-views-utils": "^0.13.2",
-    "@types/socket.io-client": "^1.4.32",
     "immer": "^6.0.3",
+    "ioredis": "^4.16.2",
+    "lodash.isequal": "^4.5.0",
     "lodash.isnil": "^4.0.0",
     "lodash.update": "^4.10.2",
     "node-sass": "^4.13.1",
@@ -32,14 +35,18 @@
     "react-swipeable-views": "^0.13.9",
     "react-swipeable-views-core": "^0.13.7",
     "react-swipeable-views-utils": "^0.13.9",
+    "shortid": "^2.2.15",
+    "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:server:dev": "tsc --project tsconfig.server.json --watch",
     "test:server": "NODE_ENV=test jest --config config/jest.config.js --detectOpenHandles --forceExit",
-    "start:server": "node server/main.js",
+    "start:server": "node dist/main.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -58,6 +65,8 @@
     ]
   },
   "devDependencies": {
-    "jest-circus": "^25.3.0"
+    "get-port": "^5.1.1",
+    "jest-circus": "^25.3.0",
+    "ts-jest": "^25.3.1"
   }
 }

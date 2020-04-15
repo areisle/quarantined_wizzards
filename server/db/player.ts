@@ -8,7 +8,7 @@ const getPlayerSocket = async (redis, gameId, playerId) => {
 };
 
 
-module.exports = {
+export {
     getPlayerSocket,
     setPlayerSocket,
 };

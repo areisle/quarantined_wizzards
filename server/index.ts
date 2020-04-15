@@ -1,8 +1,10 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
-const db = require('./db');
+import express from "express";
+import { Server } from 'http';
+import socket from 'socket.io';
+import * as db from './db';
+const app = express();
+const http = new Server(app);
+const io = socket(http);
 
 const server = async ({ port = 3000 }) => {
     const redis = await db.connect();
@@ -199,6 +201,6 @@ const server = async ({ port = 3000 }) => {
     };
 };
 
-module.exports = {
+export {
     server,
 };

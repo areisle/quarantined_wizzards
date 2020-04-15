@@ -1,5 +1,5 @@
 import { SERVER_EVENTS, USER_EVENTS } from './constants';
-import { createReducer } from './utilities';
+import { createReducer, removeFirst } from './utilities';
 import produce from "immer"
 import update from 'lodash.update';
 import { GameState, Card, PlayerId } from '../types';
@@ -75,13 +75,20 @@ const gameReducer = createReducer<GameState>({
         ...state,
         players,
     }),
-    [SERVER_EVENTS.CARD_PLAYED]: (state, { card, playerId }: CardPlayedParams) => ({
-        ...state,
-        trickCards: {
-            ...state.trickCards,
-            [playerId]: card,
+    [SERVER_EVENTS.CARD_PLAYED]: (state, { card, playerId }: CardPlayedParams) => {
+        let { cards } = state;
+        if (playerId === state.playerId) {
+            cards = removeFirst(cards, card);
         }
-    }),
+        return {
+            ...state,
+            trickCards: {
+                ...state.trickCards,
+                [playerId]: card,
+            },
+            cards,
+        };
+    },
     [SERVER_EVENTS.ROUND_STARTED]: (state, params: RoundStartedParams) => ({
         ...state,
         cards: params.cards,
@@ -93,6 +100,7 @@ const gameReducer = createReducer<GameState>({
         trickNumber: params.trickNumber,
         trickLeader: params.trickLeader,
         trickWinner: null,
+        trickCards: {},
         stage: 'playing',
     }),
     [USER_EVENTS.CREATE_GAME]: (state, gameCode: string) => ({
@@ -102,13 +110,6 @@ const gameReducer = createReducer<GameState>({
     [USER_EVENTS.JOIN_GAME]: (state, playerId: PlayerId) => ({
         ...state,
         playerId,
-    }),
-    [USER_EVENTS.PLAY_CARD]: (state, cardIndex: number) => ({
-        ...state,
-        cards: [
-            ...state.cards.slice(0, cardIndex),
-            ...state.cards.slice(cardIndex + 1),
-        ]
     }),
     [USER_EVENTS.REJOIN_GAME]: (state, gameState: Partial<GameState>) => ({
         ...state,

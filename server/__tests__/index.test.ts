@@ -1,8 +1,8 @@
-const io = require('socket.io-client');
-const getPort = require('get-port');
+import ioClient from 'socket.io-client';
+import getPort from 'get-port';
 
-const { server: createServer } = require('../');
-const db = require('../db');
+import { server as createServer } from '../';
+import * as db from '../db';
 
 Error.stackTraceLimit = Infinity;
 
@@ -10,9 +10,9 @@ Error.stackTraceLimit = Infinity;
 const SUITS = ['wizard', 'jester', 'hearts', 'spades', 'diamonds', 'clubs'];
 const playerIds = ['blargh', 'monkeys', 'fishmonger'];
 
-let port,
-    clientSocket,
-    server;
+let port;
+let clientSocket;
+let server;
 
 const promisifyEventEmitter = (eventName, ...args) => {
     return new Promise((resolve) => {
@@ -23,7 +23,7 @@ const promisifyEventEmitter = (eventName, ...args) => {
 
 beforeAll(async () => {
     port = await getPort();
-    clientSocket = await io(`http://localhost:${port}`);
+    clientSocket = ioClient.connect(`http://localhost:${port}`);
     server = await createServer({ port });
 });
 
