@@ -4,7 +4,7 @@
 
 A family favourite game brought online to support social distancing!
 
-This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React documentation](https://reactjs.org/).
+This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React.js](https://reactjs.org/).
 
 ## Getting Started (Developers)
 
