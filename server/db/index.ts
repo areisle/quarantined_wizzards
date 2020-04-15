@@ -87,7 +87,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     });
 
     return {
-        allBetsIn: gameStarted && scores[currentRound].every(b => b !== null),
+        allBetsIn: gameStarted && scores[currentRound].every(b => b.bet !== null),
         activePlayer,
         cards,
         gameStarted,
