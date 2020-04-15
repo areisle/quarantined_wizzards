@@ -31,7 +31,6 @@ const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
 
 
-
 const connect = async () => {
     const redis = new Redis();
     try {
@@ -41,7 +40,7 @@ const connect = async () => {
 };
 
 
-const getGameState = async (redis, gameId, playerId) => {
+const getGameState = async (redis, gameId: string, playerId: string) => {
     const [currentRound, currentTrick, players, gameStarted] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -99,10 +98,8 @@ const getGameState = async (redis, gameId, playerId) => {
 /**
  * This starts the game. At this point all the players are in. It will
  * initialize the score board for the number of players
- *
- * @param {string} gameId
  */
-const startGame = async (redis, gameId) => {
+const startGame = async (redis, gameId: string) => {
     const players = await getPlayers(redis, gameId);
     if (players.length < MIN_PLAYERS) {
         throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
@@ -129,6 +126,7 @@ const startGame = async (redis, gameId) => {
 };
 
 const close = (redis) => redis && redis.quit();
+
 export {
     addPlayer as addPlayerToGame,
     close,
