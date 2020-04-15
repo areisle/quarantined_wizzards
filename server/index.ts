@@ -16,7 +16,7 @@ const server = async ({ port = 3000 }) => {
         res.sendFile(__dirname + '/tester.html');
     });
 
-    const startRoundEvents = async (gameId, firstRound = false) => {
+    const startRoundEvents = async (gameId: string, firstRound: boolean = false) => {
         // send a private message to each player with their cards
         const { cards, trump, roundNumber } = await (firstRound
             ? db.startGame(redis, gameId)
@@ -49,7 +49,7 @@ const server = async ({ port = 3000 }) => {
          * @param {string} username the name user joining the game
          * @param {function} onSuccess callback which is passed the newly created playerId
          */
-        socket.on('join-game', async (gameId, playerId, onSuccess, onError) => {
+        socket.on('join-game', async (gameId: string, playerId: string, onSuccess, onError) => {
             try {
                 socket.join(gameId);
                 await db.addPlayerToGame(redis, gameId, playerId);
@@ -71,7 +71,7 @@ const server = async ({ port = 3000 }) => {
          * @param {string} username the name user joining the game
          * @param {function} onSuccess callback which is passed the newly created playerId
          */
-        socket.on('rejoin-game', async (gameId, playerId, onSuccess, onError) => {
+        socket.on('rejoin-game', async (gameId: string, playerId: string, onSuccess, onError) => {
             try {
                 await db.playerExists(redis, gameId, playerId);
                 socket.join(gameId);
@@ -90,7 +90,7 @@ const server = async ({ port = 3000 }) => {
         /**
          * @param {string} gameId the game id
          */
-        socket.on('start-game', async (gameId, onSuccess, onError) => {
+        socket.on('start-game', async (gameId: string, onSuccess, onError) => {
             // deal the cards
             try {
                 await startRoundEvents(gameId, true);
@@ -108,7 +108,7 @@ const server = async ({ port = 3000 }) => {
          * @param {string} cardSuit the suit of the card being played
          * @param {Number} cardValue the number of the card being played
          */
-        socket.on('play-card', async (gameId, playerId, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
+        socket.on('play-card', async (gameId: string, playerId: string, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
                 const [, roundNumber, trickNumber] = await Promise.all([
                     db.playerExists(redis, gameId, playerId),
@@ -157,7 +157,7 @@ const server = async ({ port = 3000 }) => {
          * @param {Number} bet the bet being placed
          * @param {function} onSuccess
          */
-        socket.on('place-bet', async (gameId, playerId, bet, onSuccess, onError) => {
+        socket.on('place-bet', async (gameId: string, playerId: string, bet: number, onSuccess, onError) => {
             try {
                 const [roundNumber,] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
@@ -169,7 +169,7 @@ const server = async ({ port = 3000 }) => {
                 ]);
 
                 onSuccess && onSuccess();
-                
+
                 io.to(gameId).emit('bet-placed', { playerId, bet });
                 if (allBetsIn) {
                     // get the new player

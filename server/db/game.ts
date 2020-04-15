@@ -1,24 +1,25 @@
+import { Redis } from 'ioredis';
 const shortid = require('shortid');
 
 const MAX_PLAYERS = 6;
 
 
-const getPlayers = async (redis, gameId) => {
+const getPlayers = async (redis: Redis, gameId: string) => {
     return redis.lrange(`${gameId}-players`, 0, -1);
 };
 
 
-const getPlayerIndex = async (redis, gameId, playerId) => {
+const getPlayerIndex = async (redis: Redis, gameId: string, playerId: string) => {
     const players = await getPlayers(redis, gameId);
     return players.indexOf(playerId);
 };
 
-const getPlayerId = async (redis, gameId, playerIndex) => {
+const getPlayerId = async (redis: Redis, gameId: string, playerIndex: number) => {
     const players = await getPlayers(redis, gameId);
     return players[playerIndex];
 };
 
-const playerExists = async (redis, gameId, playerId) => {
+const playerExists = async (redis: Redis, gameId: string, playerId: string) => {
     const players = await getPlayers(redis, gameId);
     if (!players.includes(playerId)) {
         throw new Error(`Invalid player. Player (${playerId}) does not exist`);
@@ -26,7 +27,7 @@ const playerExists = async (redis, gameId, playerId) => {
 }
 
 
-const addPlayer = async (redis, gameId, username) => {
+const addPlayer = async (redis: Redis, gameId: string, username: string) => {
     let players = await getPlayers(redis, gameId);
 
     if (players.includes(username)) {
@@ -42,13 +43,13 @@ const addPlayer = async (redis, gameId, username) => {
 };
 
 
-const createGame = async (redis) => {
+const createGame = async (redis: Redis) => {
     const gameId = shortid.generate();
-    await redis.sadd(['games', gameId]);
+    await redis.sadd('games', gameId);
     return gameId;
 };
 
-const deleteGame = async (redis, gameId) => {
+const deleteGame = async (redis: Redis, gameId: string) => {
     const keys = await redis.keys(`${gameId}*`);
     // Use pipeline instead of sending
     // one command each time to improve the
@@ -60,12 +61,12 @@ const deleteGame = async (redis, gameId) => {
     return pipeline.exec();
 };
 
-const setGameStarted = async (redis, gameId) => {
-    await redis.set(`${gameId}-started`, true);
+const setGameStarted = async (redis: Redis, gameId: string) => {
+    await redis.set(`${gameId}-started`, 'true');
     return true;
 };
 
-const getGameStarted = async (redis, gameId) => {
+const getGameStarted = async (redis: Redis, gameId: string) => {
     const started = await redis.get(`${gameId}-started`);
     return Boolean(started && started.toString() === 'true');
 };
