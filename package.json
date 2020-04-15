@@ -65,7 +65,7 @@
     ]
   },
   "devDependencies": {
-      "get-port": "^5.1.1",
+    "get-port": "^5.1.1",
     "jest-circus": "^25.3.0",
     "ts-jest": "^25.3.1"
   }
