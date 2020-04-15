@@ -29,10 +29,24 @@ const setLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, tr
     return redis.set(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`, suit);
 };
 
+const getRoundDealer = async (redis: Redis, gameId: string, roundNumber: number) => {
+    const players = await getPlayers(redis, gameId);
+    return players[roundNumber % players.length];
+};
+
 
 const getTrickLeader = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
-    const leaders = await redis.lrange(`${gameId}-r${roundNumber}-trickleaders`, 0, -1);
-    return leaders[trickNumber];
+    if (trickNumber === 0) {
+        const [dealer, players] = await Promise.all([
+            getRoundDealer(redis, gameId, roundNumber),
+            getPlayers(redis, gameId),
+        ]);
+        const pos = players.indexOf(dealer);
+        return players[(pos + players.length - 1) % players.length];
+    } else {
+        const winners = await getTrickWinners(redis, gameId, roundNumber);
+        return winners[trickNumber - 1];
+    }
 };
 
 
@@ -59,6 +73,7 @@ const getTrickPlayers = async (redis: Redis, gameId: string, roundNumber: number
     const trickLeaderIndex = players.indexOf(trickLeader);
 
     const trickPlayers = [];
+
     for (let i = 0; i < players.length; i++) {
         const playerIndex = (trickLeaderIndex + i) % players.length;
         trickPlayers.push(players[playerIndex])
