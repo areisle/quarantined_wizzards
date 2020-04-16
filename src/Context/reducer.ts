@@ -92,16 +92,17 @@ const gameReducer = createReducer<GameState>({
     [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams): GameState => {
         const { gameStarted, allBetsIn, ...rest } = gameState;
 
+        let stage: GameState['stage'] = 'awaiting-players';
+        if (gameStarted && allBetsIn) {
+            stage = 'playing';
+        } else if (gameStarted) {
+            stage = 'betting'
+        }
+
         return {
             ...state,
             ...rest,
-            stage: (
-                gameStarted ?
-                allBetsIn ?
-                'playing' :
-                'betting' :
-                'awaiting-players'
-            ),
+            stage,
         }
     },
 })
