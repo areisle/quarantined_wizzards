@@ -55,9 +55,9 @@ function PlayerDeck(props: PlayerDeckProps) {
             {...card} 
             selected={index === selectedIndex && open} 
             onClick={(e) => {
+                setIndex(index);
                 if (open) {
                     e.stopPropagation();
-                    setIndex(index);
                 }
             }}
         />
