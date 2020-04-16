@@ -364,7 +364,7 @@ const startRound = async (redis: Redis, gameId: string) => {
     const promises = [];
 
     let trumpSuit: Suit = deck.pop()?.suit ?? 'jester';
-    
+
     if (trumpSuit === 'wizard') {
         // TODO: let the player decide, currently pick random
         trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)] as Suit;
@@ -423,12 +423,24 @@ const setPlayerBet = async (redis: Redis, gameId: string, playerId: string, roun
 };
 
 
+const setPlayerReady = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, playerId: string) => {
+    return redis.sadd(`${gameId}-r${roundNumber}-t${trickNumber}-ready`, playerId);
+};
+
+
+const getPlayersReady = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
+    return redis.smembers(`${gameId}-r${roundNumber}-t${trickNumber}-ready`);
+};
+
+
+
 export {
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
     getPlayerBets,
     getPlayerCards,
+    getPlayersReady,
     getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
@@ -436,6 +448,7 @@ export {
     setCurrentRound,
     setCurrentTrick,
     setPlayerBet,
+    setPlayerReady,
     startRound,
     whosTurnIsIt,
 };

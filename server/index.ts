@@ -226,6 +226,32 @@ const server = async ({ port = 3000 }) => {
             onSuccess?.(players);
         });
 
+        socket.on(USER_EVENTS.READY_FOR_NEXT_TRICK, async (gameId: string, playerId: string, onSuccess, onError) => {
+            try {
+                const [roundNumber, trickNumber] = await Promise.all([
+                    db.getCurrentRound(redis, gameId),
+                    db.getCurrentTrick(redis, gameId),
+                ]);
+                await db.setPlayerReady(redis, gameId, roundNumber, trickNumber, playerId);
+                const [players, playersReady] = await Promise.all([
+                    db.getGamePlayers(redis, gameId),
+                    db.getPlayersReady(redis, gameId, roundNumber, trickNumber),
+                ]);
+
+                onSuccess?.();
+
+                io.to(gameId).emit(SERVER_EVENTS.PLAYER_READY, playerId);
+
+                if (players.length === playersReady.length) {
+                    io.to(gameId).emit(SERVER_EVENTS.ALL_PLAYERS_READY);
+                }
+            } catch (err) {
+                onError?.(err);
+                console.error(err);
+                io.to(socket.id).emit(SERVER_EVENTS.ERROR, err.toString());
+            }
+        });
+
     });
 
 
