@@ -55,6 +55,7 @@ function BettingDialog(props: BettingDialogProps) {
                         min: 0,
                     }}
                     fullWidth={true}
+                    autoFocus={true}
                 />
             </DialogContent>
             <DialogActions>
