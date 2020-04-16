@@ -46,7 +46,7 @@
     "build:server": "tsc --project tsconfig.server.json",
     "build:server:dev": "tsc --project tsconfig.server.json --watch",
     "test:server": "NODE_ENV=test jest --config config/jest.config.js --detectOpenHandles --forceExit",
-    "start:server": "node dist/main.js",
+    "start:server": "node dist/server/main.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
