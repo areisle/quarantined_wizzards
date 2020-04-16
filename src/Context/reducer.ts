@@ -89,10 +89,22 @@ const gameReducer = createReducer<GameState>({
         ...state,
         playerId,
     }),
-    [USER_EVENTS.REJOIN_GAME]: (state, gameState: Partial<GameState>) => ({
+    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams): GameState => {
+        const { gameStarted, allBetsIn, ...rest } = gameState;
+
+        let stage: GameState['stage'] = 'awaiting-players';
+        if (gameStarted && allBetsIn) {
+            stage = 'playing';
+        } else if (gameStarted) {
+            stage = 'betting'
+        }
+
+        return {
             ...state,
-            ...gameState,
-    }),
+            ...rest,
+            stage,
+        }
+    },
 })
 
 export {
