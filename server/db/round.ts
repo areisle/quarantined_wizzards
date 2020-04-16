@@ -3,9 +3,6 @@ import { Redis } from 'ioredis';
 import { getPlayers, getPlayerIndex } from './game';
 import { Suit, Card, GameState } from '../../src/types';
 
-const TOTAL_CARDS = 60;
-
-
 const initializeArrayField = async (redis: Redis, field: string, length, value: number | string = -1) => {
     await redis.del(field);
     const fill = Array.from({ length }, () => value);
@@ -357,27 +354,17 @@ const startRound = async (redis: Redis, gameId: string) => {
         getCurrentRound(redis, gameId),
     ]);
 
-    const deck = shuffleYourDeck(createDeck());
+    let deck = shuffleYourDeck(createDeck());
     const cards: Record<string, Card[]> = {}
 
-    for (let trickNumber = 0; trickNumber < roundNumber + 1; trickNumber++) {
-        for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
-            const playerId = players[playerIndex];
-            if (cards[playerId] === undefined) {
-                cards[playerId] = [];
-            }
-            cards[playerId].push(deck[trickNumber + playerIndex]);
-        }
+    for (const playerId of players) {
+        cards[playerId] = deck.splice(0, roundNumber + 1);
     }
 
-    const cardsUsed = (roundNumber + 1) * players.length;
     const promises = [];
 
-    let trumpSuit: Suit = 'jester';
-    if (cardsUsed < TOTAL_CARDS) {
-        // select a trump card
-        trumpSuit = deck[cardsUsed].suit;
-    }
+    let trumpSuit: Suit = deck.pop()?.suit ?? 'jester';
+    
     if (trumpSuit === 'wizard') {
         // TODO: let the player decide, currently pick random
         trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)] as Suit;
