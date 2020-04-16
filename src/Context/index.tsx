@@ -1,10 +1,9 @@
 import React, { createContext, useReducer, ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import * as io from 'socket.io-client';
-import { API, SERVER_EVENTS, USER_EVENTS } from './constants';
 import { setQueryStringParam, setPlayerId, getPlayerId } from './utilities';
-import { initialState, gameReducer, CardPlayedParams, RoundStartedParams, TrickStartedParam, BetPlacedParams } from './reducer';
-import { GameState, Card, PlayerId } from '../types';
+import { initialState, gameReducer } from './reducer';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
+import { API, GameState, Card, PlayerId, CardPlayedParams, RejoinGameParams, BetPlacedParams, RoundStartedParams, TrickStartedParams, USER_EVENTS, SERVER_EVENTS } from '../types';
 
 interface ContextValue extends GameState {
     startNewGame: () => void;
@@ -62,7 +61,7 @@ function GameContextProvider(props: { children: ReactNode }) {
 
         if (!storedId) { return; }
         
-        socket?.emit(USER_EVENTS.REJOIN_GAME, gameCode, storedId, (gameState: Partial<GameState>) => {
+        socket?.emit(USER_EVENTS.REJOIN_GAME, gameCode, storedId, (gameState: RejoinGameParams) => {
             dispatch({
                 type: USER_EVENTS.REJOIN_GAME,
                 payload: {
@@ -126,7 +125,7 @@ function GameContextProvider(props: { children: ReactNode }) {
             });
         });
 
-        nextSocket.on(SERVER_EVENTS.TRICK_STARTED, (params: TrickStartedParam) => {
+        nextSocket.on(SERVER_EVENTS.TRICK_STARTED, (params: TrickStartedParams) => {
             dispatch({
                 type: SERVER_EVENTS.TRICK_STARTED,
                 payload: params,

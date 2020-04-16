@@ -26,6 +26,7 @@ import {
     startRound,
     whosTurnIsIt,
 } from './round';
+import { GameState } from '../../src/types';
 
 const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
@@ -47,7 +48,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
         getPlayers(redis, gameId),
         getGameStarted(redis, gameId),
     ]);
-    const rounds = [];
+    const rounds: number[] = [];
     for (let roundNumber = 0; roundNumber < currentRound + 1; roundNumber++) {
         rounds.push(roundNumber);
     }
@@ -67,7 +68,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
         getPlayerCards(redis, gameId, playerId, currentRound)
     ]);
 
-    const scores = {};
+    const scores: GameState['scores'] = [];
     allBets.forEach((bets, roundNumber: number) => {
         scores[roundNumber] = {};
         players.forEach((playerId, playerIndex) => {
@@ -87,7 +88,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     });
 
     return {
-        allBetsIn: gameStarted && scores[currentRound].every(b => b.bet !== null),
+        allBetsIn: gameStarted && Object.values(scores[currentRound]).every(b => b.bet !== null),
         activePlayer,
         cards,
         gameStarted,
@@ -131,7 +132,7 @@ const startGame = async (redis: Redis, gameId: string) => {
     return startRound(redis, gameId);
 };
 
-const close = (redis: Redis) => redis && redis.quit();
+const close = (redis: Redis) => redis?.quit();
 
 export {
     addPlayer as addPlayerToGame,
