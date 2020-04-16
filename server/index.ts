@@ -215,7 +215,7 @@ const server = async ({ port = 3000 }) => {
                     io.to(gameId).emit(SERVER_EVENTS.TRICK_STARTED, data);
                 }
             } catch (err) {
-                onError && onError(err);
+                onError?.(err);
                 console.error(err);
                 io.to(socket.id).emit(SERVER_EVENTS.ERROR, err.toString());
             }
