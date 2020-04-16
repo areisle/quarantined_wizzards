@@ -1,29 +1,7 @@
-import { SERVER_EVENTS, USER_EVENTS } from './constants';
 import { createReducer, removeFirst } from './utilities';
 import produce from "immer"
 import update from 'lodash.update';
-import { GameState, Card, PlayerId } from '../types';
-
-export interface CardPlayedParams {
-    playerId: PlayerId;
-    card: Card;
-}
-
-export interface RoundStartedParams {
-    roundNumber: number;
-    trickLeader: PlayerId;
-    cards: Card[];
-}
-
-export interface TrickStartedParam {
-    trickNumber: number;
-    trickLeader: PlayerId;
-}
-
-export interface BetPlacedParams {
-    playerId: PlayerId;
-    bet: number;
-}
+import { GameState, Card, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS } from '../types';
 
 const initialState: GameState = {
     players: [],
@@ -95,7 +73,7 @@ const gameReducer = createReducer<GameState>({
         roundNumber: params.roundNumber,
         trickLeader: params.trickLeader,
     }),
-    [SERVER_EVENTS.TRICK_STARTED]: (state, params: TrickStartedParam) => ({
+    [SERVER_EVENTS.TRICK_STARTED]: (state, params: TrickStartedParams) => ({
         ...state,
         trickNumber: params.trickNumber,
         trickLeader: params.trickLeader,
@@ -112,8 +90,8 @@ const gameReducer = createReducer<GameState>({
         playerId,
     }),
     [USER_EVENTS.REJOIN_GAME]: (state, gameState: Partial<GameState>) => ({
-        ...state,
-        ...gameState,
+            ...state,
+            ...gameState,
     }),
 })
 

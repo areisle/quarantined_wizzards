@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
 
 import { getPlayers, getPlayerIndex } from './game';
+import { Suit, Card, GameState } from '../../src/types';
 
 const TOTAL_CARDS = 60;
 
@@ -21,11 +22,11 @@ const getTrickWinners = async (redis: Redis, gameId: string, roundNumber: number
 };
 
 const getLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
-    return redis.get(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`);
+    return redis.get(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`) as Promise<Suit>;
 };
 
 
-const setLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, suit: string) => {
+const setLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, suit: Suit) => {
     return redis.set(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`, suit);
 };
 
@@ -50,10 +51,10 @@ const getTrickLeader = async (redis: Redis, gameId: string, roundNumber: number,
 };
 
 
-const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
+const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number): Promise<Card[]> => {
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, 0, -1);
     return cards.map(card => {
-        const [suit, value] = card.split('-');
+        const [suit, value] = card.split('-') as [Suit, string];
         return {
             suit,
             number: value === 'null'
@@ -72,7 +73,7 @@ const getTrickPlayers = async (redis: Redis, gameId: string, roundNumber: number
 
     const trickLeaderIndex = players.indexOf(trickLeader);
 
-    const trickPlayers = [];
+    const trickPlayers: string[] = [];
 
     for (let i = 0; i < players.length; i++) {
         const playerIndex = (trickLeaderIndex + i) % players.length;
@@ -87,7 +88,7 @@ const getTrickCardsByPlayer = async (redis: Redis, gameId: string, roundNumber: 
         getTrickCards(redis, gameId, roundNumber, trickNumber),
         getTrickPlayers(redis, gameId, roundNumber, trickNumber),
     ]);
-    const tricks = {};
+    const tricks: GameState['trickCards'] = {};
     trickCards.forEach((card, index) => {
         tricks[trickPlayers[index]] = card;
     });
@@ -108,7 +109,7 @@ const whosTurnIsIt = async (redis: Redis, gameId: string) => {
 };
 
 
-const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit: string, cardValue: number) => {
+const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit: Suit, cardValue: number) => {
     // check if it is this players turn
     const turnPlayer = await whosTurnIsIt(redis, gameId);
     if (turnPlayer !== playerId) {
@@ -138,7 +139,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
         throw new Error(`Cannot play card before all bets are in. Waiting for players (${betsWaiting.join(', ')})`);
     }
 
-    let newLeadSuit = null;
+    let newLeadSuit: Suit | null = null;
 
     if ((leadSuit === 'jester' && leadSuit !== cardSuit) || !trickCards.length) {
         // set the lead suit
@@ -306,7 +307,7 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
     }
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-p${playerId}-cards`, 0, -1);
     return cards.map(card => {
-        const [suit, value] = card.split('-');
+        const [suit, value] = card.split('-') as [Suit, string];
         return {
             suit,
             number: value === 'null'
@@ -317,7 +318,7 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
 };
 
 
-const setPlayerCards = async (redis: Redis, gameId: string, playerId: string, roundNumber: number, cards) => {
+const setPlayerCards = async (redis: Redis, gameId: string, playerId: string, roundNumber: number, cards: Card[]) => {
     await redis.del(`${gameId}-r${roundNumber}-p${playerId}-cards`);
     if (cards.length) {
         return redis.rpush(
@@ -346,7 +347,7 @@ const setCurrentRound = async (redis: Redis, gameId: string, roundNumber: number
 
 /**
  * shuffles the deck, assigns cards to players and assigns the trump for the current round
- * @param {string} gameId
+ * @param gameId
  *
  * @todo let the player decide trump when wizard comes up
  */
@@ -357,7 +358,7 @@ const startRound = async (redis: Redis, gameId: string) => {
     ]);
 
     const deck = shuffleYourDeck(createDeck());
-    const cards = {}
+    const cards: Record<string, Card[]> = {}
 
     for (let trickNumber = 0; trickNumber < roundNumber + 1; trickNumber++) {
         for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
@@ -372,14 +373,14 @@ const startRound = async (redis: Redis, gameId: string) => {
     const cardsUsed = (roundNumber + 1) * players.length;
     const promises = [];
 
-    let trumpSuit = 'jester';
+    let trumpSuit: Suit = 'jester';
     if (cardsUsed < TOTAL_CARDS) {
         // select a trump card
         trumpSuit = deck[cardsUsed].suit;
     }
-    if (trumpSuit === 'wizards') {
+    if (trumpSuit === 'wizard') {
         // TODO: let the player decide, currently pick random
-        trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)];
+        trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)] as Suit;
     }
 
     promises.push(setTrumpSuit(redis, gameId, roundNumber, trumpSuit));
@@ -406,13 +407,13 @@ const getPlayerBets = async (redis: Redis, gameId: string, roundNumber: number) 
 
 /**
  *
- * @param {object} redis
- * @param {string} gameId
- * @param {Number} playerId
- * @param {Number} roundNumber
- * @param {Number} bet
+ * @param redis
+ * @param gameId
+ * @param playerId
+ * @param roundNumber
+ * @param bet
  *
- * @returns {boolean} true if all players have made their bet
+ * @returns true if all players have made their bet
  */
 const setPlayerBet = async (redis: Redis, gameId: string, playerId: string, roundNumber: number, bet: number) => {
     if (bet < 0) {
