@@ -69,6 +69,7 @@ export interface BetPlacedParams {
 
 export interface RejoinGameParams extends Partial<GameState> {
     gameStarted: boolean;
+    allBetsIn: boolean;
 }
 
 export enum USER_EVENTS {
