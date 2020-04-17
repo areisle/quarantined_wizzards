@@ -3,7 +3,7 @@
     border: 5px solid black;
     border-radius: 5px;
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
         'marker-1 . .'
         '. center .'
         '. . marker-2';
@@ -46,18 +46,9 @@
 
 .marker {
     align-items: center;
-    background-color: royalblue;
-    color: white;
+    color: black;
     display: flex;
     height: 2.5em;
     justify-content: center;
     width: 2.5em;
-
-    &--hearts, &--diamonds {
-        background-color: red;
-    }
-
-    &--spades, &--clubs {
-        background-color: black;
-    }
 }

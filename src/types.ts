@@ -27,7 +27,7 @@ export interface GameState {
      */
     scores: (
         Record<
-            PlayerId, 
+            PlayerId,
             Score
         >
     )[];
@@ -78,7 +78,6 @@ export enum USER_EVENTS {
     PLAY_CARD = 'play-card',
     JOIN_GAME = 'join-game',
     PLACE_BET = 'place-bet',
-    
     REJOIN_GAME = 'rejoin-game',
     GET_PLAYERS = 'get-users',
 }

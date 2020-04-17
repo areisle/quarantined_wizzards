@@ -1,7 +1,9 @@
 import './index.scss';
 
 import React, { HTMLProps } from 'react';
-import { Card } from '../../types';
+import { Card, Suit } from '../../types';
+import { SuitIcon } from '../../icons';
+import { Typography } from '@material-ui/core';
 
 interface PlayingCardProps extends Partial<Card> {
     size?: 'medium' | 'large' | 'flexible';
@@ -12,24 +14,26 @@ interface PlayingCardProps extends Partial<Card> {
 
 function Marker(props: Partial<Card>) {
     const { suit, number } = props;
-    const letter = suit?.charAt(0).toUpperCase();
     return (
         <div className={`marker marker--${suit}`}>
-            {letter}{number}
+            <SuitIcon
+                variant={suit as Suit}
+            />
+            <Typography>{number}</Typography>
         </div>
     )
 }
 
 function PlayingCard(props: PlayingCardProps) {
-    const { 
+    const {
         size = 'medium',
-        suit, 
-        number, 
+        suit,
+        number,
         selected,
         children,
         ...rest
     } = props;
-    
+
     return (
         <div
             {...rest}
@@ -37,7 +41,7 @@ function PlayingCard(props: PlayingCardProps) {
         >
             <Marker suit={suit} number={number} />
             <div className='playing-card__content'>
-            {children}
+                {children}
             </div>
             <Marker suit={suit} number={number} />
         </div>
