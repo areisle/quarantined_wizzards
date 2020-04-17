@@ -3,23 +3,33 @@ import './index.scss';
 import React, { HTMLProps } from 'react';
 import { Card, Suit } from '../../types';
 import { SuitIcon } from '../../icons';
-import { Typography } from '@material-ui/core';
 
-interface PlayingCardProps extends Partial<Card> {
+interface PlayingCardProps extends Card {
     size?: 'medium' | 'large' | 'flexible';
     selected?: boolean;
     onClick?: HTMLProps<HTMLDivElement>['onClick'];
     children?: HTMLProps<HTMLDivElement>['children'];
 }
 
-function Marker(props: Partial<Card>) {
-    const { suit, number } = props;
+function Marker(props: Card) {
+    const { suit, number = null } = props;
+
+    let displayNumber: number | string | null = number;
+
+    if (number === 11) {
+        displayNumber = 'J';
+    } else if (number === 12) {
+        displayNumber = 'Q';
+    } else if (displayNumber === 13) {
+        displayNumber = 'K';
+    }
+
     return (
-        <div className={`marker marker--${suit}`}>
+        <div className='marker'>
             <SuitIcon
                 variant={suit as Suit}
             />
-            <Typography>{number}</Typography>
+            {displayNumber}
         </div>
     )
 }

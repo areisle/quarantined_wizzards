@@ -3,9 +3,10 @@
     border: 5px solid black;
     border-radius: 5px;
     display: grid;
+    font-size: 1.2rem;
     grid-template-areas:
         'marker-1 . .'
-        '. center .'
+        'center center center'
         '. . marker-2';
     grid-template-columns: min-content 1fr min-content;
     grid-template-rows: min-content 1fr min-content;
@@ -17,7 +18,7 @@
     }
 
     &--large {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         height: 22.5rem;
         width: 13.125rem;
     }
@@ -37,6 +38,7 @@
 
     .marker:last-of-type {
         grid-area: marker-2;
+        transform: rotate(180deg);
     }
 
     &__content {
@@ -51,4 +53,5 @@
     height: 2.5em;
     justify-content: center;
     width: 2.5em;
+    text-shadow: none;
 }
