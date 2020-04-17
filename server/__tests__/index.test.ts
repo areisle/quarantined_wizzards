@@ -159,6 +159,24 @@ describe('game events', () => {
             expect(SUITS).toContain(trump);
 
         });
+
+        test('error on join after game start', async () => {
+            const startListener = promisifyEventListener(SERVER_EVENTS.ROUND_STARTED);
+            clientSocket.emit(USER_EVENTS.START_GAME, gameId);
+            await startListener;
+            const listener = promisifyEventListener(SERVER_EVENTS.ERROR);
+            clientSocket.emit(USER_EVENTS.JOIN_GAME, gameId, 'skjhgjshgs');
+            const resp: any = await listener;
+        });
+
+        test('error on start game after game started', async () => {
+            const startListener = promisifyEventListener(SERVER_EVENTS.ROUND_STARTED);
+            clientSocket.emit(USER_EVENTS.START_GAME, gameId);
+            await startListener;
+            const listener = promisifyEventListener(SERVER_EVENTS.ERROR);
+            clientSocket.emit(USER_EVENTS.START_GAME, gameId);
+            const resp: any = await listener;
+        });
     });
 
     describe('trick-started', () => {
