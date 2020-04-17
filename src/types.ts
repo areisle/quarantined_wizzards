@@ -27,7 +27,7 @@ export interface GameState {
      */
     scores: (
         Record<
-            PlayerId, 
+            PlayerId,
             Score
         >
     )[];
@@ -73,24 +73,25 @@ export interface RejoinGameParams extends Partial<GameState> {
 }
 
 export enum USER_EVENTS {
-    START_GAME = 'start-game',
     CREATE_GAME = 'create-game',
-    PLAY_CARD = 'play-card',
+    GET_PLAYERS = 'get-users',
     JOIN_GAME = 'join-game',
     PLACE_BET = 'place-bet',
-    
+    PLAY_CARD = 'play-card',
+    READY_FOR_NEXT_TRICK = 'ready-for-next-trick',
     REJOIN_GAME = 'rejoin-game',
-    GET_PLAYERS = 'get-users',
+    START_GAME = 'start-game',
 }
 
 export enum SERVER_EVENTS {
-    TRUMP_CHANGED = 'trump-changed',
     ACTIVE_PLAYER_CHANGED = 'active-user-changed',
-    TRICK_WON = 'trick-won',
+    BET_PLACED = 'bet-placed',
     CARD_PLAYED = 'card-played',
+    ERROR = 'error',
+    PLAYER_READY = 'player-ready',
     PLAYERS_CHANGED = 'users-changed',
     ROUND_STARTED = 'round-started',
     TRICK_STARTED = 'trick-started',
-    BET_PLACED = 'bet-placed',
-    ERROR = 'error',
+    TRICK_WON = 'trick-won',
+    TRUMP_CHANGED = 'trump-changed',
 }
