@@ -11,6 +11,8 @@ import {
 } from './game';
 import { getPlayerSocket, setPlayerSocket } from './player';
 import {
+    currentRoundIsComplete,
+    currentTrickIsComplete,
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
@@ -141,6 +143,8 @@ export {
     close,
     connect,
     createGame,
+    currentRoundIsComplete,
+    currentTrickIsComplete,
     deleteGame,
     evaluateTrick,
     getCurrentRound,

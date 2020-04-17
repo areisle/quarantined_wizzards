@@ -130,12 +130,8 @@ const server = async ({ port = 3000 }) => {
          */
         socket.on(USER_EVENTS.PLAY_CARD, async (gameId: string, playerId: string, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
-                const [, roundNumber, trickNumber] = await Promise.all([
-                    db.playerExists(redis, gameId, playerId),
-                    db.getCurrentRound(redis, gameId),
-                    db.getCurrentTrick(redis, gameId),
-                ]);
-                const { trickComplete, trickWinner, roundComplete, newLeadSuit } = await db.playCard(
+                await db.playerExists(redis, gameId, playerId);
+                const { trickWinner, newLeadSuit } = await db.playCard(
                     redis, gameId, playerId, cardSuit, cardValue
                 );
 
@@ -155,24 +151,8 @@ const server = async ({ port = 3000 }) => {
                 if (newLeadSuit) {
                     io.to(gameId).emit('lead-changed', newLeadSuit);
                 }
-                if (trickComplete) {
+                if (trickWinner) {
                     io.to(gameId).emit(SERVER_EVENTS.TRICK_WON, { playerId: trickWinner });
-
-                    if (roundComplete) {
-                        // re-deal cards
-                        await startRoundEvents(gameId, false);
-                    } else {
-                        // start new trick
-                        const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber);
-
-                        const trickData: TrickStartedParams = {
-                            roundNumber,
-                            trickNumber,
-                            trickLeader,
-                        };
-
-                        io.to(gameId).emit(SERVER_EVENTS.TRICK_STARTED, trickData);
-                    }
                 }
             } catch (err) {
                 onError?.(err);
@@ -228,12 +208,18 @@ const server = async ({ port = 3000 }) => {
 
         socket.on(USER_EVENTS.READY_FOR_NEXT_TRICK, async (gameId: string, playerId: string, onSuccess, onError) => {
             try {
-                const [roundNumber, trickNumber] = await Promise.all([
+                const [roundNumber, trickNumber, roundComplete, trickComplete] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
                     db.getCurrentTrick(redis, gameId),
+                    db.currentRoundIsComplete(redis, gameId),
+                    db.currentTrickIsComplete(redis, gameId),
                 ]);
+
+                if (!trickComplete) {
+                    throw new Error(`Player (${playerId}) cannot say ready before the current trick (${trickNumber}) is complete`)
+                }
                 await db.setPlayerReady(redis, gameId, roundNumber, trickNumber, playerId);
-                const [players, playersReady] = await Promise.all([
+                const [players, playersReady,] = await Promise.all([
                     db.getGamePlayers(redis, gameId),
                     db.getPlayersReady(redis, gameId, roundNumber, trickNumber),
                 ]);
@@ -243,7 +229,30 @@ const server = async ({ port = 3000 }) => {
                 io.to(gameId).emit(SERVER_EVENTS.PLAYER_READY, playerId);
 
                 if (players.length === playersReady.length) {
-                    io.to(gameId).emit(SERVER_EVENTS.ALL_PLAYERS_READY);
+                    if (!roundComplete) {
+                        await db.setCurrentTrick(redis, gameId, trickNumber + 1);
+                    } else {
+                        await Promise.all([
+                            db.setCurrentTrick(redis, gameId, 0),
+                            db.setCurrentRound(redis, gameId, roundNumber + 1),
+                        ]);
+                    }
+
+                    if (roundComplete) {
+                        // re-deal cards
+                        await startRoundEvents(gameId, false);
+                    } else {
+                        // start new trick
+                        const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber);
+
+                        const trickData: TrickStartedParams = {
+                            roundNumber,
+                            trickNumber,
+                            trickLeader,
+                        };
+
+                        io.to(gameId).emit(SERVER_EVENTS.TRICK_STARTED, trickData);
+                    }
                 }
             } catch (err) {
                 onError?.(err);

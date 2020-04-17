@@ -2,6 +2,7 @@ import { Redis } from 'ioredis';
 
 import { getPlayers, getPlayerIndex } from './game';
 import { Suit, Card, GameState } from '../../src/types';
+import { getGamePlayers } from '.';
 
 const initializeArrayField = async (redis: Redis, field: string, length, value: number | string = -1) => {
     await redis.del(field);
@@ -163,20 +164,31 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     // if this was the last card in the trick, evaluate the trick
     const trickComplete = Boolean(trickCards.length + 1 === players.length);
     let trickWinner = null;
-    const roundComplete = trickComplete && trickNumber === roundNumber;
     if (trickComplete) {
         trickWinner = await evaluateTrick(redis, gameId, roundNumber, trickNumber);
-
-        if (!roundComplete) {
-            await setCurrentTrick(redis, gameId, trickNumber + 1);
-        } else {
-            await Promise.all([
-                setCurrentTrick(redis, gameId, 0),
-                setCurrentRound(redis, gameId, roundNumber + 1),
-            ]);
-        }
     }
-    return { trickComplete, roundComplete, trickWinner, newLeadSuit };
+    return { trickWinner, newLeadSuit };
+};
+
+
+const currentTrickIsComplete = async (redis, gameId) => {
+    const [roundNumber, trickNumber, players] = await Promise.all([
+        getCurrentRound(redis, gameId),
+        getCurrentTrick(redis, gameId),
+        getGamePlayers(redis, gameId),
+    ]);
+    const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
+    return Boolean(trickCards.length === players.length);
+};
+
+const currentRoundIsComplete = async (redis, gameId) => {
+    const [roundNumber, trickNumber, players] = await Promise.all([
+        getCurrentRound(redis, gameId),
+        getCurrentTrick(redis, gameId),
+        getGamePlayers(redis, gameId),
+    ]);
+    const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
+    return Boolean(trickCards.length === players.length && trickNumber === roundNumber);
 };
 
 
@@ -435,6 +447,8 @@ const getPlayersReady = async (redis: Redis, gameId: string, roundNumber: number
 
 
 export {
+    currentRoundIsComplete,
+    currentTrickIsComplete,
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
