@@ -1,5 +1,6 @@
-import express from "express";
+import path from 'path';
 import { Server } from 'http';
+import express from "express";
 import socket from 'socket.io';
 import * as db from './db';
 import {
@@ -13,6 +14,13 @@ import {
 const app = express();
 const http = new Server(app);
 const io = socket(http);
+
+app.use(express.static(path.join(__dirname, '../../build')));
+
+app.get('*', (_, res) => {
+    const filePath = path.join(__dirname, '../../build/index.html');
+    res.sendFile(filePath);
+});
 
 const server = async ({ port = 3000 }) => {
     const redis = await db.connect();
