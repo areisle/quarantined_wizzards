@@ -231,17 +231,7 @@ const server = async ({ port = 3000 }) => {
                 if (players.length === playersReady.length) {
                     if (!roundComplete) {
                         await db.setCurrentTrick(redis, gameId, trickNumber + 1);
-                    } else {
-                        await Promise.all([
-                            db.setCurrentTrick(redis, gameId, 0),
-                            db.setCurrentRound(redis, gameId, roundNumber + 1),
-                        ]);
-                    }
 
-                    if (roundComplete) {
-                        // re-deal cards
-                        await startRoundEvents(gameId, false);
-                    } else {
                         // start new trick
                         const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber);
 
@@ -252,6 +242,13 @@ const server = async ({ port = 3000 }) => {
                         };
 
                         io.to(gameId).emit(SERVER_EVENTS.TRICK_STARTED, trickData);
+                    } else {
+                        await Promise.all([
+                            db.setCurrentTrick(redis, gameId, 0),
+                            db.setCurrentRound(redis, gameId, roundNumber + 1),
+                        ]);
+                        // re-deal cards
+                        await startRoundEvents(gameId, false);
                     }
                 }
             } catch (err) {
