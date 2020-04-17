@@ -233,7 +233,7 @@ const server = async ({ port = 3000 }) => {
                         await db.setCurrentTrick(redis, gameId, trickNumber + 1);
 
                         // start new trick
-                        const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber);
+                        const trickLeader = await db.getTrickLeader(redis, gameId, roundNumber, trickNumber + 1);
 
                         const trickData: TrickStartedParams = {
                             roundNumber,
