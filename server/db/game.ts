@@ -28,7 +28,14 @@ const playerExists = async (redis: Redis, gameId: string, playerId: string) => {
 
 
 const addPlayer = async (redis: Redis, gameId: string, username: string) => {
-    let players = await getPlayers(redis, gameId);
+    let [players, gameIsStarted] = await Promise.all([
+        getPlayers(redis, gameId),
+        getGameStarted(redis, gameId),
+    ])
+
+    if (gameIsStarted) {
+        throw new Error(`cannot add a new player after the game has begun`);
+    }
 
     if (players.includes(username)) {
         throw new Error(`cannot add username. This username already exists`);
