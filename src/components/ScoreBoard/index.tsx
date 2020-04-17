@@ -15,7 +15,7 @@ import isNil from 'lodash.isnil';
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
-import { GameState } from '../../types';
+import { GameState, PlayerId } from '../../types';
 import { Rules } from '../Rules';
 
 interface ScoreBoardProps {
@@ -25,12 +25,12 @@ interface ScoreBoardProps {
 
 function getRoundScore(
     scores: GameState['scores'], 
-    player: number,
+    playerId: PlayerId,
     roundNumber: number,
 ) {
     let score = null;
 
-    const { bet, taken } = scores[roundNumber]?.[player] || {};
+    const { bet, taken } = scores[roundNumber]?.[playerId] || {};
     if (!isNil(bet) && !isNil(taken)) {
         if (bet === taken) {
             score = bet * 10 + 20;
@@ -44,13 +44,13 @@ function getRoundScore(
 
 function getScore(
     scores: GameState['scores'], 
-    player: number,
+    playerId: PlayerId,
     roundNumber: number,
 ) {
     let score = 0;
 
     for (let i=0; i <= roundNumber; i++) {
-        score += getRoundScore(scores, player, i) ?? 0;
+        score += getRoundScore(scores, playerId, i) ?? 0;
     }
 
     return score;
@@ -74,19 +74,19 @@ function ScoreBoard(props: ScoreBoardProps) {
         setSelectedRound(roundNumber);
     }, [roundNumber]);
 
-    const rows = players.map((username, index) => {
-        const { bet, taken } = scores[selectedRound]?.[index] || {};
-        const roundDone = !isNil(bet) && !isNil(taken);
-        const showBet = stage !== 'betting' || selectedRound !== roundNumber;
+    const rows = players.map((playerId, index) => {
+        const { bet, taken } = scores[selectedRound]?.[playerId] || {};
+        const showBet = true || stage !== 'betting' || selectedRound !== roundNumber;
+        const roundDone = selectedRound !== roundNumber || stage === 'trick-won';
 
-        const roundTotal = getRoundScore(scores, index, selectedRound);
-        const totalScore = getScore(scores, index, 60 / players.length - 1)
+        const roundTotal = getRoundScore(scores, playerId, selectedRound);
+        const totalScore = getScore(scores, playerId, 60 / players.length - 1)
         return (
             <TableRow key={index}>
                 <TableCell
                     className={`avatar avatar--player-${index + 1}`}
                 >
-                    {username}
+                    {playerId}
                 </TableCell>
                 <TableCell align='right'>{showBet && bet}</TableCell>
                 <TableCell align='right'>{taken}</TableCell>
