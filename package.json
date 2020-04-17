@@ -41,7 +41,9 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run start:server",
+    "heroku-postbuild": "npm run build && npm run build:server",
+    "start:client": "react-scripts start",
     "build": "react-scripts build",
     "build:server": "tsc --project tsconfig.server.json",
     "build:server:dev": "tsc --project tsconfig.server.json --watch",

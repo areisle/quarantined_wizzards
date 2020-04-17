@@ -22,7 +22,7 @@ app.get('*', (_, res) => {
     res.sendFile(filePath);
 });
 
-const server = async ({ port = 3000 }) => {
+const server = async ({ port = 3000 }: { port: string | number }) => {
     const redis = await db.connect();
     await http.listen(port);
     console.log(`listening on localhost:${port}`);
