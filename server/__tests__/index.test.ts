@@ -310,7 +310,43 @@ describe('game events', () => {
                 expect(resp).toEqual({ playerId: playerIds[0], bet: 1 });
                 done();
             });
-            clientSocket.emit('place-bet', gameId, playerIds[0], 1);
+            clientSocket.emit(USER_EVENTS.PLACE_BET, gameId, playerIds[0], 1);
+        });
+    });
+
+    describe('players-ready', () => {
+        beforeEach(async () => {
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, playerId
+            )));
+            await promisifyEventEmitter(USER_EVENTS.START_GAME, gameId);
+
+            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
+                USER_EVENTS.PLACE_BET, gameId, playerId, 1
+            )));
+
+            for (const playerIndex of [2, 0, 1]) {
+                const playerId = playerIds[playerIndex];
+                const cards = await db.getPlayerCards(redis, gameId, playerId, 0);
+                await promisifyEventEmitter(USER_EVENTS.PLAY_CARD, gameId, playerId, cards[0]);
+            }
+        });
+
+        test('player-ready', async () => {
+            const listener = promisifyEventListener(SERVER_EVENTS.PLAYER_READY);
+            clientSocket.emit(
+                USER_EVENTS.READY_FOR_NEXT_TRICK,
+                gameId, playerIds[0],
+            );
+            const resp: any = await listener;
+            expect(resp).toEqual(playerIds[0]);
+        });
+
+        test(SERVER_EVENTS.ROUND_STARTED, async () => {
+            const listener = promisifyEventListener(SERVER_EVENTS.ROUND_STARTED);
+            await Promise.all(playerIds.map(async playerId => promisifyEventEmitter(USER_EVENTS.READY_FOR_NEXT_TRICK, gameId, playerId)));
+            const resp: any = await listener;
+            expect(resp).toHaveProperty('cards');
         });
     });
 });
