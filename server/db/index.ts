@@ -11,11 +11,14 @@ import {
 } from './game';
 import { getPlayerSocket, setPlayerSocket } from './player';
 import {
+    currentRoundIsComplete,
+    currentTrickIsComplete,
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
     getPlayerBets,
     getPlayerCards,
+    getPlayersReady,
     getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
@@ -23,6 +26,7 @@ import {
     setCurrentRound,
     setCurrentTrick,
     setPlayerBet,
+    setPlayerReady,
     startRound,
     whosTurnIsIt,
 } from './round';
@@ -107,7 +111,14 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
  * initialize the score board for the number of players
  */
 const startGame = async (redis: Redis, gameId: string) => {
-    const players = await getPlayers(redis, gameId);
+    const [players, gameIsStarted] = await Promise.all([
+        getPlayers(redis, gameId),
+        getGameStarted(redis, gameId),
+    ]);
+
+    if (gameIsStarted) {
+        throw new Error(`cannot start a game that has already begun`);
+    }
     if (players.length < MIN_PLAYERS) {
         throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
     }
@@ -139,23 +150,27 @@ export {
     close,
     connect,
     createGame,
+    currentRoundIsComplete,
+    currentTrickIsComplete,
     deleteGame,
     evaluateTrick,
     getCurrentRound,
     getCurrentTrick,
-    getPlayers as getGamePlayers,
     getGameState,
-    getPlayerIndex,
     getPlayerCards,
+    getPlayerIndex,
+    getPlayers as getGamePlayers,
     getPlayerSocket,
+    getPlayersReady,
     getTrickLeader,
     playCard,
+    playerExists,
     setCurrentRound,
     setCurrentTrick,
     setPlayerBet,
+    setPlayerReady,
     setPlayerSocket,
     startGame,
     startRound,
     whosTurnIsIt,
-    playerExists,
 };
