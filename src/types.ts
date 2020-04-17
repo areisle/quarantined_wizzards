@@ -27,7 +27,7 @@ export interface GameState {
      */
     scores: (
         Record<
-            PlayerId, 
+            PlayerId,
             Score
         >
     )[];
@@ -84,7 +84,6 @@ export enum USER_EVENTS {
 
 export enum SERVER_EVENTS {
     ACTIVE_PLAYER_CHANGED = 'active-user-changed',
-    ALL_PLAYERS_READY = 'all-players-ready',
     BET_PLACED = 'bet-placed',
     CARD_PLAYED = 'card-played',
     ERROR = 'error',
