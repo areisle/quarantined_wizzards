@@ -95,9 +95,9 @@ describe('game events', () => {
             expect(gameState).toHaveProperty('trickNumber');
             expect(gameState).toHaveProperty('trickCards');
             expect(gameState).toHaveProperty('trickLeader');
-            expect(gameState).toHaveProperty('allBetsIn', false);
+            expect(gameState).toHaveProperty('stage');
+            expect(gameState).toHaveProperty('trumpSuit');
             expect(gameState).toHaveProperty('scores');
-            expect(gameState).toHaveProperty('gameStarted', false);
             expect(gameState).toHaveProperty('players', ['blargh']);
         });
 
