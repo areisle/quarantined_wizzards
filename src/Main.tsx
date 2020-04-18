@@ -13,6 +13,7 @@ import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
 import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
+import { GAME_STAGE } from './types';
 
 function Main() {
     const { 
@@ -34,7 +35,7 @@ function Main() {
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
 
-    const isSetup = stage === 'awaiting-players';
+    const isSetup = stage === GAME_STAGE.SETTING_UP;
 
     const handleCloseScoreBoard = () => {
         setBoardOpen(false);

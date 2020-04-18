@@ -5,6 +5,7 @@ import { PlayingCard } from '../PlayingCard';
 import SwipeableViews from 'react-swipeable-views';
 import { GameContext } from '../../Context';
 import { Button } from '@material-ui/core';
+import { GAME_STAGE } from '../../types';
 
 interface PlayerDeckProps {
     onPlaceCard: (cardIndex: number) => void;
@@ -24,7 +25,7 @@ function PlayerDeck(props: PlayerDeckProps) {
 
     const showPlaceCard = (
         activePlayer === playerId
-        && stage === 'playing'
+        && stage === GAME_STAGE.PLAYING
     );
 
     const handleChangeIndex = useCallback((index: number) => {
@@ -45,7 +46,7 @@ function PlayerDeck(props: PlayerDeckProps) {
         onPlaceCard(card);
     }, [onPlaceCard]);
 
-    if (stage === 'awaiting-players') {
+    if (stage === GAME_STAGE.SETTING_UP) {
         return null;
     }
 

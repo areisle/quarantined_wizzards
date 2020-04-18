@@ -1,7 +1,7 @@
 import './index.scss';
 
 import React from 'react';
-import { GameState } from '../../types';
+import { GameState, GAME_STAGE } from '../../types';
 import { IconButton } from '@material-ui/core';
 import { ScoreBoardIcon } from '../../icons';
 
@@ -22,8 +22,8 @@ function Header(props: HeaderProps) {
         trumpSuit,
     } = props;
     
-    const isSetup = stage === 'awaiting-players';
-    const isBetting = stage === 'betting';
+    const isSetup = stage === GAME_STAGE.SETTING_UP;
+    const isBetting = stage === GAME_STAGE.BETTING;
 
     return (
         <header className='game-header'>

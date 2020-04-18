@@ -3,7 +3,7 @@
  * 
  * fixed game states for helping in developing components
  */
-import { GameState } from "../types";
+import { GameState, GAME_STAGE } from "../types";
 
 export const newGameState: GameState = {
     players: [],
@@ -12,7 +12,7 @@ export const newGameState: GameState = {
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
-    stage: 'awaiting-players',
+    stage: GAME_STAGE.SETTING_UP,
     playerId: 'abbey',
     trickLeader: null,
     activePlayer: null,
@@ -32,7 +32,7 @@ export const startState: GameState = {
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
-    stage: 'awaiting-players',
+    stage: GAME_STAGE.SETTING_UP,
     playerId: 'abbey',
     trickLeader: null,
     activePlayer: null,
@@ -82,7 +82,7 @@ export const bettingState: GameState = {
     roundNumber: 0,
     trickNumber: 0,
     trickCards: {},
-    stage: 'betting',
+    stage: GAME_STAGE.BETTING,
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: null,
@@ -126,7 +126,7 @@ export const playingState: GameState = {
     roundNumber: 2,
     trickNumber: 0,
     trickCards: {},
-    stage: 'playing',
+    stage: GAME_STAGE.PLAYING,
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: null,
@@ -173,7 +173,7 @@ export const playingDuringTrickState: GameState = {
         'fritz': { suit: 'hearts', number: 7 },
         'karen': { suit: 'jester' },
     },
-    stage: 'playing',
+    stage: GAME_STAGE.PLAYING,
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: 'martin',

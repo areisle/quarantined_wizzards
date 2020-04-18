@@ -7,6 +7,7 @@ import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
+import { GAME_STAGE } from '../../types';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -45,9 +46,9 @@ function GameBoard(props: GameBoardProps) {
         trickLeader,
     } = useContext(GameContext);
     
-    const isSetup = stage === 'awaiting-players';
-    const isPlaying = stage === 'playing';
-    const isBetting = stage === 'betting';
+    const isSetup = stage === GAME_STAGE.SETTING_UP;
+    const isPlaying = stage === GAME_STAGE.PLAYING;
+    const isBetting = stage === GAME_STAGE.BETTING;
 
     const avatars = players.map((username, index) => {
         const { bet } = scores[roundNumber]?.[username] ?? {};
@@ -122,7 +123,7 @@ function GameBoard(props: GameBoardProps) {
             {avatars}
             <Fillers
                 players={players.length}
-                show={stage === 'awaiting-players'}
+                show={stage === GAME_STAGE.SETTING_UP}
             />
         </div>
     )

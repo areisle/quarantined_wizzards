@@ -1,7 +1,7 @@
 import { createReducer, removeFirst } from './utilities';
 import produce from "immer"
 import update from 'lodash.update';
-import { GameState, Card, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS } from '../types';
+import { GameState, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS, GAME_STAGE, Suit } from '../types';
 
 const initialState: GameState = {
     players: [],
@@ -11,7 +11,7 @@ const initialState: GameState = {
     trickNumber: 0,
     trickWinner: null,
     trickCards: {},
-    stage: 'awaiting-players',
+    stage: GAME_STAGE.SETTING_UP,
     playerId: null,
     trickLeader: null,
     activePlayer: null,
@@ -20,10 +20,10 @@ const initialState: GameState = {
 }
 
 const gameReducer = createReducer<GameState>({
-    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: Card['suit']) => ({
+    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: Suit) => ({
         ...state,
         trumpSuit,
-        stage: 'betting',
+        stage: GAME_STAGE.BETTING,
     }),
     [SERVER_EVENTS.TRICK_WON]: (state, playerId: PlayerId) => {
         return produce(state, (draft) => {
@@ -79,7 +79,7 @@ const gameReducer = createReducer<GameState>({
         trickLeader: params.trickLeader,
         trickWinner: null,
         trickCards: {},
-        stage: 'playing',
+        stage: GAME_STAGE.PLAYING,
     }),
     [USER_EVENTS.CREATE_GAME]: (state, gameCode: string) => ({
         ...state,
@@ -92,11 +92,11 @@ const gameReducer = createReducer<GameState>({
     [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams): GameState => {
         const { gameStarted, allBetsIn, ...rest } = gameState;
 
-        let stage: GameState['stage'] = 'awaiting-players';
+        let stage: GAME_STAGE = GAME_STAGE.SETTING_UP;
         if (gameStarted && allBetsIn) {
-            stage = 'playing';
+            stage = GAME_STAGE.PLAYING;
         } else if (gameStarted) {
-            stage = 'betting'
+            stage = GAME_STAGE.BETTING;
         }
 
         return {

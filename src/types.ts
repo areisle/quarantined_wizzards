@@ -17,6 +17,13 @@ export interface Score {
     taken?: number | null;
 }
 
+export enum GAME_STAGE {
+    SETTING_UP = 'awaiting-players',
+    BETTING = 'betting',
+    PLAYING = 'playing',
+    BETWEEN_TRICKS = 'trick-won',
+}
+
 export interface GameState {
     /**
      * the usernames of players where index is players position
@@ -33,7 +40,7 @@ export interface GameState {
     )[];
     roundNumber: number;
     trickNumber: number;
-    stage: 'awaiting-players' | 'betting' | 'playing' | 'trick-won';
+    stage: GAME_STAGE;
     cards: Card[];
     trickCards: Record<PlayerId, Card | null>;
     trickWinner: PlayerId | null;

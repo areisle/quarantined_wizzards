@@ -15,7 +15,7 @@ import isNil from 'lodash.isnil';
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
-import { GameState, PlayerId } from '../../types';
+import { GameState, PlayerId, GAME_STAGE } from '../../types';
 import { Rules } from '../Rules';
 
 interface ScoreBoardProps {
@@ -76,8 +76,8 @@ function ScoreBoard(props: ScoreBoardProps) {
 
     const rows = players.map((playerId, index) => {
         const { bet, taken } = scores[selectedRound]?.[playerId] || {};
-        const showBet = true || stage !== 'betting' || selectedRound !== roundNumber;
-        const roundDone = selectedRound !== roundNumber || stage === 'trick-won';
+        const showBet = true || stage !== GAME_STAGE.BETTING || selectedRound !== roundNumber;
+        const roundDone = selectedRound !== roundNumber || stage === GAME_STAGE.BETWEEN_TRICKS;
 
         const roundTotal = getRoundScore(scores, playerId, selectedRound);
         const totalScore = getScore(scores, playerId, 60 / players.length - 1)
