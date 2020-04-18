@@ -65,6 +65,7 @@ function GameBoard(props: GameBoardProps) {
             )
         } else if (isBetting && isNil(bet) && isCurrent) {
             content = (
+                <>
                 <Button
                     onClick={onOpenBettingDialog}
                     color='primary'
@@ -72,9 +73,20 @@ function GameBoard(props: GameBoardProps) {
                 >
                     Place bet
                 </Button>
+                {(trickLeader === username) && (
+                    <Typography>(trick leader)</Typography>
+                )}
+                </>
             )
         } else if (isBetting && isNil(bet)) {
-            content = 'placing bet...';
+            content = (
+                <>
+                    <Typography>placing bet...</Typography>
+                    {(trickLeader === username) && (
+                        <Typography>(trick leader)</Typography>
+                    )}
+                </>
+                );
         } else if (isBetting) {
             content = (
                 <Done 

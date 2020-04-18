@@ -17,6 +17,7 @@
     &--square {
         align-items: center;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         min-height: 2rem;
         min-width: 2rem;
