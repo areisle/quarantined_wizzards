@@ -13,6 +13,7 @@ import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
 import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
+import { GAME_STAGE } from './types';
 
 function Main() {
     const { 
@@ -29,12 +30,19 @@ function Main() {
         allPlayersIn,
         placeBet,
         playCard,
+        ready,
+        readyForNextTrick,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
 
-    const isSetup = stage === 'awaiting-players';
+    const isSetup = stage === GAME_STAGE.SETTING_UP;
+
+    const showReadyButton = Boolean(
+        stage === GAME_STAGE.BETWEEN_TRICKS
+        && playerId && !ready[playerId]
+    )
 
     const handleCloseScoreBoard = () => {
         setBoardOpen(false);
@@ -61,6 +69,8 @@ function Main() {
                 onAllPlayersIn={allPlayersIn}
                 showAllInButton={isSetup && playerId === players[0]}
                 disabled={players.length < 3}
+                showReadyButton={showReadyButton}
+                onReady={readyForNextTrick}
             />
             <PlayerDeck
                 onPlaceCard={playCard}

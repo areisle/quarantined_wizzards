@@ -17,6 +17,13 @@ export interface Score {
     taken?: number | null;
 }
 
+export enum GAME_STAGE {
+    SETTING_UP = 'awaiting-players',
+    BETTING = 'betting',
+    PLAYING = 'playing',
+    BETWEEN_TRICKS = 'trick-won',
+}
+
 export interface GameState {
     /**
      * the usernames of players where index is players position
@@ -33,9 +40,10 @@ export interface GameState {
     )[];
     roundNumber: number;
     trickNumber: number;
-    stage: 'awaiting-players' | 'betting' | 'playing' | 'trick-won';
+    stage: GAME_STAGE;
     cards: Card[];
     trickCards: Record<PlayerId, Card | null>;
+    ready: Record<PlayerId, boolean | null>;
     trickWinner: PlayerId | null;
     playerId: PlayerId | null;
     trickLeader: PlayerId | null;
@@ -67,10 +75,7 @@ export interface BetPlacedParams {
     bet: number;
 }
 
-export interface RejoinGameParams extends Partial<GameState> {
-    gameStarted: boolean;
-    allBetsIn: boolean;
-}
+export type RejoinGameParams = Partial<GameState>;
 
 export enum USER_EVENTS {
     CREATE_GAME = 'create-game',

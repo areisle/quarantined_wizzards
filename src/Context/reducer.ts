@@ -1,7 +1,7 @@
 import { createReducer, removeFirst } from './utilities';
 import produce from "immer"
 import update from 'lodash.update';
-import { GameState, Card, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS } from '../types';
+import { GameState, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS, GAME_STAGE, Suit } from '../types';
 
 const initialState: GameState = {
     players: [],
@@ -11,7 +11,8 @@ const initialState: GameState = {
     trickNumber: 0,
     trickWinner: null,
     trickCards: {},
-    stage: 'awaiting-players',
+    ready: {},
+    stage: GAME_STAGE.SETTING_UP,
     playerId: null,
     trickLeader: null,
     activePlayer: null,
@@ -20,10 +21,10 @@ const initialState: GameState = {
 }
 
 const gameReducer = createReducer<GameState>({
-    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: Card['suit']) => ({
+    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: Suit) => ({
         ...state,
         trumpSuit,
-        stage: 'betting',
+        stage: GAME_STAGE.BETTING,
     }),
     [SERVER_EVENTS.TRICK_WON]: (state, playerId: PlayerId) => {
         return produce(state, (draft) => {
@@ -33,6 +34,7 @@ const gameReducer = createReducer<GameState>({
                 (previous) => (previous || 0) + 1,
             );
             state.trickWinner = playerId;
+            state.stage = GAME_STAGE.BETWEEN_TRICKS
         });
     },
     [SERVER_EVENTS.ACTIVE_PLAYER_CHANGED]: (state, activePlayer: PlayerId) => ({
@@ -71,7 +73,11 @@ const gameReducer = createReducer<GameState>({
         ...state,
         cards: params.cards,
         roundNumber: params.roundNumber,
+        trickCards: {},
         trickLeader: params.trickLeader,
+        trickWinner: null,
+        ready: {},
+        stage: GAME_STAGE.BETTING,
     }),
     [SERVER_EVENTS.TRICK_STARTED]: (state, params: TrickStartedParams) => ({
         ...state,
@@ -79,7 +85,8 @@ const gameReducer = createReducer<GameState>({
         trickLeader: params.trickLeader,
         trickWinner: null,
         trickCards: {},
-        stage: 'playing',
+        ready: {},
+        stage: GAME_STAGE.PLAYING,
     }),
     [USER_EVENTS.CREATE_GAME]: (state, gameCode: string) => ({
         ...state,
@@ -89,20 +96,17 @@ const gameReducer = createReducer<GameState>({
         ...state,
         playerId,
     }),
-    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams): GameState => {
-        const { gameStarted, allBetsIn, ...rest } = gameState;
-
-        let stage: GameState['stage'] = 'awaiting-players';
-        if (gameStarted && allBetsIn) {
-            stage = 'playing';
-        } else if (gameStarted) {
-            stage = 'betting'
+    [SERVER_EVENTS.PLAYER_READY]: (state, playerId: PlayerId) => ({
+        ...state,
+        ready: {
+            ...state.ready,
+            [playerId]: true,
         }
-
+    }),
+    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams) => {
         return {
             ...state,
-            ...rest,
-            stage,
+            ...gameState,
         }
     },
 })

@@ -7,6 +7,8 @@ interface FooterProps {
     onAllPlayersIn: () => void;
     showAllInButton: boolean;
     disabled: boolean;
+    showReadyButton: boolean;
+    onReady: () => void;
 }
 
 function Footer(props: FooterProps) {
@@ -14,6 +16,8 @@ function Footer(props: FooterProps) {
         onAllPlayersIn,
         showAllInButton,
         disabled,
+        showReadyButton,
+        onReady,
     } = props;
 
     return (
@@ -35,8 +39,18 @@ function Footer(props: FooterProps) {
                     </Typography>
                 </>
             )}
-
-                
+            {showReadyButton && (
+                <>
+                    <Button
+                        color='primary'
+                        onClick={onReady}
+                        disabled={disabled}
+                        variant='contained'
+                    >
+                        Ready for next trick/round
+                    </Button>
+                </>
+            )}   
         </footer>
     )
 }

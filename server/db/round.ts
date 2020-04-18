@@ -296,7 +296,7 @@ const shuffleYourDeck = (array) => {
 
 
 const getTrumpSuit = async (redis: Redis, gameId: string, roundNumber: number) => {
-    return redis.get(`${gameId}-r${roundNumber}-trump`);
+    return redis.get(`${gameId}-r${roundNumber}-trump`) as Promise<Suit>;
 };
 
 const setTrumpSuit = async (redis: Redis, gameId: string, roundNumber: number, trump: string) => {
@@ -458,6 +458,7 @@ export {
     getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
+    getTrumpSuit,
     playCard,
     setCurrentRound,
     setCurrentTrick,

@@ -7,7 +7,7 @@ import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
-import { Card } from '../../types';
+import { GAME_STAGE, Card } from '../../types';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -42,13 +42,16 @@ function GameBoard(props: GameBoardProps) {
         roundNumber,
         scores,
         stage,
-        trickCards,
+        trick
+      s,
         trickLeader,
+        ready,
     } = useContext(GameContext);
     
-    const isSetup = stage === 'awaiting-players';
-    const isPlaying = stage === 'playing';
-    const isBetting = stage === 'betting';
+    const isSetup = stage === GAME_STAGE.SETTING_UP;
+    const isPlaying = stage === GAME_STAGE.PLAYING;
+    const isBetting = stage === GAME_STAGE.BETTING;
+    const isBetweenTricks = stage === GAME_STAGE.BETWEEN_TRICKS;
 
     const avatars = players.map((username, index) => {
         const { bet } = scores[roundNumber]?.[username] ?? {};
@@ -98,7 +101,31 @@ function GameBoard(props: GameBoardProps) {
             );
         } else if (isPlaying && isActive) {
             content = (
-                <Typography>'picking a card...'</Typography>
+                <Typography>{username} is picking a card...</Typography>
+            )
+        } else if (isBetweenTricks && playerId && !ready[playerId]) {
+            // @todo show crown for winner of trick
+            // in center of card
+            content = (
+                <PlayingCard
+                    {...trickCards[username]}
+                    size='flexible'
+                />
+            )
+        } else if (isBetweenTricks && ready[username]) {
+            content = (
+                <Done 
+                    fontSize='large' 
+                    style={{
+                        fontSize: '3rem',
+                        fill: 'limegreen',
+                        filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                    }}
+                />
+            )
+        } else if (isBetweenTricks) {
+            content = (
+                <Typography>waiting for {username}...</Typography>
             )
         }
         return (
@@ -123,7 +150,7 @@ function GameBoard(props: GameBoardProps) {
             {avatars}
             <Fillers
                 players={players.length}
-                show={stage === 'awaiting-players'}
+                show={stage === GAME_STAGE.SETTING_UP}
             />
         </div>
     )

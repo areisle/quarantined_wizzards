@@ -29,8 +29,9 @@ import {
     setPlayerReady,
     startRound,
     whosTurnIsIt,
+    getTrumpSuit,
 } from './round';
-import { GameState } from '../../src/types';
+import { GameState, GAME_STAGE, Suit } from '../../src/types';
 
 const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
@@ -45,7 +46,7 @@ const connect = async () => {
 };
 
 
-const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
+const getGameState = async (redis: Redis, gameId: string, playerId: string): Promise<Partial<GameState>> => {
     const [currentRound, currentTrick, players, gameStarted] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -56,6 +57,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
     for (let roundNumber = 0; roundNumber < currentRound + 1; roundNumber++) {
         rounds.push(roundNumber);
     }
+    
     const [
         allBets,
         trickWinners,
@@ -63,13 +65,17 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
         trickLeader,
         activePlayer,
         cards,
+        trumpSuit,
+        readyPlayers,
     ] = await Promise.all([
         Promise.all(rounds.map(async roundNumber => getPlayerBets(redis, gameId, roundNumber))),
         Promise.all(rounds.map(async roundNumber => getTrickWinners(redis, gameId, roundNumber))),
         getTrickCardsByPlayer(redis, gameId, currentRound, currentTrick),
         getTrickLeader(redis, gameId, currentRound, currentTrick),
         whosTurnIsIt(redis, gameId),
-        getPlayerCards(redis, gameId, playerId, currentRound)
+        getPlayerCards(redis, gameId, playerId, currentRound),
+        getTrumpSuit(redis, gameId, currentRound),
+        getPlayersReady(redis, gameId, currentRound, currentTrick),
     ]);
 
     const scores: GameState['scores'] = [];
@@ -91,17 +97,35 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string) => {
         }
     });
 
+    const ready: GameState['ready'] = {};
+    players.forEach((playerId) => {
+        ready[playerId] = readyPlayers.includes(playerId);
+    })
+
+    let stage = GAME_STAGE.SETTING_UP;
+
+    if (gameStarted) {
+        if (readyPlayers.length) {
+            stage = GAME_STAGE.BETWEEN_TRICKS;
+        } else if (Object.values(scores[currentRound]).every(b => b.bet !== null)) {
+            stage = GAME_STAGE.PLAYING;
+        } else {
+            stage = GAME_STAGE.BETTING;
+        }
+    }
+
     return {
-        allBetsIn: gameStarted && Object.values(scores[currentRound]).every(b => b.bet !== null),
         activePlayer,
         cards,
-        gameStarted,
         players: players,
+        ready,
         roundNumber: currentRound,
         scores,
+        stage,
         trickCards,
         trickLeader: trickLeader || null,
         trickNumber: currentTrick,
+        trumpSuit: trumpSuit as Suit,
     };
 };
 
