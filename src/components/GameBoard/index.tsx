@@ -81,7 +81,7 @@ function GameBoard(props: GameBoardProps) {
         } else if (isBetting && isNil(bet)) {
             content = (
                 <>
-                    <Typography>placing bet...</Typography>
+                    <Typography>{username} is placing their bet...</Typography>
                     {(trickLeader === username) && (
                         <Typography>(trick leader)</Typography>
                     )}
