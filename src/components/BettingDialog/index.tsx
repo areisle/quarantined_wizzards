@@ -28,11 +28,17 @@ function BettingDialog(props: BettingDialogProps) {
     const handleChange: TextFieldProps['onChange'] = (e) => {
         const value = e.target.value;
         setBet(value ? Number(value) : null);
-    }
+    };
 
     const handleBetPlaced = () => {
         onBetPlaced(bet as number);
-    }
+    };
+
+    const handleOnKeyPress = (event: React.KeyboardEvent) => {
+        if (event.charCode === 13) {
+            handleBetPlaced();
+        }
+    };
 
     return (
         <Dialog 
@@ -54,6 +60,7 @@ function BettingDialog(props: BettingDialogProps) {
                         max,
                         min: 0,
                     }}
+                    onKeyPress={handleOnKeyPress}
                     fullWidth={true}
                     autoFocus={true}
                 />
