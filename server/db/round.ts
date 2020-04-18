@@ -139,7 +139,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
 
     let newLeadSuit: SUIT | null = null;
 
-    if ((leadSuit ===  SUIT.JESTER && leadSuit !== cardSuit) || !trickCards.length) {
+    if ((leadSuit === SUIT.JESTER && leadSuit !== cardSuit) || !trickCards.length) {
         // set the lead suit
         await setLeadSuit(redis, gameId, roundNumber, trickNumber, cardSuit);
         leadSuit = cardSuit;
@@ -236,7 +236,7 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
             // otherwise use values as normal
             return card2.number - card1.number;
         }
-        if (trumpSuit !==  SUIT.JESTER) { // not no trump
+        if (trumpSuit !== SUIT.JESTER) { // not no trump
             if (card1.suit === trumpSuit) {
                 return -1;
             } if (card2.suit === trumpSuit) {
@@ -252,11 +252,11 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
     };
 
     // a wizard was played. the first one played is the winner
-    const firstWizard = trickCards.findIndex(t => t.suit ===  SUIT.WIZARD);
+    const firstWizard = trickCards.findIndex(t => t.suit === SUIT.WIZARD);
     let best;
     if (firstWizard >= 0) {
         best = trickCards[firstWizard].playerId;
-    } else if (trickCards.every(t => t.suit ===  SUIT.JESTER)) {
+    } else if (trickCards.every(t => t.suit === SUIT.JESTER)) {
         // if only jesters were played then the first jester wins
         best = trickCards[0].playerId;
     } else {
@@ -270,13 +270,13 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
 const createDeck = () => {
     const cards = [];
 
-    for (const specialSuit of [ SUIT.WIZARD,  SUIT.JESTER]) {
+    for (const specialSuit of [SUIT.WIZARD, SUIT.JESTER]) {
         for (let value = 0; value < 4; value++) {
             cards.push({ suit: specialSuit, number: null });
         }
     }
 
-    for (const suit of [SUIT.SPADES,  SUIT.CLUBS,  SUIT.HEARTS,  SUIT.DIAMONDS]) {
+    for (const suit of [SUIT.SPADES, SUIT.CLUBS, SUIT.HEARTS, SUIT.DIAMONDS]) {
         for (let value = 1; value < 14; value++) {
             cards.push({ suit, number: value });
         }
@@ -326,12 +326,40 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
 };
 
 
+const sortCards = (cards: Array<Card>) => {
+    const suitOrder: Record<SUIT, number> = {
+        [SUIT.WIZARD]: 0,
+        [SUIT.JESTER]: 1,
+        [SUIT.SPADES]: 2,
+        [SUIT.HEARTS]: 3,
+        [SUIT.CLUBS]: 4,
+        [SUIT.DIAMONDS]: 5
+    };
+
+    // sort the cards first
+    const compareCards = (card1: Card, card2: Card) => {
+        if (card1.suit === card2.suit) {
+            if (card1.number === 1) {
+                return -1;
+            } else if (card2.number === 1) {
+                return 1;
+            }
+            return card2.number - card1.number;  // high cards first
+        }
+        return suitOrder[card1.suit] - suitOrder[card2.suit];
+    };
+    return cards.sort(compareCards)
+}
+
+
 const setPlayerCards = async (redis: Redis, gameId: string, playerId: string, roundNumber: number, cards: Card[]) => {
     await redis.del(`${gameId}-r${roundNumber}-p${playerId}-cards`);
+
     if (cards.length) {
+
         return redis.rpush(
             `${gameId}-r${roundNumber}-p${playerId}-cards`,
-            ...cards.map(c => `${c.suit}-${c.number}`)
+            ...sortCards(cards).map(c => `${c.suit}-${c.number}`)
         );
     }
 };
@@ -369,16 +397,16 @@ const startRound = async (redis: Redis, gameId: string) => {
     const cards: Record<string, Card[]> = {}
 
     for (const playerId of players) {
-        cards[playerId] = deck.splice(0, roundNumber + 1);
+        cards[playerId] = sortCards(deck.splice(0, roundNumber + 1));
     }
 
     const promises = [];
 
-    let trumpSuit: SUIT = deck.pop()?.suit ??  SUIT.JESTER;
+    let trumpSuit: SUIT = deck.pop()?.suit ?? SUIT.JESTER;
 
-    if (trumpSuit ===  SUIT.WIZARD) {
+    if (trumpSuit === SUIT.WIZARD) {
         // TODO: let the player decide, currently pick random
-        trumpSuit = [ SUIT.DIAMONDS, SUIT.SPADES,  SUIT.HEARTS,  SUIT.CLUBS][Math.floor(Math.random() * 4)] as SUIT;
+        trumpSuit = [SUIT.DIAMONDS, SUIT.SPADES, SUIT.HEARTS, SUIT.CLUBS][Math.floor(Math.random() * 4)] as SUIT;
     }
 
     promises.push(setTrumpSuit(redis, gameId, roundNumber, trumpSuit));
@@ -463,6 +491,7 @@ export {
     setCurrentTrick,
     setPlayerBet,
     setPlayerReady,
+    setPlayerCards,
     startRound,
     whosTurnIsIt,
 };
