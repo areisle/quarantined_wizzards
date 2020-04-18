@@ -126,6 +126,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
         trickLeader: trickLeader || null,
         trickNumber: currentTrick,
         trumpSuit: trumpSuit as Suit,
+        trickWinner: trickWinners[currentRound]?.[currentTrick] || null
     };
 };
 
