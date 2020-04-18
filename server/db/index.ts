@@ -105,7 +105,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
     let stage = GAME_STAGE.SETTING_UP;
 
     if (gameStarted) {
-        if (readyPlayers.length) {
+        if (Object.keys(trickCards).length === players.length) {
             stage = GAME_STAGE.BETWEEN_TRICKS;
         } else if (Object.values(scores[currentRound]).every(b => b.bet !== null)) {
             stage = GAME_STAGE.PLAYING;

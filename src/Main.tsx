@@ -83,7 +83,7 @@ function Main() {
                 open={betDialogOpen}
                 onClose={() => setBetOpen(false)}
                 onBetPlaced={handleBetSelected}
-                max={trickNumber + 1}
+                max={roundNumber + 1}
             />
             <TrickWonDialog
                 playerNumber={players.indexOf(trickWinner as string)}
