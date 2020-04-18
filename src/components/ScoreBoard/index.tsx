@@ -30,12 +30,12 @@ function getRoundScore(
 ) {
     let score = null;
 
-    const { bet, taken } = scores[roundNumber]?.[playerId] || {};
+    const { bet, taken = 0 } = scores[roundNumber]?.[playerId] || {};
     if (!isNil(bet) && !isNil(taken)) {
         if (bet === taken) {
             score = bet * 10 + 20;
         } else {
-            score = -Math.abs(bet- taken) * 10;
+            score = -Math.abs(bet - taken) * 10;
         }
     }
 
@@ -49,7 +49,7 @@ function getScore(
 ) {
     let score = 0;
 
-    for (let i=0; i <= roundNumber; i++) {
+    for (let i = 0; i <= roundNumber; i++) {
         score += getRoundScore(scores, playerId, i) ?? 0;
     }
 
@@ -89,7 +89,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                     {playerId}
                 </TableCell>
                 <TableCell align='right'>{showBet && bet}</TableCell>
-                <TableCell align='right'>{taken}</TableCell>
+                <TableCell align='right'>{taken || 0}</TableCell>
                 <TableCell align='right'>{roundDone && roundTotal}</TableCell>
                 <TableCell align='right'>{totalScore}</TableCell>
             </TableRow>
