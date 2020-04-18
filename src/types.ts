@@ -43,6 +43,7 @@ export interface GameState {
     stage: GAME_STAGE;
     cards: Card[];
     trickCards: Record<PlayerId, Card | null>;
+    ready: Record<PlayerId, boolean | null>;
     trickWinner: PlayerId | null;
     playerId: PlayerId | null;
     trickLeader: PlayerId | null;
@@ -74,10 +75,7 @@ export interface BetPlacedParams {
     bet: number;
 }
 
-export interface RejoinGameParams extends Partial<GameState> {
-    gameStarted: boolean;
-    allBetsIn: boolean;
-}
+export type RejoinGameParams = Partial<GameState>;
 
 export enum USER_EVENTS {
     CREATE_GAME = 'create-game',

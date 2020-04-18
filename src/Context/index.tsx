@@ -11,6 +11,7 @@ interface ContextValue extends GameState {
     playCard: (cardIndex: number) => void;
     allPlayersIn: () => void;
     placeBet: (bet: number) => void;
+    readyForNextTrick: () => void;
 }
 
 const GameContext = createContext<ContextValue>({
@@ -20,6 +21,7 @@ const GameContext = createContext<ContextValue>({
     playCard: (cardIndex: number) => {},
     allPlayersIn: () => {},
     placeBet: (bet: number) => {},
+    readyForNextTrick: () => {},
 });
 
 type PlayersChangedParams = PlayerId[];
@@ -132,6 +134,13 @@ function GameContextProvider(props: { children: ReactNode }) {
             });
         });
 
+        nextSocket.on(SERVER_EVENTS.PLAYER_READY, (params: PlayerId) => {
+            dispatch({
+                type: SERVER_EVENTS.PLAYER_READY,
+                payload: params,
+            });
+        });
+
         nextSocket.on(SERVER_EVENTS.ERROR, (error: unknown) => {
             setSnackbar({
                 open: true,
@@ -180,6 +189,10 @@ function GameContextProvider(props: { children: ReactNode }) {
         socket?.emit(USER_EVENTS.PLACE_BET, gameCode, playerId, bet);
     }, [gameCode, playerId, socket]);
 
+    const readyForNextTrick = useCallback(() => {
+        socket?.emit(USER_EVENTS.READY_FOR_NEXT_TRICK, gameCode, playerId);
+    }, [gameCode, playerId, socket]);
+
     useEffect(() => {
         if (gameCode) {
             socket?.emit(USER_EVENTS.GET_PLAYERS, gameCode, (players: PlayersChangedParams) => {
@@ -198,7 +211,8 @@ function GameContextProvider(props: { children: ReactNode }) {
         playCard,
         allPlayersIn,
         placeBet,
-    }), [allPlayersIn, joinGame, placeBet, playCard, startNewGame, state]);
+        readyForNextTrick,
+    }), [allPlayersIn, joinGame, placeBet, playCard, readyForNextTrick, startNewGame, state]);
 
     return (
         <GameContext.Provider value={value}>

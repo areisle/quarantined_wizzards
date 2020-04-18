@@ -44,11 +44,13 @@ function GameBoard(props: GameBoardProps) {
         stage,
         trickCards,
         trickLeader,
+        ready,
     } = useContext(GameContext);
     
     const isSetup = stage === GAME_STAGE.SETTING_UP;
     const isPlaying = stage === GAME_STAGE.PLAYING;
     const isBetting = stage === GAME_STAGE.BETTING;
+    const isBetweenTricks = stage === GAME_STAGE.BETWEEN_TRICKS;
 
     const avatars = players.map((username, index) => {
         const { bet } = scores[roundNumber]?.[username] ?? {};
@@ -98,7 +100,31 @@ function GameBoard(props: GameBoardProps) {
             );
         } else if (isPlaying && isActive) {
             content = (
-                <Typography>'picking a card...'</Typography>
+                <Typography>{username} is picking a card...</Typography>
+            )
+        } else if (isBetweenTricks && playerId && !ready[playerId]) {
+            // @todo show crown for winner of trick
+            // in center of card
+            content = (
+                <PlayingCard
+                    {...trickCards[username]}
+                    size='flexible'
+                />
+            )
+        } else if (isBetweenTricks && ready[username]) {
+            content = (
+                <Done 
+                    fontSize='large' 
+                    style={{
+                        fontSize: '3rem',
+                        fill: 'limegreen',
+                        filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                    }}
+                />
+            )
+        } else if (isBetweenTricks) {
+            content = (
+                <Typography>waiting for {username}...</Typography>
             )
         }
         return (

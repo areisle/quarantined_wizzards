@@ -11,6 +11,7 @@ const initialState: GameState = {
     trickNumber: 0,
     trickWinner: null,
     trickCards: {},
+    ready: {},
     stage: GAME_STAGE.SETTING_UP,
     playerId: null,
     trickLeader: null,
@@ -33,6 +34,7 @@ const gameReducer = createReducer<GameState>({
                 (previous) => (previous || 0) + 1,
             );
             state.trickWinner = playerId;
+            state.stage = GAME_STAGE.BETWEEN_TRICKS
         });
     },
     [SERVER_EVENTS.ACTIVE_PLAYER_CHANGED]: (state, activePlayer: PlayerId) => ({
@@ -71,7 +73,11 @@ const gameReducer = createReducer<GameState>({
         ...state,
         cards: params.cards,
         roundNumber: params.roundNumber,
+        trickCards: {},
         trickLeader: params.trickLeader,
+        trickWinner: null,
+        ready: {},
+        stage: GAME_STAGE.BETTING,
     }),
     [SERVER_EVENTS.TRICK_STARTED]: (state, params: TrickStartedParams) => ({
         ...state,
@@ -79,6 +85,7 @@ const gameReducer = createReducer<GameState>({
         trickLeader: params.trickLeader,
         trickWinner: null,
         trickCards: {},
+        ready: {},
         stage: GAME_STAGE.PLAYING,
     }),
     [USER_EVENTS.CREATE_GAME]: (state, gameCode: string) => ({
@@ -89,20 +96,17 @@ const gameReducer = createReducer<GameState>({
         ...state,
         playerId,
     }),
-    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams): GameState => {
-        const { gameStarted, allBetsIn, ...rest } = gameState;
-
-        let stage: GAME_STAGE = GAME_STAGE.SETTING_UP;
-        if (gameStarted && allBetsIn) {
-            stage = GAME_STAGE.PLAYING;
-        } else if (gameStarted) {
-            stage = GAME_STAGE.BETTING;
+    [SERVER_EVENTS.PLAYER_READY]: (state, playerId: PlayerId) => ({
+        ...state,
+        ready: {
+            ...state.ready,
+            [playerId]: true,
         }
-
+    }),
+    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams) => {
         return {
             ...state,
-            ...rest,
-            stage,
+            ...gameState,
         }
     },
 })

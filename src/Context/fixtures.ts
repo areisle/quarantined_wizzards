@@ -19,6 +19,7 @@ export const newGameState: GameState = {
     trumpSuit: null,
     gameCode: null,
     trickWinner: null,
+    ready: {},
 }
 
 export const startState: GameState = {
@@ -39,6 +40,7 @@ export const startState: GameState = {
     trumpSuit: null,
     gameCode: '1234',
     trickWinner: null,
+    ready: {},
 }
 
 export const bettingState: GameState = {
@@ -89,6 +91,7 @@ export const bettingState: GameState = {
     trumpSuit: 'diamonds',
     gameCode: '1234',
     trickWinner: null,
+    ready: {},
 }
 
 export const playingState: GameState = {
@@ -133,6 +136,7 @@ export const playingState: GameState = {
     trumpSuit: 'diamonds',
     gameCode: '1234',
     trickWinner: null,
+    ready: {},
 }
 
 export const playingDuringTrickState: GameState = {
@@ -180,4 +184,5 @@ export const playingDuringTrickState: GameState = {
     trumpSuit: 'diamonds',
     gameCode: '1234',
     trickWinner: null,
+    ready: {},
 }
