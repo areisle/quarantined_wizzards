@@ -34,9 +34,8 @@ function BettingDialog(props: BettingDialogProps) {
         onBetPlaced(bet as number);
     };
 
-    const handleOnKeyPress = (event: any) => {
+    const handleOnKeyPress = (event: React.KeyboardEvent) => {
         if (event.charCode === 13) {
-            event.preventDefault();
             handleBetPlaced();
         }
     };
