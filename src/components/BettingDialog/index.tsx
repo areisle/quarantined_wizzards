@@ -32,6 +32,7 @@ function BettingDialog(props: BettingDialogProps) {
 
     const handleBetPlaced = () => {
         onBetPlaced(bet as number);
+        setBet(null);
     };
 
     const handleOnKeyPress = (event: React.KeyboardEvent) => {
