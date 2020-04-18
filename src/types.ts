@@ -1,9 +1,16 @@
 export const API = process.env.REACT_APP_API as string;
 
-export type Suit = 'hearts' | 'diamonds' | 'spades' | 'clubs' | 'wizard' | 'jester';
+export enum SUIT {
+    HEARTS = 'hearts',
+    DIAMONDS = 'diamonds',
+    SPADES = 'spades',
+    CLUBS = 'clubs',
+    WIZARD = 'wizard',
+    JESTER = 'jester',
+}
 
 export interface Card {
-    suit: Suit;
+    suit: SUIT;
     number?: number | null;
 }
 
@@ -48,7 +55,7 @@ export interface GameState {
     playerId: PlayerId | null;
     trickLeader: PlayerId | null;
     activePlayer: PlayerId | null;
-    trumpSuit: Suit | null;
+    trumpSuit: SUIT | null;
     gameCode: string | null;
 }
 
@@ -61,7 +68,7 @@ export interface RoundStartedParams {
     roundNumber: number;
     trickLeader: PlayerId;
     cards: Card[];
-    trump: Suit;
+    trump: SUIT;
 }
 
 export interface TrickStartedParams {

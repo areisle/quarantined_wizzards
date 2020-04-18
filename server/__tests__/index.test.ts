@@ -1,6 +1,6 @@
 import ioClient from 'socket.io-client';
 import getPort from 'get-port';
-import { SERVER_EVENTS, USER_EVENTS } from '../../src/types';
+import { SERVER_EVENTS, USER_EVENTS, SUIT } from '../../src/types';
 
 import { server as createServer } from '../';
 import * as db from '../db';
@@ -8,7 +8,7 @@ import * as db from '../db';
 Error.stackTraceLimit = Infinity;
 
 
-const SUITS = ['wizard', 'jester', 'hearts', 'spades', 'diamonds', 'clubs'];
+const SUITS = [SUIT.WIZARD, SUIT.JESTER, SUIT.HEARTS, SUIT.SPADES, SUIT.DIAMONDS, SUIT.CLUBS];
 const playerIds = ['blargh', 'monkeys', 'fishmonger'];
 
 let port;
@@ -216,7 +216,7 @@ describe('game events', () => {
                 expect(SUITS).toContain(suit);
                 done();
             });
-            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: SUIT.CLUBS, number: 1 });
         });
 
         test('active-user-changed', (done) => {
@@ -224,15 +224,15 @@ describe('game events', () => {
                 expect(playerId).toBe(playerIds[0]);
                 done();
             });
-            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: SUIT.CLUBS, number: 1 });
         });
 
         test('card-played', (done) => {
             clientSocket.on(SERVER_EVENTS.CARD_PLAYED, (resp) => {
-                expect(resp).toEqual({ card: { suit: 'clubs', number: 1 }, playerId: playerIds[playerIds.length - 1] })
+                expect(resp).toEqual({ card: { suit: SUIT.CLUBS, number: 1 }, playerId: playerIds[playerIds.length - 1] })
                 done();
             });
-            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: 'clubs', number: 1 });
+            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: SUIT.CLUBS, number: 1 });
         });
 
         test('card-played (error)', (done) => {
@@ -240,7 +240,7 @@ describe('game events', () => {
                 expect(msg).toContain('Invalid play: It is not this users (blargh) turn. Waiting for another player (fishmonger) to complete their turn')
                 done();
             });
-            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[0], { suit: 'clubs', number: 1 });
+            clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[0], { suit: SUIT.CLUBS, number: 1 });
         });
 
         describe(SERVER_EVENTS.TRICK_WON, () => {
@@ -249,13 +249,13 @@ describe('game events', () => {
                     USER_EVENTS.PLAY_CARD,
                     gameId,
                     playerIds[2],
-                    { suit: 'clubs', number: 5 }
+                    { suit: SUIT.CLUBS, number: 5 }
                 );
                 await promisifyEventEmitter(
                     USER_EVENTS.PLAY_CARD,
                     gameId,
                     playerIds[0],
-                    { suit: 'clubs', number: 6 }
+                    { suit: SUIT.CLUBS, number: 6 }
                 );
             });
 
@@ -264,7 +264,7 @@ describe('game events', () => {
                     expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: 'clubs', number: 7 });
+                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: SUIT.CLUBS, number: 7 });
             });
 
             test('low number loses', (done) => {
@@ -272,7 +272,7 @@ describe('game events', () => {
                     expect(playerId).not.toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: 'clubs', number: 2 });
+                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: SUIT.CLUBS, number: 2 });
             });
 
             test('wizard wins', (done) => {
@@ -280,7 +280,7 @@ describe('game events', () => {
                     expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: 'wizard', number: null });
+                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: SUIT.WIZARD, number: null });
             });
 
             test('jester loses', (done) => {
@@ -288,7 +288,7 @@ describe('game events', () => {
                     expect(playerId).not.toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: 'jester', number: null });
+                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: SUIT.JESTER, number: null });
             });
 
             test('aces are high', (done) => {
@@ -296,7 +296,7 @@ describe('game events', () => {
                     expect(playerId).toEqual(playerIds[1]);
                     done();
                 });
-                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: 'clubs', number: 1 });
+                clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[1], { suit: SUIT.CLUBS, number: 1 });
             });
         });
     });

@@ -31,7 +31,7 @@ import {
     whosTurnIsIt,
     getTrumpSuit,
 } from './round';
-import { GameState, GAME_STAGE, Suit } from '../../src/types';
+import { GameState, GAME_STAGE, SUIT } from '../../src/types';
 
 const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
@@ -125,7 +125,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
         trickCards,
         trickLeader: trickLeader || null,
         trickNumber: currentTrick,
-        trumpSuit: trumpSuit as Suit,
+        trumpSuit: trumpSuit as SUIT,
         trickWinner: trickWinners[currentRound]?.[currentTrick] || null
     };
 };
