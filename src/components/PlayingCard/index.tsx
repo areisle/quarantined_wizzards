@@ -22,6 +22,8 @@ function Marker(props: Card) {
         displayNumber = 'Q';
     } else if (displayNumber === 13) {
         displayNumber = 'K';
+    } else if (displayNumber === 1) {
+        displayNumber = 'A';
     }
 
     return (

@@ -67,6 +67,7 @@ function GameBoard(props: GameBoardProps) {
             )
         } else if (isBetting && isNil(bet) && isCurrent) {
             content = (
+                <>
                 <Button
                     onClick={onOpenBettingDialog}
                     color='primary'
@@ -74,9 +75,20 @@ function GameBoard(props: GameBoardProps) {
                 >
                     Place bet
                 </Button>
+                {(trickLeader === username) && (
+                    <Typography>(trick leader)</Typography>
+                )}
+                </>
             )
         } else if (isBetting && isNil(bet)) {
-            content = 'placing bet...';
+            content = (
+                <>
+                    <Typography>{username} is placing their bet...</Typography>
+                    {(trickLeader === username) && (
+                        <Typography>(trick leader)</Typography>
+                    )}
+                </>
+                );
         } else if (isBetting) {
             content = (
                 <Done 
@@ -98,11 +110,11 @@ function GameBoard(props: GameBoardProps) {
         } else if (isPlaying && isActive && isCurrent) {
             
             content = (
-                <Typography>it's your turn to pick a card...</Typography>
+                <Typography>it's your turn to play a card...</Typography>
             );
         } else if (isPlaying && isActive) {
             content = (
-                <Typography>{username} is picking a card...</Typography>
+                <Typography>{username} is playing a card...</Typography>
             )
         } else if (isBetweenTricks && playerId && !ready[playerId]) {
             // @todo show crown for winner of trick
