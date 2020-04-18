@@ -11,7 +11,6 @@ import {
     TableBody,
     NativeSelect, 
 } from '@material-ui/core';
-import isNil from 'lodash.isnil';
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
@@ -30,13 +29,14 @@ function getRoundScore(
 ) {
     let score = null;
 
-    const { bet, taken } = scores[roundNumber]?.[playerId] || {};
-    if (!isNil(bet) && !isNil(taken)) {
-        if (bet === taken) {
-            score = bet * 10 + 20;
-        } else {
-            score = -Math.abs(bet- taken) * 10;
-        }
+    let { bet, taken } = scores[roundNumber]?.[playerId] || {};
+    bet = bet || 0;
+    taken = taken || 0;
+
+    if (bet === taken) {
+        score = bet * 10 + 20;
+    } else {
+        score = -Math.abs(bet - taken) * 10;
     }
 
     return score;
@@ -63,6 +63,7 @@ function ScoreBoard(props: ScoreBoardProps) {
         players,
         scores,
         stage,
+        trickNumber,
     } = useContext(GameContext);
     const [selectedRound, setSelectedRound] = useState(roundNumber);
 
@@ -76,11 +77,24 @@ function ScoreBoard(props: ScoreBoardProps) {
 
     const rows = players.map((playerId, index) => {
         const { bet, taken } = scores[selectedRound]?.[playerId] || {};
-        const showBet = true || stage !== GAME_STAGE.BETTING || selectedRound !== roundNumber;
-        const roundDone = selectedRound !== roundNumber || stage === GAME_STAGE.BETWEEN_TRICKS;
+        const showBet = stage !== GAME_STAGE.BETTING || selectedRound !== roundNumber;
+        const roundDone = (
+            stage === GAME_STAGE.BETWEEN_TRICKS
+            && trickNumber === roundNumber
+        );
 
-        const roundTotal = getRoundScore(scores, playerId, selectedRound);
-        const totalScore = getScore(scores, playerId, 60 / players.length - 1)
+        let roundTotal = null;
+
+        if (roundDone || selectedRound !== roundNumber) {
+            roundTotal = getRoundScore(scores, playerId, selectedRound);
+        }
+
+        const totalScore = getScore(
+            scores, 
+            playerId, 
+            roundDone ? roundNumber : roundNumber - 1,
+        )
+
         return (
             <TableRow key={index}>
                 <TableCell
@@ -89,7 +103,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                     {playerId}
                 </TableCell>
                 <TableCell align='right'>{showBet && bet}</TableCell>
-                <TableCell align='right'>{taken}</TableCell>
+                <TableCell align='right'>{taken || 0}</TableCell>
                 <TableCell align='right'>{roundDone && roundTotal}</TableCell>
                 <TableCell align='right'>{totalScore}</TableCell>
             </TableRow>
