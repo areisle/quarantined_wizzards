@@ -57,7 +57,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
     for (let roundNumber = 0; roundNumber < currentRound + 1; roundNumber++) {
         rounds.push(roundNumber);
     }
-    
+
     const [
         allBets,
         trickWinners,
@@ -160,7 +160,7 @@ const startGame = async (redis: Redis, gameId: string) => {
         const trickLeader = dealer === 0
             ? players.length - 1
             : dealer - 1;
-        setDealers.push(redis.set(`${gameId}-r${roundNumber}-dealer`, dealer));
+        setDealers.push(redis.set(`${gameId}-r${roundNumber}-dealer`, players[dealer]));
         setDealers.push(redis.rpush(`${gameId}-r${roundNumber}-trickleaders`, players[trickLeader]));
     }
     await Promise.all(setDealers);
