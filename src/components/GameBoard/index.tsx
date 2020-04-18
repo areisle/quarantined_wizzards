@@ -96,11 +96,11 @@ function GameBoard(props: GameBoardProps) {
         } else if (isPlaying && isActive && isCurrent) {
             
             content = (
-                <Typography>it's your turn to pick a card...</Typography>
+                <Typography>it's your turn to play a card...</Typography>
             );
         } else if (isPlaying && isActive) {
             content = (
-                <Typography>{username} is picking a card...</Typography>
+                <Typography>{username} is playing a card...</Typography>
             )
         } else if (isBetweenTricks && playerId && !ready[playerId]) {
             // @todo show crown for winner of trick
