@@ -33,8 +33,8 @@ const gameReducer = createReducer<GameState>({
                 ['scores', state.roundNumber, playerId, 'taken'],
                 (previous) => (previous || 0) + 1,
             );
-            state.trickWinner = playerId;
-            state.stage = GAME_STAGE.BETWEEN_TRICKS
+            draft.trickWinner = playerId;
+            draft.stage = GAME_STAGE.BETWEEN_TRICKS
         });
     },
     [SERVER_EVENTS.ACTIVE_PLAYER_CHANGED]: (state, activePlayer: PlayerId) => ({
