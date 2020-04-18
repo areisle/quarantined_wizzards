@@ -42,8 +42,7 @@ function GameBoard(props: GameBoardProps) {
         roundNumber,
         scores,
         stage,
-        trick
-      s,
+        trickCards,
         trickLeader,
         ready,
     } = useContext(GameContext);
@@ -108,7 +107,7 @@ function GameBoard(props: GameBoardProps) {
             // in center of card
             content = (
                 <PlayingCard
-                    {...trickCards[username]}
+                    {...trickCards[username] as Card}
                     size='flexible'
                 />
             )
