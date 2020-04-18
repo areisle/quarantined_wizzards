@@ -1,0 +1,22 @@
+.suit-icon {
+    font-size: inherit !important;
+
+    &--hearts, &--diamonds {
+        fill: red !important;
+    }
+
+    &--clubs, &--spades {
+        fill: black !important;
+    }
+
+    &--wizard, &--jester {
+        color: royalblue;
+        text-transform: uppercase;
+        font-weight: 700 !important;
+    }
+}
+
+.scoreboard-icon {
+    fill: white !important;
+    font-size: 3em;
+}
