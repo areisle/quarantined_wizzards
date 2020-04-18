@@ -147,7 +147,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     }
 
     // check if the card is a wizard or jester
-    if (![ SUIT.JESTER,  SUIT.WIZARD, leadSuit].includes(cardSuit)) {
+    if (![SUIT.JESTER, SUIT.WIZARD, leadSuit].includes(cardSuit) && leadSuit !== 'wizard') {
         // check if the user has any lead suit in their hand
         if (playersCards.some(c => c.suit === leadSuit)) {
             throw new Error(`Invalid Play.The user must play the lead suit(${leadSuit})`);
