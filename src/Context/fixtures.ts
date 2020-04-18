@@ -3,7 +3,7 @@
  * 
  * fixed game states for helping in developing components
  */
-import { GameState, GAME_STAGE } from "../types";
+import { GameState, GAME_STAGE, SUIT } from "../types";
 
 export const newGameState: GameState = {
     players: [],
@@ -53,26 +53,26 @@ export const bettingState: GameState = {
         'natalie'
     ],
     cards: [
-        { suit: 'jester' },
-        { suit: 'wizard' },
-        { suit: 'jester' },
-        { suit: 'wizard' },
-        { suit: 'jester' },
-        { suit: 'wizard' },
-        { suit: 'hearts', number: 1 },
-        { suit: 'hearts', number: 11 },
-        { suit: 'hearts', number: 7 },
-        { suit: 'clubs', number: 1 },
-        { suit: 'clubs', number: 3 },
-        { suit: 'clubs', number: 12 },
-        { suit: 'jester' },
-        { suit: 'wizard' },
-        { suit: 'hearts', number: 1 },
-        { suit: 'hearts', number: 11 },
-        { suit: 'hearts', number: 7 },
-        { suit: 'clubs', number: 1 },
-        { suit: 'clubs', number: 3 },
-        { suit: 'clubs', number: 12 },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.WIZARD },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.WIZARD },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.WIZARD },
+        { suit:  SUIT.HEARTS, number: 1 },
+        { suit:  SUIT.HEARTS, number: 11 },
+        { suit:  SUIT.HEARTS, number: 7 },
+        { suit:  SUIT.CLUBS, number: 1 },
+        { suit:  SUIT.CLUBS, number: 3 },
+        { suit:  SUIT.CLUBS, number: 12 },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.WIZARD },
+        { suit:  SUIT.HEARTS, number: 1 },
+        { suit:  SUIT.HEARTS, number: 11 },
+        { suit:  SUIT.HEARTS, number: 7 },
+        { suit:  SUIT.CLUBS, number: 1 },
+        { suit:  SUIT.CLUBS, number: 3 },
+        { suit:  SUIT.CLUBS, number: 12 },
     ],
     scores: [
         {
@@ -88,7 +88,7 @@ export const bettingState: GameState = {
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: null,
-    trumpSuit: 'diamonds',
+    trumpSuit:  SUIT.DIAMONDS,
     gameCode: '1234',
     trickWinner: null,
     ready: {},
@@ -104,9 +104,9 @@ export const playingState: GameState = {
         'natalie'
     ],
     cards: [
-        { suit: 'jester' },
-        { suit: 'hearts', number: 1 },
-        { suit: 'clubs', number: 12 },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.HEARTS, number: 1 },
+        { suit:  SUIT.CLUBS, number: 12 },
     ],
     scores: [
         {
@@ -133,7 +133,7 @@ export const playingState: GameState = {
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: null,
-    trumpSuit: 'diamonds',
+    trumpSuit:  SUIT.DIAMONDS,
     gameCode: '1234',
     trickWinner: null,
     ready: {},
@@ -149,8 +149,8 @@ export const playingDuringTrickState: GameState = {
         'natalie'
     ],
     cards: [
-        { suit: 'jester' },
-        { suit: 'clubs', number: 12 },
+        { suit:  SUIT.JESTER },
+        { suit:  SUIT.CLUBS, number: 12 },
     ],
     scores: [
         {
@@ -173,15 +173,15 @@ export const playingDuringTrickState: GameState = {
     roundNumber: 2,
     trickNumber: 0,
     trickCards: {
-        'abbey': { suit: 'hearts', number: 1 },
-        'fritz': { suit: 'hearts', number: 7 },
-        'karen': { suit: 'jester' },
+        'abbey': { suit:  SUIT.HEARTS, number: 1 },
+        'fritz': { suit:  SUIT.HEARTS, number: 7 },
+        'karen': { suit:  SUIT.JESTER },
     },
     stage: GAME_STAGE.PLAYING,
     playerId: 'abbey',
     trickLeader: 'abbey',
     activePlayer: 'martin',
-    trumpSuit: 'diamonds',
+    trumpSuit:  SUIT.DIAMONDS,
     gameCode: '1234',
     trickWinner: null,
     ready: {},

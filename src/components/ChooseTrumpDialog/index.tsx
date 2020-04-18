@@ -1,14 +1,15 @@
 import './index.scss';
 
 import React from 'react';
-import { 
-    Button, 
-    Dialog, 
+import {
+    Button,
+    Dialog,
     DialogActions,
     DialogTitle,
     DialogContent,
 } from '@material-ui/core';
 import { Marker } from '../PlayingCard';
+import { SUIT } from '../../types';
 
 interface ChooseTrumpDialogProps {
     open: boolean;
@@ -17,22 +18,22 @@ interface ChooseTrumpDialogProps {
 
 function ChooseTrumpDialog(props: ChooseTrumpDialogProps) {
     const {
-        open, 
+        open,
         onStart,
     } = props;
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
         >
             <DialogTitle>
                 Select which suit you would like to be trump
             </DialogTitle>
             <DialogContent className='trump-selector'>
-                <Marker suit='spades'/>
-                <Marker suit='hearts'/>
-                <Marker suit='diamonds'/>
-                <Marker suit='clubs'/>
+                <Marker suit={SUIT.SPADES} />
+                <Marker suit={SUIT.HEARTS} />
+                <Marker suit={SUIT.DIAMONDS} />
+                <Marker suit={SUIT.CLUBS} />
             </DialogContent>
             <DialogActions>
                 <Button

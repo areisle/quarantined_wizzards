@@ -1,10 +1,9 @@
 import './icons.scss';
 
 import React from 'react';
-import { SvgIcon, SvgIconProps, Typography } from '@material-ui/core';
+import { SvgIcon, SvgIconProps } from '@material-ui/core';
 
-import { Suit } from './types';
-
+import { SUIT } from './types';
 
 
 export function ScoreBoardIcon(props: SvgIconProps) {
@@ -24,7 +23,7 @@ export function ScoreBoardIcon(props: SvgIconProps) {
 
 
 interface SuitIconProps extends SvgIconProps {
-    variant: Suit;
+    variant: SUIT;
 }
 
 const suitPaths: Record<string, string> = {
@@ -37,7 +36,7 @@ const suitPaths: Record<string, string> = {
 export function SuitIcon(props: SuitIconProps) {
     const { variant } = props;
 
-    if (['jester', 'wizard'].includes(variant)) {
+    if ([ SUIT.JESTER,  SUIT.WIZARD].includes(variant)) {
         return (
             <span 
                 className={`suit-icon suit-icon--${variant}`}

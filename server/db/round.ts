@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 
 import { getPlayers, getPlayerIndex } from './game';
-import { Suit, Card, GameState } from '../../src/types';
+import { SUIT, Card, GameState } from '../../src/types';
 import { getGamePlayers } from '.';
 
 const initializeArrayField = async (redis: Redis, field: string, length, value: number | string = -1) => {
@@ -20,11 +20,11 @@ const getTrickWinners = async (redis: Redis, gameId: string, roundNumber: number
 };
 
 const getLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
-    return redis.get(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`) as Promise<Suit>;
+    return redis.get(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`) as Promise<SUIT>;
 };
 
 
-const setLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, suit: Suit) => {
+const setLeadSuit = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, suit: SUIT) => {
     return redis.set(`${gameId}-r${roundNumber}-t${trickNumber}-leadsuit`, suit);
 };
 
@@ -52,7 +52,7 @@ const getTrickLeader = async (redis: Redis, gameId: string, roundNumber: number,
 const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number): Promise<Card[]> => {
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, 0, -1);
     return cards.map(card => {
-        const [suit, value] = card.split('-') as [Suit, string];
+        const [suit, value] = card.split('-') as [SUIT, string];
         return {
             suit,
             number: value === 'null'
@@ -107,7 +107,7 @@ const whosTurnIsIt = async (redis: Redis, gameId: string) => {
 };
 
 
-const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit: Suit, cardValue: number) => {
+const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit: SUIT, cardValue: number) => {
     // check if it is this players turn
     const turnPlayer = await whosTurnIsIt(redis, gameId);
     if (turnPlayer !== playerId) {
@@ -137,9 +137,9 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
         throw new Error(`Cannot play card before all bets are in. Waiting for players (${betsWaiting.join(', ')})`);
     }
 
-    let newLeadSuit: Suit | null = null;
+    let newLeadSuit: SUIT | null = null;
 
-    if ((leadSuit === 'jester' && leadSuit !== cardSuit) || !trickCards.length) {
+    if ((leadSuit ===  SUIT.JESTER && leadSuit !== cardSuit) || !trickCards.length) {
         // set the lead suit
         await setLeadSuit(redis, gameId, roundNumber, trickNumber, cardSuit);
         leadSuit = cardSuit;
@@ -147,7 +147,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     }
 
     // check if the card is a wizard or jester
-    if (!['jester', 'wizard', leadSuit].includes(cardSuit) && leadSuit !== 'wizard') {
+    if (![SUIT.JESTER, SUIT.WIZARD, leadSuit].includes(cardSuit) && leadSuit !== 'wizard') {
         // check if the user has any lead suit in their hand
         if (playersCards.some(c => c.suit === leadSuit)) {
             throw new Error(`Invalid Play.The user must play the lead suit(${leadSuit})`);
@@ -236,7 +236,7 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
             // otherwise use values as normal
             return card2.number - card1.number;
         }
-        if (trumpSuit !== 'jester') { // not no trump
+        if (trumpSuit !==  SUIT.JESTER) { // not no trump
             if (card1.suit === trumpSuit) {
                 return -1;
             } if (card2.suit === trumpSuit) {
@@ -252,11 +252,11 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
     };
 
     // a wizard was played. the first one played is the winner
-    const firstWizard = trickCards.findIndex(t => t.suit === 'wizard');
+    const firstWizard = trickCards.findIndex(t => t.suit ===  SUIT.WIZARD);
     let best;
     if (firstWizard >= 0) {
         best = trickCards[firstWizard].playerId;
-    } else if (trickCards.every(t => t.suit === 'jester')) {
+    } else if (trickCards.every(t => t.suit ===  SUIT.JESTER)) {
         // if only jesters were played then the first jester wins
         best = trickCards[0].playerId;
     } else {
@@ -270,13 +270,13 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
 const createDeck = () => {
     const cards = [];
 
-    for (const specialSuit of ['wizard', 'jester']) {
+    for (const specialSuit of [ SUIT.WIZARD,  SUIT.JESTER]) {
         for (let value = 0; value < 4; value++) {
             cards.push({ suit: specialSuit, number: null });
         }
     }
 
-    for (const suit of ['spades', 'clubs', 'hearts', 'diamonds']) {
+    for (const suit of [SUIT.SPADES,  SUIT.CLUBS,  SUIT.HEARTS,  SUIT.DIAMONDS]) {
         for (let value = 1; value < 14; value++) {
             cards.push({ suit, number: value });
         }
@@ -295,7 +295,7 @@ const shuffleYourDeck = (array) => {
 
 
 const getTrumpSuit = async (redis: Redis, gameId: string, roundNumber: number) => {
-    return redis.get(`${gameId}-r${roundNumber}-trump`) as Promise<Suit>;
+    return redis.get(`${gameId}-r${roundNumber}-trump`) as Promise<SUIT>;
 };
 
 const setTrumpSuit = async (redis: Redis, gameId: string, roundNumber: number, trump: string) => {
@@ -315,7 +315,7 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
     }
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-p${playerId}-cards`, 0, -1);
     return cards.map(card => {
-        const [suit, value] = card.split('-') as [Suit, string];
+        const [suit, value] = card.split('-') as [SUIT, string];
         return {
             suit,
             number: value === 'null'
@@ -374,11 +374,11 @@ const startRound = async (redis: Redis, gameId: string) => {
 
     const promises = [];
 
-    let trumpSuit: Suit = deck.pop()?.suit ?? 'jester';
+    let trumpSuit: SUIT = deck.pop()?.suit ??  SUIT.JESTER;
 
-    if (trumpSuit === 'wizard') {
+    if (trumpSuit ===  SUIT.WIZARD) {
         // TODO: let the player decide, currently pick random
-        trumpSuit = ['diamonds', 'spades', 'hearts', 'clubs'][Math.floor(Math.random() * 4)] as Suit;
+        trumpSuit = [ SUIT.DIAMONDS, SUIT.SPADES,  SUIT.HEARTS,  SUIT.CLUBS][Math.floor(Math.random() * 4)] as SUIT;
     }
 
     promises.push(setTrumpSuit(redis, gameId, roundNumber, trumpSuit));

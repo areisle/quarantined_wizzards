@@ -1,7 +1,7 @@
 import { createReducer, removeFirst } from './utilities';
 import produce from "immer"
 import update from 'lodash.update';
-import { GameState, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS, GAME_STAGE, Suit } from '../types';
+import { GameState, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS, GAME_STAGE, SUIT } from '../types';
 
 const initialState: GameState = {
     players: [],
@@ -21,7 +21,7 @@ const initialState: GameState = {
 }
 
 const gameReducer = createReducer<GameState>({
-    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: Suit) => ({
+    [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: SUIT) => ({
         ...state,
         trumpSuit,
         stage: GAME_STAGE.BETTING,

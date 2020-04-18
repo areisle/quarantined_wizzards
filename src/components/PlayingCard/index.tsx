@@ -1,7 +1,7 @@
 import './index.scss';
 
 import React, { HTMLProps } from 'react';
-import { Card, Suit } from '../../types';
+import { Card, SUIT } from '../../types';
 import { SuitIcon } from '../../icons';
 
 interface PlayingCardProps extends Card {
@@ -27,7 +27,7 @@ function Marker(props: Card) {
     return (
         <div className='marker'>
             <SuitIcon
-                variant={suit as Suit}
+                variant={suit as SUIT}
             />
             {displayNumber}
         </div>
