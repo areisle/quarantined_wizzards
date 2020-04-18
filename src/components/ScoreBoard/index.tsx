@@ -24,18 +24,18 @@ interface ScoreBoardProps {
 }
 
 function getRoundScore(
-    scores: GameState['scores'], 
+    scores: GameState['scores'],
     playerId: PlayerId,
     roundNumber: number,
 ) {
     let score = null;
 
     const { bet, taken = 0 } = scores[roundNumber]?.[playerId] || {};
-    if (!isNil(bet) && !isNil(taken)) {
-        if (bet === taken) {
+    if (!isNil(bet)) {
+        if (bet === Number(taken)) {
             score = bet * 10 + 20;
         } else {
-            score = -Math.abs(bet - taken) * 10;
+            score = -Math.abs(bet - Number(taken)) * 10;
         }
     }
 
