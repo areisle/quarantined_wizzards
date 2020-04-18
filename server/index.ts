@@ -250,6 +250,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                         };
 
                         io.to(gameId).emit(SERVER_EVENTS.TRICK_STARTED, trickData);
+                        io.to(gameId).emit(SERVER_EVENTS.ACTIVE_PLAYER_CHANGED, trickLeader);
                     } else {
                         await Promise.all([
                             db.setCurrentTrick(redis, gameId, 0),
