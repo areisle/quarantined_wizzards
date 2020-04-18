@@ -326,34 +326,40 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
 };
 
 
+const sortCards = (cards: Array<Card>) => {
+    const suitOrder: Record<SUIT, number> = {
+        [SUIT.WIZARD]: 0,
+        [SUIT.JESTER]: 1,
+        [SUIT.SPADES]: 2,
+        [SUIT.HEARTS]: 3,
+        [SUIT.CLUBS]: 4,
+        [SUIT.DIAMONDS]: 5
+    };
+
+    // sort the cards first
+    const compareCards = (card1: Card, card2: Card) => {
+        if (card1.suit === card2.suit) {
+            if (card1.number === 1) {
+                return -1;
+            } else if (card2.number === 1) {
+                return 1;
+            }
+            return card2.number - card1.number;  // high cards first
+        }
+        return suitOrder[card1.suit] - suitOrder[card2.suit];
+    };
+    return cards.sort(compareCards)
+}
+
+
 const setPlayerCards = async (redis: Redis, gameId: string, playerId: string, roundNumber: number, cards: Card[]) => {
     await redis.del(`${gameId}-r${roundNumber}-p${playerId}-cards`);
 
     if (cards.length) {
-        const suitOrder: Record<SUIT, number> = {
-            [SUIT.WIZARD]: 0,
-            [SUIT.JESTER]: 1,
-            [SUIT.SPADES]: 2,
-            [SUIT.HEARTS]: 3,
-            [SUIT.CLUBS]: 4,
-            [SUIT.DIAMONDS]: 5
-        };
 
-        // sort the cards first
-        const sortCards = (card1: Card, card2: Card) => {
-            if (card1.suit === card2.suit) {
-                if (card1.number === 1) {
-                    return -1;
-                } else if (card2.number === 1) {
-                    return 1;
-                }
-                return card2.number - card1.number;  // high cards first
-            }
-            return suitOrder[card1.suit] - suitOrder[card2.suit];
-        };
         return redis.rpush(
             `${gameId}-r${roundNumber}-p${playerId}-cards`,
-            ...cards.sort(sortCards).map(c => `${c.suit}-${c.number}`)
+            ...sortCards(cards).map(c => `${c.suit}-${c.number}`)
         );
     }
 };
@@ -391,7 +397,7 @@ const startRound = async (redis: Redis, gameId: string) => {
     const cards: Record<string, Card[]> = {}
 
     for (const playerId of players) {
-        cards[playerId] = deck.splice(0, roundNumber + 1);
+        cards[playerId] = sortCards(deck.splice(0, roundNumber + 1));
     }
 
     const promises = [];
