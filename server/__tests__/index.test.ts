@@ -42,6 +42,7 @@ beforeAll(async () => {
 afterAll(async () => {
     server.close();
     await clientSocket.close();
+    await redis.quit();
 });
 
 afterEach(() => {
