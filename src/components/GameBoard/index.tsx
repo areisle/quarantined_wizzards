@@ -7,6 +7,7 @@ import isNil from 'lodash.isnil';
 import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
+import { Card } from '../../types';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -86,7 +87,7 @@ function GameBoard(props: GameBoardProps) {
         } else if (isPlaying && trickCards[username]) {
             content = (
                 <PlayingCard
-                    {...trickCards[username]}
+                    {...trickCards[username] as Card}
                     size='flexible'
                 />
             )
