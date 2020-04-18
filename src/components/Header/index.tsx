@@ -3,7 +3,7 @@ import './index.scss';
 import React from 'react';
 import { GameState, GAME_STAGE } from '../../types';
 import { IconButton } from '@material-ui/core';
-import { ScoreBoardIcon } from '../../icons';
+import { ScoreBoardIcon, SuitIcon } from '../../icons';
 
 interface HeaderProps {
     onScoreBoardOpen: () => void;
@@ -30,7 +30,7 @@ function Header(props: HeaderProps) {
             {!isSetup && (
                 <>
                     <ul className='game-header__stats'>
-                        <li>trump: {trumpSuit}</li>
+                        <li>trump: {trumpSuit && (<SuitIcon variant={trumpSuit} aria-label={trumpSuit} />)}</li>
                         <li>round: {roundNumber + 1}</li>
                         <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
                     </ul>
