@@ -35,7 +35,7 @@ function JoinGameDialog(props: JoinGameDialogProps) {
             open={open}
         >
             <DialogTitle>
-                Welcome to Quaranteened Wizzards!
+                Welcome to Quarantined Wizzards!
             </DialogTitle>
             <DialogContent>
                 <TextField

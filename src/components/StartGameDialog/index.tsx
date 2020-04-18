@@ -22,7 +22,7 @@ function StartGameDialog(props: StartGameDialogProps) {
             open={open}
         >
             <DialogTitle>
-                Welcome to Quaranteened Wizzards!
+                Welcome to Quarantined Wizzards!
             </DialogTitle>
             <DialogActions>
                 <Button
