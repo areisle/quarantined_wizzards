@@ -245,7 +245,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
 
                         const trickData: TrickStartedParams = {
                             roundNumber,
-                            trickNumber,
+                            trickNumber: trickNumber + 1,
                             trickLeader,
                         };
 
