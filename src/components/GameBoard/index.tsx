@@ -8,6 +8,7 @@ import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
 import { GAME_STAGE, Card } from '../../types';
+import { TrophyIcon } from '../../icons';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -45,6 +46,7 @@ function GameBoard(props: GameBoardProps) {
         trickCards,
         trickLeader,
         ready,
+        trickWinner,
     } = useContext(GameContext);
     
     const isSetup = stage === GAME_STAGE.SETTING_UP;
@@ -109,7 +111,11 @@ function GameBoard(props: GameBoardProps) {
                 <PlayingCard
                     {...trickCards[username] as Card}
                     size='flexible'
-                />
+                >
+                    {username=== trickWinner && (
+                        <TrophyIcon />
+                    )}
+                </PlayingCard>
             )
         } else if (isBetweenTricks && ready[username]) {
             content = (
