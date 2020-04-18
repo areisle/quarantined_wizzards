@@ -224,13 +224,14 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
 
     // a wizard was played. the first one played is the winner
     const firstWizard = trickCards.findIndex(t => t.suit === 'wizard');
+    let best;
     if (firstWizard >= 0) {
-        return trickCards[firstWizard].playerId;
+        best = trickCards[firstWizard].playerId;
     }
 
     // if only jesters were played then the first jester wins
     if (trickCards.every(t => t.suit === 'jester')) {
-        return trickCards[0].playerId;
+        best = trickCards[0].playerId;
     }
 
     const compareCards = (card1, card2) => {
@@ -262,7 +263,9 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
         return 0;
     };
 
-    const [best] = trickCards.sort(compareCards);
+    if (!best) {
+        [best] = trickCards.sort(compareCards);
+    }
     await setTrickWinner(redis, gameId, roundNumber, trickNumber, best.playerId);
     return best.playerId;
 };
