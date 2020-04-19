@@ -39,8 +39,6 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
             : db.startRound(redis, gameId));
         const activeUser = await db.whosTurnIsIt(redis, gameId);
 
-        io.to(gameId).emit(SERVER_EVENTS.TRUMP_CHANGED, trump);
-
         await Promise.all(Object.keys(cards).map(async playerId => {
             const socketId = await db.getPlayerSocket(redis, gameId, playerId);
 
@@ -61,6 +59,8 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 data,
             );
         }));
+
+        io.to(gameId).emit(SERVER_EVENTS.TRUMP_CHANGED, trump);
     };
 
     io.on('connection', function (socket) {
