@@ -156,10 +156,8 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
 
     // play the card
     const newCards = playersCards.filter(c => c.suit !== cardSuit || c.number !== cardValue);
-    await Promise.all([
-        redis.rpush(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, `${cardSuit}-${cardValue} `),
-        setPlayerCards(redis, gameId, playerId, roundNumber, newCards),
-    ]);
+    await redis.rpush(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, `${cardSuit}-${cardValue}`);
+    await setPlayerCards(redis, gameId, playerId, roundNumber, newCards);
 
     // if this was the last card in the trick, evaluate the trick
     const trickComplete = Boolean(trickCards.length + 1 === players.length);
