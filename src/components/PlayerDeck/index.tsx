@@ -1,6 +1,6 @@
 import './index.scss';
 
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import { PlayingCard } from '../PlayingCard';
 import SwipeableViews from 'react-swipeable-views';
 import { GameContext } from '../../Context';
@@ -22,6 +22,7 @@ function PlayerDeck(props: PlayerDeckProps) {
 
     const [open, setOpen] = useState(false);
     const [selectedIndex, setIndex] = useState(0);
+    const [animate, setAnimate] = useState(false);
 
     const showPlaceCard = (
         activePlayer === playerId
@@ -38,6 +39,7 @@ function PlayerDeck(props: PlayerDeckProps) {
     }, []);
 
     const handleClose = useCallback(() => {
+        setAnimate(false);
         setOpen(false);
     }, []);
 
@@ -45,6 +47,12 @@ function PlayerDeck(props: PlayerDeckProps) {
         setOpen(false);
         onPlaceCard(card);
     }, [onPlaceCard]);
+
+    useEffect(() => {
+        if (open) {       
+            setAnimate(true);
+        }
+    }, [open]);
 
     if (stage === GAME_STAGE.SETTING_UP) {
         return null;
@@ -99,6 +107,7 @@ function PlayerDeck(props: PlayerDeckProps) {
                     <SwipeableViews 
                         index={selectedIndex}
                         onChangeIndex={handleChangeIndex}
+                        animateTransitions={animate}
                     >
                         {swipeableCards}
                     </SwipeableViews>
