@@ -104,6 +104,10 @@ function Main() {
                 open={false}
                 onStart={startNewGame}
             />
+            <TrumpChosenDialog 
+                stage={stage}
+                trumpSuit={trumpSuit}
+            />
         </div>
     )
 }
