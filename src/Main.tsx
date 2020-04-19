@@ -14,6 +14,7 @@ import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
 import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
 import { GAME_STAGE } from './types';
+import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 
 function Main() {
     const { 
