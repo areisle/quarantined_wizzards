@@ -65,6 +65,7 @@ function TrickWonDialog(props: TrickWonDialogProps) {
                         roundNumber={round}
                         trickNumber={trick}
                         stage={GAME_STAGE.BETWEEN_TRICKS}
+                        variant='round'
                     />
                 )}
             </DialogContent>

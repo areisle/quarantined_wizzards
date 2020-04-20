@@ -61,14 +61,12 @@ function getScore(
 }
 
 type RoundScoreBoardProps = {
-    allowChangeSelectedRound?: boolean;
-    showCumulativeTotal?: boolean;
+    variant?: 'round' | 'bet' | 'overall';
 } & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
 
 function RoundScoreBoard(props: RoundScoreBoardProps) {
     const {
-        allowChangeSelectedRound,
-        showCumulativeTotal,
+        variant = 'overall',
         roundNumber,
         players,
         scores,
@@ -85,6 +83,9 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
     useEffect(() => {
         setSelectedRound(roundNumber);
     }, [roundNumber]);
+
+    const showOverall = variant === 'overall';
+    const showRoundScores = variant !== 'bet';
 
     const rows = players.map((playerId, index) => {
         const { bet, taken } = scores[selectedRound]?.[playerId] || {};
@@ -108,16 +109,20 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
                     {playerId}
                 </TableCell>
                 <TableCell align='right'>{showBet && bet}</TableCell>
-                <TableCell align='right'>{taken || 0}</TableCell>
-                <TableCell align='right'>{roundDone && roundTotal}</TableCell>
-                {showCumulativeTotal && (
-                    <TableCell align='right'>
-                        {getScore(
-                            scores, 
-                            playerId, 
-                            roundDone ? roundNumber : roundNumber - 1,
-                        )}
-                    </TableCell>
+                {showRoundScores && (
+                    <>
+                    <TableCell align='right'>{taken || 0}</TableCell>
+                    <TableCell align='right'>{roundDone && roundTotal}</TableCell>
+                    {showOverall && (
+                        <TableCell align='right'>
+                            {getScore(
+                                scores, 
+                                playerId, 
+                                roundDone ? roundNumber : roundNumber - 1,
+                            )}
+                        </TableCell>
+                    )}
+                    </>
                 )}
             </TableRow>
         )
@@ -130,7 +135,7 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
             stickyHeader={true}
         >
             <TableHead>
-                {allowChangeSelectedRound && (
+                {showOverall && (
                     <TableRow>
                         <TableCell></TableCell>
                         <TableCell colSpan={3}>
@@ -149,17 +154,19 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
                                 ))}
                             </NativeSelect>
                         </TableCell>
-                        {showCumulativeTotal && (
-                            <TableCell></TableCell>
-                        )}
+                        <TableCell></TableCell>
                     </TableRow>
                 )}
                 <TableRow>
                     <TableCell>user</TableCell>
-                    <TableCell>bet</TableCell>
-                    <TableCell>taken</TableCell>
-                    <TableCell>total</TableCell>
-                    {showCumulativeTotal && (
+                    <TableCell className='table-cell--skinny'>bet</TableCell>
+                    {showRoundScores && (
+                        <>
+                    <TableCell className='table-cell--skinny'>taken</TableCell>
+                    <TableCell className='table-cell--skinny'>total</TableCell>
+                    </>
+                    )}
+                    {showOverall && (
                         <TableCell>overall total</TableCell>
                     )}
                 </TableRow>
@@ -199,8 +206,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                 roundNumber={roundNumber}
                 players={players}
                 stage={stage}
-                allowChangeSelectedRound={true}
-                showCumulativeTotal={true}
+                variant='overall'
             />
             <Rules />
         </div>
