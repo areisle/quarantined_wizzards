@@ -26,7 +26,7 @@ function TrumpChosenDialog(props: TrumpChosenDialogProps) {
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        if (!open && trumpSuit && prevTrump === null && stage === GAME_STAGE.BETTING) {
+        if (!open && trumpSuit !== prevTrump && stage === GAME_STAGE.BETTING) {
             setOpen(true);
         }
     }, [open, prevTrump, stage, trumpSuit]);
