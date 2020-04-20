@@ -33,3 +33,13 @@ npm run start:dev
 ```
 
 The client can now be viewed in the browser at [http://localhost:3000](http://localhost:3000).
+
+## Game Play
+
+Squares represent players
+
+![trick](docs/trick.png)
+
+When it is your turn, click on your hand to bring up the form to place a card
+
+![choose card](docs/choose-card.png)
