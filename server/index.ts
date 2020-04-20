@@ -138,7 +138,12 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
          */
         socket.on(USER_EVENTS.PLAY_CARD, async (gameId: string, playerId: string, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
-                await db.playerExists(redis, gameId, playerId);
+                const [, roundNumber, trickNumber, players] = await Promise.all([
+                    db.playerExists(redis, gameId, playerId),
+                    db.getCurrentRound(redis, gameId),
+                    db.getCurrentTrick(redis, gameId),
+                    db.getGamePlayers(redis, gameId),
+                ]);
                 const { trickWinner, newLeadSuit } = await db.playCard(
                     redis, gameId, playerId, cardSuit, cardValue
                 );
@@ -161,6 +166,10 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 }
                 if (trickWinner) {
                     io.to(gameId).emit(SERVER_EVENTS.TRICK_WON, { playerId: trickWinner });
+
+                    if (trickNumber === roundNumber && roundNumber === (db.TOTAL_CARDS / players.length - 1)) {
+                        io.to(gameId).emit(SERVER_EVENTS.GAME_COMPLETE);
+                    }
                 }
             } catch (err) {
                 onError?.(err);

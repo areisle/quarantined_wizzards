@@ -106,4 +106,5 @@ export enum SERVER_EVENTS {
     TRICK_STARTED = 'trick-started',
     TRICK_WON = 'trick-won',
     TRUMP_CHANGED = 'trump-changed',
+    GAME_COMPLETE = 'game-complete',
 }
