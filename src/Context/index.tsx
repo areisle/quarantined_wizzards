@@ -148,6 +148,12 @@ function GameContextProvider(props: { children: ReactNode }) {
             })
         });
 
+        nextSocket.on('disconnect', (reason: string) => {
+            if (['io server disconnect', 'ping timeout'].includes(reason)) {
+                nextSocket.connect();
+            }
+        });
+
         return () => {
             nextSocket.disconnect();
         }
