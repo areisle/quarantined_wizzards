@@ -23,6 +23,11 @@
     &__table {
         background-color: white;
         position: relative;
+
+        .avatar {
+            max-width: 30vw;
+            word-break: break-word;
+        }
     }
 
     &__round-score {

@@ -3,16 +3,21 @@ import {
     Dialog, 
     DialogContent,
     Typography,
+    DialogTitle,
 } from '@material-ui/core';
 import isNil from 'lodash.isnil';
 import { PlayerAvatar } from '../Avatar';
-import { PlayerId } from '../../types';
+import { PlayerId, GameState, GAME_STAGE } from '../../types';
+import { RoundScoreBoard } from '../ScoreBoard';
+import { TrophyIcon } from '../../icons';
 
 interface TrickWonDialogProps {
     winner: PlayerId | null;
     playerNumber: number | null;
     trick: number;
     round: number;
+    players: PlayerId[];
+    scores: GameState['scores'];
 }
 
 function TrickWonDialog(props: TrickWonDialogProps) {
@@ -21,9 +26,13 @@ function TrickWonDialog(props: TrickWonDialogProps) {
         playerNumber,
         round,
         trick,
+        players,
+        scores,
     } = props;
 
     const [dismissed, setDismissed] = useState(false);
+
+    const roundComplete = trick === round;
 
     useEffect(() => {
         setDismissed(false);
@@ -34,16 +43,30 @@ function TrickWonDialog(props: TrickWonDialogProps) {
             open={Boolean(winner) && !dismissed}
             onClick={() => setDismissed(true)}
         >
+            {(roundComplete) && (
+                <DialogTitle>Round {round + 1} is complete!</DialogTitle>
+            )}
             <DialogContent>
                 <PlayerAvatar
                     player={!isNil(playerNumber) ? playerNumber + 1 : playerNumber}
                     style={{
-                        width: 120,
-                        height: 120,
-                        margin: 'auto',
+                        width: 200,
+                        height: 200,
+                        margin: '0 auto'
                     }}
-                />
-                <Typography>{winner} has won the trick!</Typography>
+                >
+                    <TrophyIcon />
+                </PlayerAvatar>
+                <Typography align='center'>{winner} has won the trick!</Typography>
+                {(roundComplete) && (
+                    <RoundScoreBoard
+                        scores={scores}
+                        players={players}
+                        roundNumber={round}
+                        trickNumber={trick}
+                        stage={GAME_STAGE.BETWEEN_TRICKS}
+                    />
+                )}
             </DialogContent>
         </Dialog>
     )
