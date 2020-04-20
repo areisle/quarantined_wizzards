@@ -24,6 +24,10 @@ export interface Score {
     taken?: number | null;
 }
 
+export interface ScoreWithTotal extends Score {
+    total: number;
+}
+
 export enum GAME_STAGE {
     SETTING_UP = 'awaiting-players',
     BETTING = 'betting',

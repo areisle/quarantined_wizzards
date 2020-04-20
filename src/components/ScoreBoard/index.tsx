@@ -14,7 +14,7 @@ import {
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
-import { GameState, PlayerId, GAME_STAGE } from '../../types';
+import { GAME_STAGE, GameState, PlayerId, ScoreWithTotal } from '../../types';
 import { Rules } from '../Rules';
 
 interface ScoreBoardProps {
@@ -26,20 +26,24 @@ function getRoundScore(
     scores: GameState['scores'], 
     playerId: PlayerId,
     roundNumber: number,
-) {
+): ScoreWithTotal {
     let score = null;
 
-    let { bet, taken } = scores[roundNumber]?.[playerId] || {};
-    bet = bet || 0;
-    taken = taken || 0;
+    const { bet, taken } = scores[roundNumber]?.[playerId] || {};
+    let numBet = bet || 0;
+    let numTaken = taken || 0;
 
-    if (bet === taken) {
-        score = bet * 10 + 20;
+    if (numBet === numTaken) {
+        score = numBet * 10 + 20;
     } else {
-        score = -Math.abs(bet - taken) * 10;
+        score = -Math.abs(numBet - numTaken) * 10;
     }
 
-    return score;
+    return {
+        bet,
+        taken,
+        total: score,
+    };
 }
 
 function getScore(
@@ -50,21 +54,28 @@ function getScore(
     let score = 0;
 
     for (let i=0; i <= roundNumber; i++) {
-        score += getRoundScore(scores, playerId, i) ?? 0;
+        score += getRoundScore(scores, playerId, i).total ?? 0;
     }
 
     return score;
 }
 
-function ScoreBoard(props: ScoreBoardProps) {
-    const { open, onClose } = props;
+type RoundScoreBoardProps = {
+    allowChangeSelectedRound?: boolean;
+    showCumulativeTotal?: boolean;
+} & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
+
+function RoundScoreBoard(props: RoundScoreBoardProps) {
     const {
+        allowChangeSelectedRound,
+        showCumulativeTotal,
         roundNumber,
         players,
         scores,
-        stage,
         trickNumber,
-    } = useContext(GameContext);
+        stage,
+    } = props;
+    
     const [selectedRound, setSelectedRound] = useState(roundNumber);
 
     const handleSwapSelectedRound = (e: any) => {
@@ -86,14 +97,8 @@ function ScoreBoard(props: ScoreBoardProps) {
         let roundTotal = null;
 
         if (roundDone || selectedRound !== roundNumber) {
-            roundTotal = getRoundScore(scores, playerId, selectedRound);
+            roundTotal = getRoundScore(scores, playerId, selectedRound).total;
         }
-
-        const totalScore = getScore(
-            scores, 
-            playerId, 
-            roundDone ? roundNumber : roundNumber - 1,
-        )
 
         return (
             <TableRow key={index}>
@@ -105,31 +110,27 @@ function ScoreBoard(props: ScoreBoardProps) {
                 <TableCell align='right'>{showBet && bet}</TableCell>
                 <TableCell align='right'>{taken || 0}</TableCell>
                 <TableCell align='right'>{roundDone && roundTotal}</TableCell>
-                <TableCell align='right'>{totalScore}</TableCell>
+                {showCumulativeTotal && (
+                    <TableCell align='right'>
+                        {getScore(
+                            scores, 
+                            playerId, 
+                            roundDone ? roundNumber : roundNumber - 1,
+                        )}
+                    </TableCell>
+                )}
             </TableRow>
         )
     });
 
     return (
-        <div
-            className={`score-board score-board--${open ? 'open' : 'closed'}`}
-            onClick={onClose}
+        <Table 
+            className='score-board__table'
+            onClick={(e) => e.stopPropagation()}
+            stickyHeader={true}
         >
-            <IconButton
-                 aria-label='close overlay'
-                 className='overlay__close-button'
-            >
-                <Close 
-                    htmlColor='white' 
-                    fontSize='large'
-                />
-            </IconButton>
-            <Table 
-                className='score-board__table'
-                onClick={(e) => e.stopPropagation()}
-                stickyHeader={true}
-            >
-                <TableHead>
+            <TableHead>
+                {allowChangeSelectedRound && (
                     <TableRow>
                         <TableCell></TableCell>
                         <TableCell colSpan={3}>
@@ -148,23 +149,65 @@ function ScoreBoard(props: ScoreBoardProps) {
                                 ))}
                             </NativeSelect>
                         </TableCell>
-                        <TableCell></TableCell>
+                        {showCumulativeTotal && (
+                            <TableCell></TableCell>
+                        )}
                     </TableRow>
-                    <TableRow>
-                        <TableCell>user</TableCell>
-                        <TableCell>bet</TableCell>
-                        <TableCell>taken</TableCell>
-                        <TableCell>total</TableCell>
+                )}
+                <TableRow>
+                    <TableCell>user</TableCell>
+                    <TableCell>bet</TableCell>
+                    <TableCell>taken</TableCell>
+                    <TableCell>total</TableCell>
+                    {showCumulativeTotal && (
                         <TableCell>overall total</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>{rows}</TableBody>
-            </Table>
+                    )}
+                </TableRow>
+            </TableHead>
+            <TableBody>{rows}</TableBody>
+        </Table>
+    )
+}
+
+function ScoreBoard(props: ScoreBoardProps) {
+    const { open, onClose } = props;
+    const {
+        roundNumber,
+        players,
+        scores,
+        stage,
+        trickNumber,
+    } = useContext(GameContext);
+
+    return (
+        <div
+            className={`score-board score-board--${open ? 'open' : 'closed'}`}
+            onClick={onClose}
+        >
+            <IconButton
+                 aria-label='close overlay'
+                 className='overlay__close-button'
+            >
+                <Close 
+                    htmlColor='white' 
+                    fontSize='large'
+                />
+            </IconButton>
+            <RoundScoreBoard
+                scores={scores}
+                trickNumber={trickNumber}
+                roundNumber={roundNumber}
+                players={players}
+                stage={stage}
+                allowChangeSelectedRound={true}
+                showCumulativeTotal={true}
+            />
             <Rules />
         </div>
     )
 }
 
 export {
-    ScoreBoard
+    ScoreBoard,
+    RoundScoreBoard,
 }

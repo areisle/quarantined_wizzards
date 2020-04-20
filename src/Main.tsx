@@ -17,7 +17,7 @@ import { GAME_STAGE } from './types';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 
 function Main() {
-    const { 
+    const {
         playerId,
         roundNumber,
         stage,
@@ -33,6 +33,7 @@ function Main() {
         playCard,
         ready,
         readyForNextTrick,
+        scores,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
@@ -76,7 +77,7 @@ function Main() {
             <PlayerDeck
                 onPlaceCard={playCard}
             />
-            <ScoreBoard 
+            <ScoreBoard
                 open={scoreboardOpen}
                 onClose={handleCloseScoreBoard}
             />
@@ -91,6 +92,8 @@ function Main() {
                 winner={trickWinner}
                 round={roundNumber}
                 trick={trickNumber}
+                players={players}
+                scores={scores}
             />
             <JoinGameDialog
                 open={Boolean(gameCode && playerId === null)}
