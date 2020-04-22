@@ -19,6 +19,10 @@
     &--closed {
         visibility: hidden;
     }
+
+    .table-cell--skinny {
+        width: 60px;
+    }
     
     &__table {
         background-color: white;
