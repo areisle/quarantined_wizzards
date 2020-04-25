@@ -22,7 +22,18 @@
 }
 
 .trophy-icon {
-    fill: gold !important;
     font-size: 3em !important;
     stroke: black;
+
+    &--gold {
+        fill: gold !important;
+    }
+
+    &--silver {
+        fill: silver !important;
+    }
+
+    &--bronze {
+        fill: #cd7f32 !important;
+    }
 }
