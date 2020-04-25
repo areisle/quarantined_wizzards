@@ -20,12 +20,14 @@ const setQueryStringParam = (key: string, value: unknown) => {
     window.location.search = params.toString();
 }
 
+const storage = process.env.NODE_ENV === 'development' ? sessionStorage : localStorage;
+
 const getPlayerId = (gameCode: string) => {
-    return sessionStorage.getItem(`game-${gameCode}`);
+    return storage.getItem(`game-${gameCode}`);
 }
 
 const setPlayerId = (gameCode: string | null, playerId: PlayerId) => {
-    sessionStorage.setItem(`game-${gameCode}`, playerId);
+    storage.setItem(`game-${gameCode}`, playerId);
 }
 
 /**
