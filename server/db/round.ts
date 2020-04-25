@@ -72,7 +72,7 @@ const getTrickPlayers = async (redis: Redis, gameId: string, roundNumber: number
 
     const trickLeaderIndex = players.indexOf(trickLeader);
 
-    const trickPlayers: string[] = [];
+    const trickPlayers: PlayerId[] = [];
 
     for (let i = 0; i < players.length; i++) {
         const playerIndex = (trickLeaderIndex + i) % players.length;
@@ -243,7 +243,7 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
         return { ...c, playerId: trickPlayers[index] };
     });
 
-    const compareCards = (card1, card2) => {
+    const compareCards = (card1: Card, card2: Card) => {
         if (card1.suit === card2.suit) {
             if (card1.number === card2.number) {
                 return 0
@@ -274,7 +274,7 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
 
     // a wizard was played. the first one played is the winner
     const firstWizard = trickCards.findIndex(t => t.suit === SUIT.WIZARD);
-    let best;
+    let best: PlayerId;
     if (firstWizard >= 0) {
         best = trickCards[firstWizard].playerId;
     } else if (trickCards.every(t => t.suit === SUIT.JESTER)) {
@@ -284,12 +284,12 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
         best = trickCards.sort(compareCards)[0].playerId;
     }
     await addTrickWinner(redis, gameId, roundNumber, best);
-    return best as PlayerId;
+    return best;
 };
 
 
-const createDeck = (): Card[] => {
-    const cards = [];
+const createDeck = () => {
+    const cards: Card[] = [];
 
     for (const specialSuit of [SUIT.WIZARD, SUIT.JESTER]) {
         for (let value = 0; value < 4; value++) {
@@ -306,7 +306,7 @@ const createDeck = (): Card[] => {
 };
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-const shuffleYourDeck = (array: []) => {
+const shuffleYourDeck = (array: Card[]) => {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
