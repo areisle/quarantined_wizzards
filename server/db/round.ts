@@ -107,6 +107,18 @@ const whosTurnIsIt = async (redis: Redis, gameId: string) => {
 };
 
 
+const removeFirstMatch = (cards: Card[], cardSuit: SUIT, cardValue: Number) => {
+    const index = cards.findIndex(c => c.suit === cardSuit && c.number === cardValue);
+    if (index < 0) {
+        return cards;
+    }
+    return [
+        ...cards.slice(0, index),
+        ...cards.slice(index + 1),
+    ];
+};
+
+
 const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit: SUIT, cardValue: number) => {
     // check if it is this players turn
     const turnPlayer = await whosTurnIsIt(redis, gameId);
@@ -155,8 +167,18 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     }
 
     // play the card
-    const newCards = playersCards.filter(c => c.suit !== cardSuit || c.number !== cardValue);
+    const newCards: Card[] = removeFirstMatch(playersCards, cardSuit, cardValue);
     await redis.rpush(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, `${cardSuit}-${cardValue}`);
+    // check that the card was added to trick cards before you remove it from player cards
+    const newTrickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
+    if (newTrickCards.length !== trickCards.length + 1) {
+        throw new Error(`card was played but did not add to trick. will not remove from player's hand`);
+    }
+    const cardPlayed: Card = newTrickCards[newTrickCards.length - 1];
+    if (cardPlayed.suit !== cardSuit || cardPlayed.number !== cardValue) {
+        throw new Error(`the last card played in the trick (${cardPlayed.suit}-${cardPlayed.number}) does not match the card just played (${cardSuit}-${cardValue})`)
+    }
+
     await setPlayerCards(redis, gameId, playerId, roundNumber, newCards);
 
     // if this was the last card in the trick, evaluate the trick
@@ -492,4 +514,5 @@ export {
     setPlayerCards,
     startRound,
     whosTurnIsIt,
+    removeFirstMatch,
 };
