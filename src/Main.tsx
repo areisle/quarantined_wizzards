@@ -13,7 +13,7 @@ import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
 import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
-import { GAME_STAGE } from './types';
+import { GAME_STAGE, TOTAL_CARDS } from './types';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 import { AllBetsInDialog } from './components/AllBetsInDialog';
 import { GameCompleteDialog } from './components/GameCompleteDialog';
@@ -65,6 +65,7 @@ function Main() {
                 roundNumber={roundNumber}
                 trickNumber={trickNumber}
                 stage={stage}
+                totalRounds={TOTAL_CARDS / players.length}
             />
             <GameBoard
                 onOpenBettingDialog={() => setBetOpen(true)}
