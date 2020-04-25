@@ -1,0 +1,65 @@
+.game-complete-dialog__podium {
+    display: grid;
+    grid-template-areas: 
+        '...... first .....'
+        'second first .....'
+        'second first third'
+        '...... first .....';
+    grid-template-columns: repeat(3, min-content);
+    grid-template-rows: repeat(3, min-content) 10px;
+
+    .podium {
+        position: relative;
+        box-shadow: 0px 5px 10px #000000;
+    }
+
+    .podium--first {
+        grid-area: first;
+        z-index: 300;
+
+        .podium__block {
+            height: 20vh;
+        }
+
+        .avatar {
+            width: 21vh;
+            height: 21vh;
+        }
+    }
+
+    .podium--second {
+        grid-area: second;
+        z-index: 2;
+
+        .podium__block {
+            height: 15vh;
+        }
+
+        .avatar {
+            width: 20vh;
+            height: 20vh;
+        }
+    }
+
+    .podium--third {
+        grid-area: third;
+        z-index: 1;
+
+        .podium__block {
+            height: 10vh;
+        }
+
+        .avatar {
+            width: 19vh;
+            height: 19vh;
+        }
+    }
+
+    .podium__block {
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+    }
+}

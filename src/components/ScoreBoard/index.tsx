@@ -14,50 +14,13 @@ import {
 
 import { Close } from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
-import { GAME_STAGE, GameState, PlayerId, ScoreWithTotal } from '../../types';
+import { GAME_STAGE, GameState } from '../../types';
 import { Rules } from '../Rules';
+import { getRoundScore, getScore } from '../../utilities';
 
 interface ScoreBoardProps {
     open: boolean;
     onClose: () => void;
-}
-
-function getRoundScore(
-    scores: GameState['scores'], 
-    playerId: PlayerId,
-    roundNumber: number,
-): ScoreWithTotal {
-    let score = null;
-
-    const { bet, taken } = scores[roundNumber]?.[playerId] || {};
-    let numBet = bet || 0;
-    let numTaken = taken || 0;
-
-    if (numBet === numTaken) {
-        score = numBet * 10 + 20;
-    } else {
-        score = -Math.abs(numBet - numTaken) * 10;
-    }
-
-    return {
-        bet,
-        taken,
-        total: score,
-    };
-}
-
-function getScore(
-    scores: GameState['scores'], 
-    playerId: PlayerId,
-    roundNumber: number,
-) {
-    let score = 0;
-
-    for (let i=0; i <= roundNumber; i++) {
-        score += getRoundScore(scores, playerId, i).total ?? 0;
-    }
-
-    return score;
 }
 
 type RoundScoreBoardProps = {
