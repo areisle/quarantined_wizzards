@@ -134,10 +134,11 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     ]);
 
     // check if the user should play a different card
-    let [leadSuit, playersCards, trickCards, bets] = await Promise.all([
+    let [leadSuit, playersCards, trickCards, trickCardsByPlayer, bets] = await Promise.all([
         getLeadSuit(redis, gameId, roundNumber, trickNumber),
         getPlayerCards(redis, gameId, playerId, roundNumber),
         getTrickCards(redis, gameId, roundNumber, trickNumber),
+        getTrickCardsByPlayer(redis, gameId, roundNumber, trickNumber),
         getPlayerBets(redis, gameId, roundNumber),
     ]);
 
@@ -148,6 +149,20 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
                 : null
         ).filter(p => p !== null);
         throw new Error(`Cannot play card before all bets are in. Waiting for players (${betsWaiting.join(', ')})`);
+    }
+
+    // check if this user has already played a card in this trick
+
+    if (Object.keys(trickCardsByPlayer).includes(playerId)) {
+        throw new Error(`Cannot play card. This user (${
+            playerId
+            }) has already played a card (${
+            trickCardsByPlayer[playerId].suit
+            }-${
+            trickCardsByPlayer[playerId].number
+            }) in this trick (${
+            trickNumber
+            })`);
     }
 
     let newLeadSuit: SUIT | null = null;
