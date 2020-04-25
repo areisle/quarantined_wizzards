@@ -159,14 +159,18 @@ function GameContextProvider(props: { children: ReactNode }) {
         }
     }, [dispatch]);
 
-    const startNewGame = useCallback(() => {
-        socket?.emit(USER_EVENTS.CREATE_GAME, (gameCode: string) => {
-            dispatch({
-                type: USER_EVENTS.CREATE_GAME,
-                payload: gameCode,
+    const startNewGame = useCallback((newGameId: string = '') => {
+        if (newGameId) {
+            setQueryStringParam('game', newGameId);
+        } else {
+            socket?.emit(USER_EVENTS.CREATE_GAME, (gameCode: string) => {
+                dispatch({
+                    type: USER_EVENTS.CREATE_GAME,
+                    payload: gameCode,
+                });
+                setQueryStringParam('game', gameCode)
             });
-            setQueryStringParam('game', gameCode)
-        })
+        }
     }, [socket]);
 
     const joinGame = useCallback((username: string) => {
