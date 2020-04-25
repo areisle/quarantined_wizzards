@@ -109,6 +109,12 @@ const gameReducer = createReducer<GameState>({
             ...gameState,
         }
     },
+    [SERVER_EVENTS.GAME_COMPLETE]: (state) => {
+        return {
+            ...state,
+            stage: GAME_STAGE.COMPLETE,
+        }
+    },
 })
 
 export {

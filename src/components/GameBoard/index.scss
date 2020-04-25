@@ -68,4 +68,28 @@
             'avatar-4 avatar-3';
         grid-template-rows: repeat(2, var(--avatar-size));
     }
+
+    &--player-1 {
+        grid-area: avatar-1;
+    }
+
+    &--player-2 {
+        grid-area: avatar-2;
+    }
+
+    &--player-3 {
+        grid-area: avatar-3;
+    }
+
+    &--player-4 {
+        grid-area: avatar-4;
+    }
+
+    &--player-5 {
+        grid-area: avatar-5;
+    }
+
+    &--player-6 {
+        grid-area: avatar-6;
+    }
 }

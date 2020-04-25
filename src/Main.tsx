@@ -16,6 +16,7 @@ import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
 import { GAME_STAGE } from './types';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 import { AllBetsInDialog } from './components/AllBetsInDialog';
+import { GameCompleteDialog } from './components/GameCompleteDialog';
 
 function Main() {
     const {
@@ -115,6 +116,11 @@ function Main() {
             <AllBetsInDialog
                 roundNumber={roundNumber}
                 trickNumber={trickNumber}
+                players={players}
+                scores={scores}
+                stage={stage}
+            />
+            <GameCompleteDialog
                 players={players}
                 scores={scores}
                 stage={stage}

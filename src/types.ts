@@ -33,6 +33,7 @@ export enum GAME_STAGE {
     BETTING = 'betting',
     PLAYING = 'playing',
     BETWEEN_TRICKS = 'trick-won',
+    COMPLETE = 'game-complete',
 }
 
 export interface GameState {

@@ -141,6 +141,12 @@ function GameContextProvider(props: { children: ReactNode }) {
             });
         });
 
+        nextSocket.on(SERVER_EVENTS.GAME_COMPLETE, () => {
+            dispatch({
+                type: SERVER_EVENTS.GAME_COMPLETE,
+            });
+        });
+
         nextSocket.on(SERVER_EVENTS.ERROR, (error: unknown) => {
             setSnackbar({
                 open: true,
