@@ -28,7 +28,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
 
     const winners = useMemo(() => getGameWinners(players, scores), [players, scores])
 
-    const gameComplete = stage === GAME_STAGE.COMPLETE || true;
+    const gameComplete = stage === GAME_STAGE.COMPLETE;
 
     useEffect(() => {
         setDismissed(false);
