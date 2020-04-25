@@ -12,8 +12,8 @@ const initializeArrayField = async (redis: Redis, field: string, length, value: 
 };
 
 
-const setTrickWinner = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, playerId: PlayerId) => {
-    await redis.lset(`${gameId}-r${roundNumber}-taken`, trickNumber, playerId);
+const addTrickWinner = async (redis: Redis, gameId: string, roundNumber: number, playerId: PlayerId) => {
+    await redis.rpush(`${gameId}-r${roundNumber}-taken`, playerId);
 };
 
 const getTrickWinners = async (redis: Redis, gameId: string, roundNumber: number) => {
@@ -283,7 +283,7 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
     } else {
         best = trickCards.sort(compareCards)[0].playerId;
     }
-    await setTrickWinner(redis, gameId, roundNumber, trickNumber, best);
+    await addTrickWinner(redis, gameId, roundNumber, best);
     return best as PlayerId;
 };
 
@@ -437,7 +437,6 @@ const startRound = async (redis: Redis, gameId: string) => {
     }
     // default bets to -1
     promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-bets`, players.length));
-    promises.push(initializeArrayField(redis, `${gameId}-r${roundNumber}-taken`, roundNumber + 1, ''));
 
     await Promise.all(promises);
     return {
