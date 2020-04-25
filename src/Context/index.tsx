@@ -12,6 +12,7 @@ interface ContextValue extends GameState {
     allPlayersIn: () => void;
     placeBet: (bet: number) => void;
     readyForNextTrick: () => void;
+    refreshGameData: () => void;
 }
 
 const GameContext = createContext<ContextValue>({
@@ -22,6 +23,7 @@ const GameContext = createContext<ContextValue>({
     allPlayersIn: () => {},
     placeBet: (bet: number) => {},
     readyForNextTrick: () => {},
+    refreshGameData: () => {},
 });
 
 type PlayersChangedParams = PlayerId[];
@@ -55,8 +57,8 @@ function GameContextProvider(props: { children: ReactNode }) {
         cards,
     } = state;
 
-    useEffect(() => {
-        if (!gameCode || playerId) {
+    const refreshGameData = useCallback(() => {
+        if (!gameCode) {
             return;
         }
         const storedId = getPlayerId(gameCode);
@@ -72,7 +74,12 @@ function GameContextProvider(props: { children: ReactNode }) {
                 },
             });
         });
-    }, [gameCode, playerId, socket]);
+    }, [gameCode, socket]);
+
+    useEffect(() => {
+        if (playerId) { return; }
+        refreshGameData();
+    }, [playerId, refreshGameData]);
 
     useEffect(() => {
         const nextSocket = io.connect(API);
@@ -165,7 +172,7 @@ function GameContextProvider(props: { children: ReactNode }) {
         }
     }, [dispatch]);
 
-    const startNewGame = useCallback((newGameId: string = '') => {
+    const startNewGame = useCallback((newGameId = '') => {
         if (newGameId) {
             setQueryStringParam('game', newGameId);
         } else {
@@ -228,7 +235,8 @@ function GameContextProvider(props: { children: ReactNode }) {
         allPlayersIn,
         placeBet,
         readyForNextTrick,
-    }), [allPlayersIn, joinGame, placeBet, playCard, readyForNextTrick, startNewGame, state]);
+        refreshGameData,
+    }), [allPlayersIn, joinGame, placeBet, playCard, readyForNextTrick, refreshGameData, startNewGame, state]);
 
     return (
         <GameContext.Provider value={value}>

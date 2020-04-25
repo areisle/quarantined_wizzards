@@ -9,11 +9,16 @@ import {
     TableHead, 
     TableRow, 
     TableBody,
-    NativeSelect, 
+    NativeSelect,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    Button,
+    Tabs,
+    Tab, 
 } from '@material-ui/core';
 
-import { Close } from '@material-ui/icons';
-import { IconButton } from '@material-ui/core';
+import { Refresh } from '@material-ui/icons';
 import { GAME_STAGE, GameState } from '../../types';
 import { Rules } from '../Rules';
 import { getRoundScore, getScore } from '../../utilities';
@@ -139,6 +144,11 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
     )
 }
 
+enum TAB {
+    SCORES,
+    RULES,
+}
+
 function ScoreBoard(props: ScoreBoardProps) {
     const { open, onClose } = props;
     const {
@@ -147,32 +157,59 @@ function ScoreBoard(props: ScoreBoardProps) {
         scores,
         stage,
         trickNumber,
+        refreshGameData,
     } = useContext(GameContext);
 
+    const [activeTab, setActiveTab] = useState(TAB.SCORES);
+
+    const handleTabChange = (_: any, nextTab: number) => {
+        setActiveTab(nextTab);
+    };
+
+    const handleRefresh = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        refreshGameData();
+    }
+
     return (
-        <div
-            className={`score-board score-board--${open ? 'open' : 'closed'}`}
-            onClick={onClose}
+        <Dialog 
+            open={open}
+            onClose={onClose}
+            className='score-board'
         >
-            <IconButton
-                 aria-label='close overlay'
-                 className='overlay__close-button'
-            >
-                <Close 
-                    htmlColor='white' 
-                    fontSize='large'
-                />
-            </IconButton>
-            <RoundScoreBoard
-                scores={scores}
-                trickNumber={trickNumber}
-                roundNumber={roundNumber}
-                players={players}
-                stage={stage}
-                variant='overall'
-            />
-            <Rules />
-        </div>
+            <DialogContent>
+                <Tabs 
+                    value={activeTab}
+                    onChange={handleTabChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                >
+                    <Tab value={TAB.SCORES} label='Scores' />
+                    <Tab value={TAB.RULES} label='Rules' />
+                </Tabs>
+                {(activeTab === TAB.SCORES) && (
+                    <RoundScoreBoard
+                        scores={scores}
+                        trickNumber={trickNumber}
+                        roundNumber={roundNumber}
+                        players={players}
+                        stage={stage}
+                        variant='overall'
+                    />
+                )}
+                {(activeTab === TAB.RULES) && (
+                    <Rules />
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    endIcon={<Refresh />}
+                    onClick={handleRefresh}
+                >
+                    refresh game state
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }
 
