@@ -1,8 +1,9 @@
 import { Redis } from 'ioredis';
 
 import { getPlayers, getPlayerIndex } from './game';
-import { SUIT, Card, GameState } from '../../src/types';
+import { SUIT, Card, GameState, PlayerId } from '../../src/types';
 import { getGamePlayers } from '.';
+
 
 const initializeArrayField = async (redis: Redis, field: string, length, value: number | string = -1) => {
     await redis.del(field);
@@ -11,7 +12,7 @@ const initializeArrayField = async (redis: Redis, field: string, length, value: 
 };
 
 
-const setTrickWinner = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, playerId: string) => {
+const setTrickWinner = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number, playerId: PlayerId) => {
     await redis.lset(`${gameId}-r${roundNumber}-taken`, trickNumber, playerId);
 };
 
@@ -49,7 +50,7 @@ const getTrickLeader = async (redis: Redis, gameId: string, roundNumber: number,
 };
 
 
-const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number): Promise<Card[]> => {
+const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-t${trickNumber}-cards`, 0, -1);
     return cards.map(card => {
         const [suit, value] = card.split('-') as [SUIT, string];
@@ -58,7 +59,7 @@ const getTrickCards = async (redis: Redis, gameId: string, roundNumber: number, 
             number: value === 'null'
                 ? null
                 : Number.parseInt(value, 10)
-        };
+        } as Card;
     });
 };
 
@@ -191,7 +192,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
 };
 
 
-const currentTrickIsComplete = async (redis, gameId) => {
+const currentTrickIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -201,7 +202,7 @@ const currentTrickIsComplete = async (redis, gameId) => {
     return Boolean(trickCards.length === players.length);
 };
 
-const currentRoundIsComplete = async (redis, gameId) => {
+const currentRoundIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -283,11 +284,11 @@ const evaluateTrick = async (redis: Redis, gameId: string, roundNumber: number, 
         best = trickCards.sort(compareCards)[0].playerId;
     }
     await setTrickWinner(redis, gameId, roundNumber, trickNumber, best);
-    return best;
+    return best as PlayerId;
 };
 
 
-const createDeck = () => {
+const createDeck = (): Card[] => {
     const cards = [];
 
     for (const specialSuit of [SUIT.WIZARD, SUIT.JESTER]) {
@@ -305,7 +306,7 @@ const createDeck = () => {
 };
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-const shuffleYourDeck = (array) => {
+const shuffleYourDeck = (array: []) => {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -341,12 +342,12 @@ const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
             number: value === 'null'
                 ? null
                 : Number.parseInt(value, 10)
-        };
+        } as Card;
     });
 };
 
 
-const sortCards = (cards: Array<Card>) => {
+const sortCards = (cards: Card[]) => {
     const suitOrder: Record<SUIT, number> = {
         [SUIT.WIZARD]: 0,
         [SUIT.JESTER]: 1,
@@ -385,7 +386,7 @@ const setPlayerCards = async (redis: Redis, gameId: string, playerId: string, ro
 };
 
 
-const getCurrentRound = async (redis: Redis, gameId: string) => {
+const getCurrentRound = async (redis: Redis, gameId: string): Promise<number> => {
     const roundNumber = await redis.get(`${gameId}-current-round`);
     // redis is dumb and stores this as a string
     return Number.parseInt(roundNumber, 10);
@@ -445,7 +446,7 @@ const startRound = async (redis: Redis, gameId: string) => {
 };
 
 
-const getPlayerBets = async (redis: Redis, gameId: string, roundNumber: number) => {
+const getPlayerBets = async (redis: Redis, gameId: string, roundNumber: number): Promise<number[]> => {
     const bets = await redis.lrange(`${gameId}-r${roundNumber}-bets`, 0, -1);
     return bets.map(b => Number.parseInt(b, 10));
 };
@@ -487,7 +488,7 @@ const setPlayerReady = async (redis: Redis, gameId: string, roundNumber: number,
 };
 
 
-const getPlayersReady = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number) => {
+const getPlayersReady = async (redis: Redis, gameId: string, roundNumber: number, trickNumber: number): Promise<PlayerId[]> => {
     return redis.smembers(`${gameId}-r${roundNumber}-t${trickNumber}-ready`);
 };
 
