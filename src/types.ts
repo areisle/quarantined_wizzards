@@ -14,6 +14,8 @@ export interface Card {
     number?: number | null;
 }
 
+export const TOTAL_CARDS = 60;
+
 /**
  * username of the player
  */

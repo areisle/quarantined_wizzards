@@ -11,6 +11,7 @@ interface HeaderProps {
     roundNumber: GameState['roundNumber'];
     trickNumber: GameState['trickNumber'];
     trumpSuit: GameState['trumpSuit'];
+    totalRounds: number,
 }
 
 function Header(props: HeaderProps) {
@@ -20,8 +21,9 @@ function Header(props: HeaderProps) {
         stage,
         trickNumber,
         trumpSuit,
+        totalRounds,
     } = props;
-    
+
     const isSetup = stage === GAME_STAGE.SETTING_UP;
     const isBetting = stage === GAME_STAGE.BETTING;
 
@@ -31,7 +33,7 @@ function Header(props: HeaderProps) {
                 <>
                     <ul className='game-header__stats'>
                         <li>trump: {trumpSuit && (<SuitIcon variant={trumpSuit} aria-label={trumpSuit} />)}</li>
-                        <li>round: {roundNumber + 1}</li>
+                        <li>round: {roundNumber + 1} / {totalRounds}</li>
                         <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
                     </ul>
                     <IconButton
