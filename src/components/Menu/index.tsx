@@ -14,7 +14,7 @@ import {
 
 import { Refresh } from '@material-ui/icons';
 import { Rules } from '../Rules';
-import { RoundScoreBoard } from '../ScoreBoard';
+import { ScoreBoard } from '../ScoreBoard';
 
 interface MenuProps {
     open: boolean;
@@ -70,7 +70,7 @@ function Menu(props: MenuProps) {
             </DialogTitle>
              <DialogContent>
             {(activeTab === TAB.SCORES) && (
-                <RoundScoreBoard
+                <ScoreBoard
                     scores={scores}
                     trickNumber={trickNumber}
                     roundNumber={roundNumber}

@@ -4,7 +4,7 @@ import {
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
-import { RoundScoreBoard } from '../ScoreBoard';
+import { ScoreBoard } from '../ScoreBoard';
 import { GameState, GAME_STAGE } from '../../types';
 import { usePrevious } from '../../utilities';
 
@@ -37,7 +37,7 @@ function AllBetsInDialog(props: AllBetsInDialogProps) {
                 All bets have been placed!
             </DialogTitle>
             <DialogContent>
-                <RoundScoreBoard
+                <ScoreBoard
                     scores={scores}
                     roundNumber={roundNumber}
                     players={players}

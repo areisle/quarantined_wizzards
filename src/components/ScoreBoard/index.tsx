@@ -14,11 +14,11 @@ import {
 import { GAME_STAGE, GameState } from '../../types';
 import { getRoundScore, getScore } from '../../utilities';
 
-type RoundScoreBoardProps = {
+type ScoreBoardProps = {
     variant?: 'round' | 'bet' | 'overall';
 } & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
 
-function RoundScoreBoard(props: RoundScoreBoardProps) {
+function ScoreBoard(props: ScoreBoardProps) {
     const {
         variant = 'overall',
         roundNumber,
@@ -131,5 +131,5 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
 }
 
 export {
-    RoundScoreBoard,
+    ScoreBoard,
 }
