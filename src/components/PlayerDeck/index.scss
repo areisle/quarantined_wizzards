@@ -1,3 +1,5 @@
+@import '../../variables';
+
 .playing-cards-deck {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
@@ -24,7 +26,7 @@
 
     &__list {
         display: grid;
-        grid-auto-rows: 3.125rem;
+        grid-auto-rows: 2.25rem;
         grid-template-columns: repeat(auto-fit, 3.125rem);
         justify-content: center;
 
@@ -40,6 +42,10 @@
         transition: transform 0.3s;
     }
 
+    &--open &__list {
+        grid-auto-rows: 3.125rem;
+    }
+
     &--closed &__card-preview {
         visibility: hidden;
     }
@@ -51,7 +57,7 @@
 
     &--closed &__list {
         pointer-events: all;
-        transform: translateY(calc(100% - 2.5rem));
+        transform: translateY(calc(100% - #{$card-deck__height--closed}));
     }
 }
 
