@@ -1,27 +1,18 @@
+@import '../../variables';
+
 .score-board {
     .table-cell--skinny {
         width: 60px;
     }
 
-    &__table .avatar {
+    .avatar {
         max-width: 30vw;
         word-break: break-word;
     }
 
-    .MuiDialogContent-root {
-        height: 75vh;
-    }
-
     @media (max-width: 600px) {
-        // less padding for smaller screens
-        padding: 8px 8px;
-
         .MuiTableCell-root {
             padding: 16px 8px;
-        }
-
-        .MuiDialogContent-root {
-            padding: 8px 8px;
         }
     }
 }

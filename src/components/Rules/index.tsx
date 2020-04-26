@@ -3,7 +3,7 @@ import { Typography, Table, TableBody, TableRow, TableCell, TableHead, Card, Car
 
 function Rules() {
     return (
-        <Card style={{ overflow: 'scroll' }}>
+        <Card>
             <CardContent>
             <Typography variant='h4'>Game Rules</Typography>
             <Typography variant='h5'>Setup / Dealing</Typography>
