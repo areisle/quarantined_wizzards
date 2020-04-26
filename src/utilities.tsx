@@ -72,9 +72,46 @@ function getGameWinners(players: PlayerId[], scores: GameState['scores']) {
     }
 }
 
+
+/**
+ * copy to clipboard that works on ios
+ * https://stackoverflow.com/questions/40147676/javascript-copy-to-clipboard-on-safari
+ * @param text 
+ */
+function copyToClipboard(text: string) {
+    const isOS = navigator.userAgent.match(/ipad|iphone/i);
+    // create text area
+    const textArea = document.createElement('textArea') as HTMLTextAreaElement;
+    textArea.value = text;
+    document.body.appendChild(textArea);
+
+    // select text
+    let range;
+    let selection: Selection | null;
+
+    if (isOS) {
+        range = document.createRange();
+        range.selectNodeContents(textArea);
+        selection = window.getSelection();
+
+        if (!selection) {
+            return;
+        }
+        selection.removeAllRanges();
+        selection.addRange(range);
+        textArea.setSelectionRange(0, 999999);
+    } else {
+        textArea.select();
+    }
+
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+}
+
 export {
     usePrevious,
     getRoundScore,
     getScore,
     getGameWinners,
+    copyToClipboard,
 }
