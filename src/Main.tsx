@@ -76,6 +76,7 @@ function Main() {
                 disabled={players.length < 3}
                 showReadyButton={showReadyButton}
                 onReady={readyForNextTrick}
+                gameCode={gameCode}
             />
             <PlayerDeck
                 onPlaceCard={playCard}

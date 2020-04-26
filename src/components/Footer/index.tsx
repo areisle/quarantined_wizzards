@@ -2,6 +2,8 @@ import './index.scss';
 
 import React from 'react';
 import { Button, Typography } from '@material-ui/core';
+import { CopyIcon } from '../../icons';
+import { copyToClipboard } from '../../utilities';
 
 interface FooterProps {
     onAllPlayersIn: () => void;
@@ -9,6 +11,7 @@ interface FooterProps {
     disabled: boolean;
     showReadyButton: boolean;
     onReady: () => void;
+    gameCode: string | null;
 }
 
 function Footer(props: FooterProps) {
@@ -18,7 +21,13 @@ function Footer(props: FooterProps) {
         disabled,
         showReadyButton,
         onReady,
+        gameCode,
     } = props;
+
+    const handleAddToClipboard = () => {
+        if (!gameCode) { return; }
+        copyToClipboard(gameCode);
+    }
 
     return (
         <footer className='game-footer'>
@@ -35,8 +44,15 @@ function Footer(props: FooterProps) {
                     <Typography
                         variant='caption'
                     >
-                            share url with other players for them to join
+                            share url or game code with other players for them to join
                     </Typography>
+                    <Button
+                        endIcon={<CopyIcon />}
+                        variant='outlined'
+                        onClick={handleAddToClipboard}
+                    >
+                        game code: <span style={{ textTransform: 'none'}}> {gameCode}</span>
+                    </Button>
                 </>
             )}
             {showReadyButton && (
