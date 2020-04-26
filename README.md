@@ -1,4 +1,4 @@
-# Quarantined Wizzards
+# ![logo](public/favicon.ico) Quarantined Wizzards
 
 ![Node.js CI](https://github.com/creisle/quarantined_wizzards/workflows/Node.js%20CI/badge.svg)
 
