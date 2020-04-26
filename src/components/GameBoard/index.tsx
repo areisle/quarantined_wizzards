@@ -91,14 +91,17 @@ function GameBoard(props: GameBoardProps) {
                 );
         } else if (isBetting) {
             content = (
-                <Done 
-                    fontSize='large' 
-                    style={{
-                        fontSize: '3rem',
-                        fill: 'limegreen',
-                        filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
-                    }}
-                />
+                <>
+                    {isCurrent ? 'you\'ve placed your bet' : `${username} has placed their bet`}
+                    <Done 
+                        fontSize='large' 
+                        style={{
+                            fontSize: '3rem',
+                            fill: 'limegreen',
+                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                        }}
+                    />
+                </>
             )
         } else if (isPlaying && trickCards[username]) {
             content = (
@@ -117,8 +120,6 @@ function GameBoard(props: GameBoardProps) {
                 <Typography>{username} is playing a card...</Typography>
             )
         } else if (isBetweenTricks && playerId && !ready[playerId]) {
-            // @todo show crown for winner of trick
-            // in center of card
             content = (
                 <PlayingCard
                     {...trickCards[username] as Card}
@@ -131,14 +132,17 @@ function GameBoard(props: GameBoardProps) {
             )
         } else if (isBetweenTricks && ready[username]) {
             content = (
-                <Done 
-                    fontSize='large' 
-                    style={{
-                        fontSize: '3rem',
-                        fill: 'limegreen',
-                        filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
-                    }}
-                />
+                <>
+                    {isCurrent ? 'you\'re ready' : `${username} is ready`}
+                    <Done 
+                        fontSize='large' 
+                        style={{
+                            fontSize: '3rem',
+                            fill: 'limegreen',
+                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                        }}
+                    />
+                </>
             )
         } else if (isBetweenTricks) {
             content = (
