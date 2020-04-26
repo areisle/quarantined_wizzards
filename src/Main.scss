@@ -1,13 +1,17 @@
+@import './variables';
+
 .main {
     display: grid;
     grid-template-areas: 
-        'left header right'
-        'left board right'
-        'left footer right'
-        'spacer spacer spacer';
-    grid-template-rows: 1fr min-content 1fr 2.5rem;
-    grid-template-columns: 1fr min-content 1fr;
+        'header'
+        'board'
+        'footer'
+        '......';
+    grid-template-rows: 1fr min-content 1fr #{$card-deck__height--closed};
+    grid-template-columns: min-content;
+    justify-content: center;
     padding: 5px;
+    max-height: 100vh;
 
     .game-header {
         grid-area: header;
