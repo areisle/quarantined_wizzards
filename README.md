@@ -4,8 +4,6 @@
 
 A family favourite game brought online to support social distancing!
 
-This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React.js](https://reactjs.org/).
-
 - [Motivation](#motivation)
 - [Game Play](#game-play)
   - [Known Issues](#known-issues)
@@ -54,6 +52,8 @@ If you have installed this as a progressive web app (PWA) then you can click on 
 find a "refresh state" option which is equivalent.
 
 ## Getting Started (Developers)
+
+This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React.js](https://reactjs.org/).
 
 Before the server can be run redis should be installed and the redis server running
 
