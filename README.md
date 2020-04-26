@@ -1,10 +1,8 @@
-# Quarantined Wizzards
+# ![logo](public/favicon.ico) Quarantined Wizzards
 
 ![Node.js CI](https://github.com/creisle/quarantined_wizzards/workflows/Node.js%20CI/badge.svg)
 
 A family favourite game brought online to support social distancing!
-
-This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React.js](https://reactjs.org/).
 
 - [Motivation](#motivation)
 - [Game Play](#game-play)
@@ -54,6 +52,8 @@ If you have installed this as a progressive web app (PWA) then you can click on 
 find a "refresh state" option which is equivalent.
 
 ## Getting Started (Developers)
+
+This project uses [redis](https://redis.io/), [socket.io](https://socket.io/), and [React.js](https://reactjs.org/).
 
 Before the server can be run redis should be installed and the redis server running
 
