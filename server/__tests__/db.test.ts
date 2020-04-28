@@ -1,8 +1,5 @@
-import ioClient from 'socket.io-client';
-import getPort from 'get-port';
-import { SERVER_EVENTS, USER_EVENTS, SUIT } from '../../src/types';
+import { SUIT } from '../../src/types';
 
-import { server as createServer } from '../';
 import * as db from '../db';
 
 const shortid = require('shortid');
