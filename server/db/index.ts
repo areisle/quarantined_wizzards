@@ -1,6 +1,7 @@
 import IORedis, { Redis } from 'ioredis';
 import {
     addPlayer,
+    cleanStaleGames,
     createGame,
     deleteGame,
     getGameStarted,
@@ -173,6 +174,7 @@ const close = (redis: Redis) => redis?.quit();
 
 export {
     addPlayer as addPlayerToGame,
+    cleanStaleGames,
     close,
     connect,
     createGame,

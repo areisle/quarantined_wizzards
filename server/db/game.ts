@@ -53,10 +53,12 @@ const addPlayer = async (redis: Redis, gameId: string, username: string) => {
 const createGame = async (redis: Redis) => {
     const gameId = shortid.generate();
     await redis.sadd('games', gameId);
+    await redis.set(`${gameId}-createdAt`, new Date().getTime());
     return gameId;
 };
 
 const deleteGame = async (redis: Redis, gameId: string) => {
+    await redis.srem('games', gameId);
     const keys = await redis.keys(`${gameId}*`);
     // Use pipeline instead of sending
     // one command each time to improve the
@@ -78,9 +80,27 @@ const getGameStarted = async (redis: Redis, gameId: string) => {
     return Boolean(started && started.toString() === 'true');
 };
 
+/**
+ * delete any games that are more than a certain amount of time old
+ *
+ * @param timeoutDays the maximum age of a game in days
+ */
+const cleanStaleGames = async (redis: Redis, timeoutDays: number) => {
+    const currentTime = new Date().getTime();
+    const allGames = await redis.smembers('games');
+    await Promise.all(allGames.map(async (gameId) => {
+        const timestamp = Number.parseInt(await redis.get(`${gameId}-createdAt`), 10);
+        if (currentTime - timestamp >= timeoutDays * 24 * 60 * 60 * 1000) {
+            console.warn(`deleting stale game: ${gameId}`);
+            await deleteGame(redis, gameId);
+        }
+    }))
+};
+
 
 export {
     addPlayer,
+    cleanStaleGames,
     createGame,
     deleteGame,
     getGameStarted,

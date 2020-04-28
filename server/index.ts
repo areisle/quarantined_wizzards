@@ -27,6 +27,9 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
     await http.listen(port);
     console.log(`listening on localhost:${port}`);
     // WARNING: app.listen(80) will NOT work here!
+    const staleGamesTimer = setTimeout(async () => {
+        await db.cleanStaleGames(redis, 7); // remove anything 1wk or more old
+    }, 24 * 60 * 60 * 1000); // check every 24 hours
 
     app.get('/', function (req, res) {
         res.sendFile(__dirname + '/tester.html');
@@ -276,6 +279,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
     return {
         db: redis,
         close: () => {
+            clearTimeout(staleGamesTimer);
             http.close();
             db.close(redis);
         }
