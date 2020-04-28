@@ -1,5 +1,7 @@
 @import '../../variables';
 
+$needs-extra-vertical-space: "(max-aspect-ratio: #{$landscape-min-aspect-ratio}) and (min-aspect-ratio: 1/2)";
+
 .playing-cards-deck {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
@@ -57,8 +59,11 @@
 
     &--closed &__list {
         pointer-events: all;
+        
+        @media #{$needs-extra-vertical-space} {
         transform: translateY(calc(100% - #{$card-deck__height--closed}));
     }
+}
 }
 
 .card-preview__wrapper {
