@@ -26,7 +26,7 @@ function Footer(props: FooterProps) {
 
     const handleAddToClipboard = () => {
         if (!gameCode) { return; }
-        copyToClipboard(gameCode);
+        copyToClipboard(`${window.location.origin}${window.location.pathname}?game=${gameCode}`);
     }
 
     return (

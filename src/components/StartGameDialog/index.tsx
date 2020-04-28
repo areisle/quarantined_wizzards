@@ -25,7 +25,16 @@ function StartGameDialog(props: StartGameDialogProps) {
     const [gameId, setGameId] = useState('');
 
     const handleGameIdChange: TextFieldProps['onChange'] = (event) => {
-        setGameId(event?.target?.value);
+        let gameCode = event?.target?.value;
+        if (gameCode.includes('?')) {
+            gameCode.split('?')[1].split('&').forEach((param) => {
+                const [key, value] = param.split('=');
+                if (key === 'game') {
+                    gameCode = value;
+                }
+            });
+        }
+        setGameId(gameCode);
     };
 
     const handleJoinGame = useCallback(() => {
@@ -45,7 +54,7 @@ function StartGameDialog(props: StartGameDialogProps) {
             <DialogContent>
                 {isJoining && (<TextField
                     onChange={handleGameIdChange}
-                    label="enter a game ID"
+                    label="Enter a game URL or ID"
                     fullWidth
                 />)}
             </DialogContent>
