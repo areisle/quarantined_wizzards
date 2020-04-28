@@ -24,4 +24,30 @@
     .game-board {
         grid-area: board;
     }
+
+    .game-menu {
+        grid-area: menu;
+    }
+
+    &--wide {
+        column-gap: 30px;
+        grid-template-areas: 
+            'header menu'
+            'board  menu'
+            'footer menu'
+            '...... .....';
+        grid-template-columns: min-content minmax(min-content, 750px);
+        grid-template-rows: 1fr min-content 1fr calc(#{$card-deck__height--closed} + 60px);
+        justify-content: space-around;
+        padding: 30px;
+
+        .game-menu .MuiTableCell-stickyHeader {
+            z-index: unset;
+        }
+
+        .game-menu {
+            display: flex;
+            flex-direction: column;
+        }
+    }
 }

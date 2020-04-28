@@ -1,6 +1,7 @@
 import './Main.scss';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useLayoutEffect } from 'react';
+import { Dialog } from '@material-ui/core';
 
 import { GameContext } from './Context';
 import { BettingDialog } from './components/BettingDialog';
@@ -41,6 +42,8 @@ function Main() {
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
 
+    const playerNumber = players.indexOf(playerId as string) + 1;
+
     const isSetup = stage === GAME_STAGE.SETTING_UP;
 
     const showReadyButton = Boolean(
@@ -57,8 +60,29 @@ function Main() {
         placeBet(bet);
     }
 
+    const [useWideLayout, setUseWide] = useState(false);
+
+    useLayoutEffect(() => {
+        const handleResize = () => {
+            let min = 1000;
+            if (players.length > 4) {
+                min = 1400;
+            }
+            setUseWide(window.innerWidth >= min);
+        }
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [players.length]);
+
     return (
-        <div className='main'>
+        <div 
+            className={`
+                main 
+                main--${useWideLayout ? 'wide' : ''}
+                main--player-${playerNumber}
+            `}
+        >
             <Header
                 onScoreBoardOpen={() => setBoardOpen(true)}
                 trumpSuit={trumpSuit}
@@ -66,6 +90,7 @@ function Main() {
                 trickNumber={trickNumber}
                 stage={stage}
                 totalRounds={TOTAL_CARDS / players.length}
+                showMenuButton={!useWideLayout}
             />
             <GameBoard
                 onOpenBettingDialog={() => setBetOpen(true)}
@@ -78,12 +103,19 @@ function Main() {
                 onReady={readyForNextTrick}
                 gameCode={gameCode}
             />
+            {!useWideLayout && (
+                <Dialog 
+                    open={scoreboardOpen}
+                    onClose={handleCloseScoreBoard}
+                >
+                    <Menu />
+                </Dialog>
+            )}
+            {useWideLayout && (
+                <Menu />
+            )}
             <PlayerDeck
                 onPlaceCard={playCard}
-            />
-            <Menu
-                open={scoreboardOpen}
-                onClose={handleCloseScoreBoard}
             />
             <BettingDialog
                 open={betDialogOpen}

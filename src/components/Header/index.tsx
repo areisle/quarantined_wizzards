@@ -11,7 +11,8 @@ interface HeaderProps {
     roundNumber: GameState['roundNumber'];
     trickNumber: GameState['trickNumber'];
     trumpSuit: GameState['trumpSuit'];
-    totalRounds: number,
+    totalRounds: number;
+    showMenuButton?: boolean;
 }
 
 function Header(props: HeaderProps) {
@@ -22,6 +23,7 @@ function Header(props: HeaderProps) {
         trickNumber,
         trumpSuit,
         totalRounds,
+        showMenuButton,
     } = props;
 
     const isSetup = stage === GAME_STAGE.SETTING_UP;
@@ -36,14 +38,16 @@ function Header(props: HeaderProps) {
                         <li>round: {roundNumber + 1} / {totalRounds}</li>
                         <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
                     </ul>
-                    <IconButton
-                        size='small'
-                        onClick={onScoreBoardOpen}
-                    >
-                        <ScoreBoardIcon
-                            fontSize='large'
-                        />
-                    </IconButton>
+                    {showMenuButton && (
+                        <IconButton
+                            size='small'
+                            onClick={onScoreBoardOpen}
+                        >
+                            <ScoreBoardIcon
+                                fontSize='large'
+                            />
+                        </IconButton>
+                    )}
                 </>
             )}
         </header>
