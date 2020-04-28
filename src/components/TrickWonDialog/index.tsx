@@ -8,7 +8,7 @@ import {
 import isNil from 'lodash.isnil';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
-import { RoundScoreBoard } from '../ScoreBoard';
+import { ScoreBoard } from '../ScoreBoard';
 import { TrophyIcon } from '../../icons';
 
 interface TrickWonDialogProps {
@@ -59,7 +59,7 @@ function TrickWonDialog(props: TrickWonDialogProps) {
                 </PlayerAvatar>
                 <Typography align='center'>{winner} has won the trick!</Typography>
                 {(roundComplete) && (
-                    <RoundScoreBoard
+                    <ScoreBoard
                         scores={scores}
                         players={players}
                         roundNumber={round}

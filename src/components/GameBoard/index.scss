@@ -1,40 +1,16 @@
 .game-board {
-    --avatar-size: 44vw;
-    --grid-column-gap: 4vw;
-    --grid-row-gap: 4vw;
+    --avatar-size: 40vmin;
+    --grid-column-gap: 3vmin;
+    --grid-row-gap: 3vmin;
 
-    @media (min-aspect-ratio: 5/9) {
-        --avatar-size: 43vw;
-        --grid-column-gap: 4vw;
-        --grid-row-gap: 4vw;
+    @media (min-aspect-ratio: 1/2) {
+        --avatar-size: 38vmin;
+        --grid-column-gap: 3vmin;
+        --grid-row-gap: 2vmin;
     }
 
-    @media (min-aspect-ratio: 21/36) {
-        --grid-row-gap: 2vw;
-    }
-
-    @media (min-aspect-ratio: 11/18) {
-        --avatar-size: 40vw;
-    }
-
-    @media (min-aspect-ratio: 6/9) {
-        --avatar-size: 32vw;
-        --grid-column-gap: 4vw;
-    }
-
-    @media (min-aspect-ratio: 7/9) {
-        --avatar-size: 27vw;
-        --grid-row-gap: 1vw;
-    }
-
-    @media (min-aspect-ratio: 8/9) {
-        --avatar-size: 28vh;
-        --grid-column-gap: 2vh;
-        --grid-row-gap: 2vh;
-    }
-
-    @media (min-aspect-ratio: 4/3) {
-        --avatar-size: 32vh;
+    @media (min-aspect-ratio: 2/3) {
+        --avatar-size: 30vmin;
     }
 
     align-content: center;

@@ -8,7 +8,6 @@ import { Footer } from './components/Footer';
 import { GameBoard } from './components/GameBoard';
 import { Header } from './components/Header';
 import { PlayerDeck } from './components/PlayerDeck';
-import { ScoreBoard } from './components/ScoreBoard';
 import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
@@ -17,6 +16,7 @@ import { GAME_STAGE, TOTAL_CARDS } from './types';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 import { AllBetsInDialog } from './components/AllBetsInDialog';
 import { GameCompleteDialog } from './components/GameCompleteDialog';
+import { Menu } from './components/Menu';
 
 function Main() {
     const {
@@ -81,7 +81,7 @@ function Main() {
             <PlayerDeck
                 onPlaceCard={playCard}
             />
-            <ScoreBoard
+            <Menu
                 open={scoreboardOpen}
                 onClose={handleCloseScoreBoard}
             />

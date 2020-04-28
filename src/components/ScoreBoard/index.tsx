@@ -1,8 +1,7 @@
 import './index.scss';
 import '../Avatar/index.scss';
 
-import React, { useContext, useState, useEffect } from 'react';
-import { GameContext } from '../../Context';
+import React, { useState, useEffect } from 'react';
 import { 
     Table, 
     TableCell, 
@@ -10,29 +9,16 @@ import {
     TableRow, 
     TableBody,
     NativeSelect,
-    Dialog,
-    DialogContent,
-    DialogActions,
-    Button,
-    Tabs,
-    Tab, 
 } from '@material-ui/core';
 
-import { Refresh } from '@material-ui/icons';
 import { GAME_STAGE, GameState } from '../../types';
-import { Rules } from '../Rules';
 import { getRoundScore, getScore } from '../../utilities';
 
-interface ScoreBoardProps {
-    open: boolean;
-    onClose: () => void;
-}
-
-type RoundScoreBoardProps = {
+type ScoreBoardProps = {
     variant?: 'round' | 'bet' | 'overall';
 } & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
 
-function RoundScoreBoard(props: RoundScoreBoardProps) {
+function ScoreBoard(props: ScoreBoardProps) {
     const {
         variant = 'overall',
         roundNumber,
@@ -98,7 +84,7 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
 
     return (
         <Table 
-            className='score-board__table'
+            className='score-board'
             onClick={(e) => e.stopPropagation()}
             stickyHeader={true}
         >
@@ -144,76 +130,6 @@ function RoundScoreBoard(props: RoundScoreBoardProps) {
     )
 }
 
-enum TAB {
-    SCORES,
-    RULES,
-}
-
-function ScoreBoard(props: ScoreBoardProps) {
-    const { open, onClose } = props;
-    const {
-        roundNumber,
-        players,
-        scores,
-        stage,
-        trickNumber,
-        refreshGameData,
-    } = useContext(GameContext);
-
-    const [activeTab, setActiveTab] = useState(TAB.SCORES);
-
-    const handleTabChange = (_: any, nextTab: number) => {
-        setActiveTab(nextTab);
-    };
-
-    const handleRefresh = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        refreshGameData();
-    }
-
-    return (
-        <Dialog 
-            open={open}
-            onClose={onClose}
-            className='score-board'
-        >
-            <DialogContent>
-                <Tabs 
-                    value={activeTab}
-                    onChange={handleTabChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                >
-                    <Tab value={TAB.SCORES} label='Scores' />
-                    <Tab value={TAB.RULES} label='Rules' />
-                </Tabs>
-                {(activeTab === TAB.SCORES) && (
-                    <RoundScoreBoard
-                        scores={scores}
-                        trickNumber={trickNumber}
-                        roundNumber={roundNumber}
-                        players={players}
-                        stage={stage}
-                        variant='overall'
-                    />
-                )}
-                {(activeTab === TAB.RULES) && (
-                    <Rules />
-                )}
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    endIcon={<Refresh />}
-                    onClick={handleRefresh}
-                >
-                    refresh game state
-                </Button>
-            </DialogActions>
-        </Dialog>
-    )
-}
-
 export {
     ScoreBoard,
-    RoundScoreBoard,
 }
