@@ -17,8 +17,8 @@ interface StartGameDialogProps {
 }
 
 function StartGameDialog(props: StartGameDialogProps) {
-    const { 
-        open, 
+    const {
+        open,
         onStart,
     } = props;
 
@@ -44,7 +44,7 @@ function StartGameDialog(props: StartGameDialogProps) {
     const [isJoining, setIsJoining] = useState(false);
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
             className="start-join-game"
         >

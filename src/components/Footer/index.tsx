@@ -44,14 +44,14 @@ function Footer(props: FooterProps) {
                     <Typography
                         variant='caption'
                     >
-                            share url or game code with other players for them to join
+                        share url or game code with other players for them to join
                     </Typography>
                     <Button
                         endIcon={<CopyIcon />}
                         variant='outlined'
                         onClick={handleAddToClipboard}
                     >
-                        game code: <span style={{ textTransform: 'none'}}> {gameCode}</span>
+                        game code: <span style={{ textTransform: 'none' }}> {gameCode}</span>
                     </Button>
                 </>
             )}
@@ -66,7 +66,7 @@ function Footer(props: FooterProps) {
                         Ready for next trick/round
                     </Button>
                 </>
-            )}   
+            )}
         </footer>
     )
 }
