@@ -54,7 +54,7 @@ function StartGameDialog(props: StartGameDialogProps) {
             <DialogContent>
                 {isJoining && (<TextField
                     onChange={handleGameIdChange}
-                    label="Enter a game URL or ID"
+                    label="Enter a URL or game ID"
                     fullWidth
                 />)}
             </DialogContent>
