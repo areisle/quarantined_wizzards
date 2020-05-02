@@ -26,13 +26,9 @@ function StartGameDialog(props: StartGameDialogProps) {
 
     const handleGameIdChange: TextFieldProps['onChange'] = (event) => {
         let gameCode = event?.target?.value;
-        if (gameCode.includes('?')) {
-            gameCode.split('?')[1].split('&').forEach((param) => {
-                const [key, value] = param.split('=');
-                if (key === 'game') {
-                    gameCode = value;
-                }
-            });
+        const url = new URL(gameCode)
+        if (url.searchParams.get('game')) {
+            gameCode = url.searchParams.get('game') as string;
         }
         setGameId(gameCode);
     };
