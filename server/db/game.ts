@@ -58,6 +58,7 @@ const createGame = async (redis: Redis) => {
 
 const deleteGame = async (redis: Redis, gameId: string) => {
     const keys = await redis.keys(`${gameId}*`);
+    await redis.srem('games', gameId);
     // Use pipeline instead of sending
     // one command each time to improve the
     // performance.
