@@ -76,7 +76,7 @@ npm start
 And then the client development server (webpack)
 
 ```bash
-npm run start:dev
+npm run start:client
 ```
 
 The client can now be viewed in the browser at [http://localhost:3000](http://localhost:3000).
