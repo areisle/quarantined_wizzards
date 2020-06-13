@@ -1,3 +1,5 @@
+@import '../../variables';
+
 .game-board {
     --avatar-size: 40vmin;
     --grid-column-gap: 3vmin;
@@ -28,7 +30,7 @@
         grid-template-rows: repeat(3, var(--avatar-size));
     }
 
-    @media (min-aspect-ratio: 8/9) {
+    @media (min-aspect-ratio: #{$landscape-min-aspect-ratio}) {
         &--5-players, &--6-players {
             grid-template-areas: 
                 'avatar-1 avatar-2 avatar-3'
@@ -45,27 +47,9 @@
         grid-template-rows: repeat(2, var(--avatar-size));
     }
 
-    .avatar--player-1 {
-        grid-area: avatar-1;
-    }
-
-    .avatar--player-2 {
-        grid-area: avatar-2;
-    }
-
-    .avatar--player-3 {
-        grid-area: avatar-3;
-    }
-
-    .avatar--player-4 {
-        grid-area: avatar-4;
-    }
-
-    .avatar--player-5 {
-        grid-area: avatar-5;
-    }
-
-    .avatar--player-6 {
-        grid-area: avatar-6;
+    @for $number from 1 through $players__max-count {
+        .avatar--player-#{$number} {
+            grid-area: avatar-#{$number};
+        }
     }
 }
