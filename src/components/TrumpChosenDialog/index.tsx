@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { SUIT, GAME_STAGE } from '../../types';
 import { usePrevious } from '../../utilities';
-import { SuitIcon } from '../../icons';
+import { SuitIcon } from '../icons';
 import { PlayingCard } from '../PlayingCard';
 
 interface TrumpChosenDialogProps {

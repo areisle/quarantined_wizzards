@@ -3,7 +3,7 @@ import './index.scss';
 import React from 'react';
 import { GameState, GAME_STAGE } from '../../types';
 import { IconButton } from '@material-ui/core';
-import { ScoreBoardIcon, SuitIcon } from '../../icons';
+import { ScoreBoardIcon, SuitIcon } from '../icons';
 
 interface HeaderProps {
     onScoreBoardOpen: () => void;

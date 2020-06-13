@@ -8,7 +8,7 @@ import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
 import { GAME_STAGE, Card } from '../../types';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 

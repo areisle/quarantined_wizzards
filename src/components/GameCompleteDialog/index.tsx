@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 import { getGameWinners } from '../../utilities';
 
 interface GameCompleteDialogProps {

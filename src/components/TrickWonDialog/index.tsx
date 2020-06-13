@@ -9,7 +9,7 @@ import isNil from 'lodash.isnil';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
 import { ScoreBoard } from '../ScoreBoard';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 
 interface TrickWonDialogProps {
     winner: PlayerId | null;

@@ -2,7 +2,7 @@ import './index.scss';
 
 import React, { HTMLProps } from 'react';
 import { Card, SUIT } from '../../types';
-import { SuitIcon } from '../../icons';
+import { SuitIcon } from '../icons';
 
 interface PlayingCardProps extends Card {
     size?: 'medium' | 'large' | 'flexible';

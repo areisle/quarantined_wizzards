@@ -3,7 +3,7 @@ import './icons.scss';
 import React from 'react';
 import { SvgIcon, SvgIconProps } from '@material-ui/core';
 
-import { SUIT } from './types';
+import { SUIT } from '../../types';
 
 
 export function ScoreBoardIcon(props: SvgIconProps) {
@@ -38,7 +38,7 @@ export function SuitIcon(props: SuitIconProps) {
 
     if ([ SUIT.JESTER,  SUIT.WIZARD].includes(variant)) {
         return (
-            <span 
+            <span
                 className={`suit-icon suit-icon--${variant}`}
             >
                 {variant.charAt(0)}
