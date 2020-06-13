@@ -14,7 +14,11 @@ import {
 import { GAME_STAGE, GameState } from '../../types';
 import { getRoundScore, getScore } from '../../utilities';
 
-type ScoreBoardProps = {
+export type ScoreBoardProps = {
+    /**
+     * view of scoreboard
+     * @default overall
+     */
     variant?: 'round' | 'bet' | 'overall';
 } & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
 

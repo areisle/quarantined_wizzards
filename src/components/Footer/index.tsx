@@ -5,7 +5,7 @@ import { Button, Typography } from '@material-ui/core';
 import { CopyIcon } from '../icons';
 import { copyToClipboard } from '../../utilities';
 
-interface FooterProps {
+export interface FooterProps {
     onAllPlayersIn: () => void;
     showAllInButton: boolean;
     disabled: boolean;

@@ -10,7 +10,17 @@ export enum SUIT {
 }
 
 export interface Card {
+    /**
+     * the suit of the card
+     */
     suit: SUIT;
+    /**
+     * the number of the card within the suit.
+     * for jesters or wizards this is null.
+     *
+     * A king would be 13
+     * @default null
+     */
     number?: number | null;
 }
 

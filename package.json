@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.9",
     "@material-ui/icons": "^4.9.1",
+    "@storybook/addon-docs": "^6.0.0-beta.26",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -28,7 +29,7 @@
     "lodash.isequal": "^4.5.0",
     "lodash.isnil": "^4.0.0",
     "lodash.update": "^4.10.2",
-    "node-sass": "^4.13.1",
+    "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -38,7 +39,7 @@
     "shortid": "^2.2.15",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.9.5"
   },
   "scripts": {
     "start": "npm run start:server",
@@ -49,7 +50,9 @@
     "build:server:dev": "tsc --project tsconfig.server.json --watch",
     "test:server": "NODE_ENV=test jest --config config/jest.config.js --detectOpenHandles --forceExit",
     "start:server": "node dist/server/main.js",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 9009 -s public --ci",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -67,6 +70,13 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@storybook/addon-actions": "^6.0.0-beta.26",
+    "@storybook/addon-links": "^6.0.0-beta.26",
+    "@storybook/addons": "^6.0.0-beta.26",
+    "@storybook/preset-create-react-app": "^3.0.1",
+    "@storybook/react": "^6.0.0-beta.26",
+    "babel-loader": "^8.1.0",
     "get-port": "^5.1.1",
     "jest-circus": "^25.3.0",
     "ts-jest": "^25.3.1"

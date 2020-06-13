@@ -4,8 +4,16 @@ import React, { HTMLProps } from 'react';
 import { Card, SUIT } from '../../types';
 import { SuitIcon } from '../icons';
 
-interface PlayingCardProps extends Card {
+export interface PlayingCardProps extends Card {
+    /**
+     * how big the card should be
+     * @default medium
+     */
     size?: 'medium' | 'large' | 'flexible';
+    /**
+     * whether the card is currently selected
+     * @default false
+     */
     selected?: boolean;
     onClick?: HTMLProps<HTMLDivElement>['onClick'];
     children?: HTMLProps<HTMLDivElement>['children'];

@@ -22,7 +22,7 @@ export function ScoreBoardIcon(props: SvgIconProps) {
 }
 
 
-interface SuitIconProps extends SvgIconProps {
+export interface SuitIconProps extends SvgIconProps {
     variant: SUIT;
 }
 
@@ -56,7 +56,11 @@ export function SuitIcon(props: SuitIconProps) {
     )
 }
 
-interface TrophyIconProps extends SvgIconProps {
+export interface TrophyIconProps extends SvgIconProps {
+    /**
+     * type of trophy (rank)
+     * @default gold
+     */
     variant?: 'gold' | 'silver' | 'bronze';
 }
 
