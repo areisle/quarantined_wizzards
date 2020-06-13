@@ -2,14 +2,14 @@ import './index.scss';
 
 import React, { useContext, useState } from 'react';
 import { GameContext } from '../../Context';
-import { 
+import {
     Dialog,
     DialogContent,
     DialogActions,
     Button,
     Tabs,
     Tab,
-    DialogTitle, 
+    DialogTitle,
 } from '@material-ui/core';
 
 import { Refresh } from '@material-ui/icons';
@@ -49,7 +49,7 @@ function Menu(props: MenuProps) {
     }
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
             onClose={onClose}
             className='game-menu'
@@ -58,7 +58,7 @@ function Menu(props: MenuProps) {
                 disableTypography={true}
             >
 
-            <Tabs 
+            <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
                 indicatorColor="primary"

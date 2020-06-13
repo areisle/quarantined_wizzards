@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-    Button, 
-    Dialog, 
-    DialogActions, 
-    DialogContent, 
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
     DialogTitle,
-    TextField, 
-    TextFieldProps, 
+    TextField,
+    TextFieldProps,
 } from '@material-ui/core';
 
 interface BettingDialogProps {
@@ -17,9 +17,9 @@ interface BettingDialogProps {
 }
 
 function BettingDialog(props: BettingDialogProps) {
-    const { 
-        open, 
-        onClose, 
+    const {
+        open,
+        onClose,
         max,
         onBetPlaced,
     } = props;
@@ -42,7 +42,7 @@ function BettingDialog(props: BettingDialogProps) {
     };
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
             onClose={onClose}
         >

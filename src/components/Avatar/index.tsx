@@ -13,11 +13,11 @@ interface PlayerAvatarProps {
 }
 
 function PlayerAvatar(props: PlayerAvatarProps) {
-    const { 
-        player, 
-        children, 
-        active, 
-        leader, 
+    const {
+        player,
+        children,
+        active,
+        leader,
         empty,
         ...rest
     } = props;
@@ -25,9 +25,9 @@ function PlayerAvatar(props: PlayerAvatarProps) {
     return (
         <div
             className={`
-                avatar 
+                avatar
                 avatar--square
-                ${player ? `avatar--player-${player}`: ''} 
+                ${player ? `avatar--player-${player}`: ''}
                 ${active ? 'avatar--active' : ''}
                 ${leader ? 'avatar--leader' : ''}
                 ${empty ? 'avatar--empty' : ''}
@@ -46,5 +46,5 @@ function PlayerAvatar(props: PlayerAvatarProps) {
 }
 
 export {
-    PlayerAvatar
+    PlayerAvatar,
 }

@@ -27,7 +27,7 @@ function Footer(props: FooterProps) {
     const handleAddToClipboard = () => {
         if (!gameCode) { return; }
         copyToClipboard(window.location.href);
-    }
+    };
 
     return (
         <footer className='game-footer'>

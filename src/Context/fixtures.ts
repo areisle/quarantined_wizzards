@@ -1,6 +1,6 @@
 /**
  * TESTING ONLY
- * 
+ *
  * fixed game states for helping in developing components
  */
 import { GameState, GAME_STAGE, SUIT } from "../types";
@@ -24,9 +24,9 @@ export const newGameState: GameState = {
 
 export const startState: GameState = {
     players: [
-        'abbey', 
-        'fritz', 
-        'karen', 
+        'abbey',
+        'fritz',
+        'karen',
     ],
     cards: [],
     scores: [],
@@ -45,11 +45,11 @@ export const startState: GameState = {
 
 export const bettingState: GameState = {
     players: [
-        'abbey', 
-        'fritz', 
-        'karen', 
-        'martin', 
-        'caralyn', 
+        'abbey',
+        'fritz',
+        'karen',
+        'martin',
+        'caralyn',
         'natalie'
     ],
     cards: [
@@ -96,11 +96,11 @@ export const bettingState: GameState = {
 
 export const playingState: GameState = {
     players: [
-        'abbey', 
-        'fritz', 
-        'karen', 
-        'martin', 
-        'caralyn', 
+        'abbey',
+        'fritz',
+        'karen',
+        'martin',
+        'caralyn',
         'natalie'
     ],
     cards: [
@@ -141,11 +141,11 @@ export const playingState: GameState = {
 
 export const playingDuringTrickState: GameState = {
     players: [
-        'abbey', 
-        'fritz', 
-        'karen', 
-        'martin', 
-        'caralyn', 
+        'abbey',
+        'fritz',
+        'karen',
+        'martin',
+        'caralyn',
         'natalie'
     ],
     cards: [
