@@ -17,15 +17,22 @@ interface StartGameDialogProps {
 }
 
 function StartGameDialog(props: StartGameDialogProps) {
-    const { 
-        open, 
+    const {
+        open,
         onStart,
     } = props;
 
     const [gameId, setGameId] = useState('');
 
     const handleGameIdChange: TextFieldProps['onChange'] = (event) => {
-        setGameId(event?.target?.value);
+        let gameCode = event?.target?.value;
+        try {
+            const url = new URL(gameCode)
+            if (url.searchParams.get('game')) {
+                gameCode = url.searchParams.get('game') as string;
+            }
+        } catch (err) { }
+        setGameId(gameCode);
     };
 
     const handleJoinGame = useCallback(() => {
@@ -35,7 +42,7 @@ function StartGameDialog(props: StartGameDialogProps) {
     const [isJoining, setIsJoining] = useState(false);
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
             className="start-join-game"
         >
@@ -45,7 +52,7 @@ function StartGameDialog(props: StartGameDialogProps) {
             <DialogContent>
                 {isJoining && (<TextField
                     onChange={handleGameIdChange}
-                    label="enter a game ID"
+                    label="Enter a URL or game ID"
                     fullWidth
                 />)}
             </DialogContent>
