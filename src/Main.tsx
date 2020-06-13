@@ -41,6 +41,8 @@ function Main() {
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
 
+    const playerNumber = players.indexOf(playerId as string) + 1;
+
     const isSetup = stage === GAME_STAGE.SETTING_UP;
 
     const showReadyButton = Boolean(
@@ -58,7 +60,12 @@ function Main() {
     }
 
     return (
-        <div className='main'>
+        <div
+            className={`
+                main
+                main--player-${playerNumber}
+            `}
+        >
             <Header
                 onScoreBoardOpen={() => setBoardOpen(true)}
                 trumpSuit={trumpSuit}
