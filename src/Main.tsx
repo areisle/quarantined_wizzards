@@ -1,6 +1,6 @@
 import './Main.scss';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 
 import { GameContext } from './Context';
 import { BettingDialog } from './components/BettingDialog';
@@ -36,10 +36,13 @@ function Main() {
         ready,
         readyForNextTrick,
         scores,
+        cards,
+        activePlayer,
     } = useContext(GameContext);
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
+    const [deckOpen, setDeckOpen] = useState(false);
 
     const playerNumber = players.indexOf(playerId as string) + 1;
 
@@ -58,6 +61,14 @@ function Main() {
         setBetOpen(false);
         placeBet(bet);
     }
+
+    const handleOpenDeck = useCallback(() => {
+        setDeckOpen(true);
+    }, []);
+
+    const handleCloseDeck = useCallback(() => {
+        setDeckOpen(false);
+    }, []);
 
     return (
         <div
@@ -87,6 +98,13 @@ function Main() {
             />
             <PlayerDeck
                 onPlaceCard={playCard}
+                cards={cards}
+                stage={stage}
+                playerId={playerId}
+                activePlayer={activePlayer}
+                open={deckOpen}
+                onOpen={handleOpenDeck}
+                onClose={handleCloseDeck}
             />
             <Menu
                 open={scoreboardOpen}
