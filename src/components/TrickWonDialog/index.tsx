@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     Dialog,
     DialogContent,
@@ -10,8 +10,9 @@ import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
 import { ScoreBoard } from '../ScoreBoard';
 import { TrophyIcon } from '../icons';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-interface TrickWonDialogProps {
+export interface TrickWonDialogProps extends GameStateDialogProps {
     winner: PlayerId | null;
     playerNumber: number | null;
     trick: number;
@@ -28,20 +29,14 @@ function TrickWonDialog(props: TrickWonDialogProps) {
         trick,
         players,
         scores,
+        ...rest
     } = props;
-
-    const [dismissed, setDismissed] = useState(false);
 
     const roundComplete = trick === round;
 
-    useEffect(() => {
-        setDismissed(false);
-    }, [round, trick]);
-
     return (
         <Dialog
-            open={Boolean(winner) && !dismissed}
-            onClick={() => setDismissed(true)}
+            {...rest}
         >
             {(roundComplete) && (
                 <DialogTitle>Round {round + 1} is complete!</DialogTitle>

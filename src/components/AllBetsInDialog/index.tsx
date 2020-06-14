@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
 import { ScoreBoard } from '../ScoreBoard';
-import { GameState, GAME_STAGE } from '../../types';
-import { usePrevious } from '../../utilities';
+import { GameState } from '../../types';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-type AllBetsInDialogProps = Pick<GameState, 'scores' | 'players' | 'stage' | 'roundNumber' | 'trickNumber'>;
+export type AllBetsInDialogProps = Pick<GameState, 'scores' | 'players' | 'stage' | 'roundNumber' | 'trickNumber'> & GameStateDialogProps;
 
 function AllBetsInDialog(props: AllBetsInDialogProps) {
     const {
@@ -17,22 +17,11 @@ function AllBetsInDialog(props: AllBetsInDialogProps) {
         stage,
         roundNumber,
         trickNumber,
+        ...rest
     } = props;
 
-    const prevStage = usePrevious(stage);
-    const [open, setOpen] = useState(false);
-
-    useEffect(() => {
-        if (prevStage === GAME_STAGE.BETTING && stage === GAME_STAGE.PLAYING && trickNumber === 0) {
-            setOpen(true);
-        }
-    }, [prevStage, stage, trickNumber]);
-
     return (
-        <Dialog
-            open={open}
-            onClose={() => setOpen(false)}
-        >
+        <Dialog {...rest}>
             <DialogTitle>
                 All bets have been placed!
             </DialogTitle>

@@ -1,44 +1,33 @@
 import './index.scss';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
 import { PlayerAvatar } from '../Avatar';
-import { PlayerId, GameState, GAME_STAGE } from '../../types';
+import { PlayerId, GameState } from '../../types';
 import { TrophyIcon } from '../icons';
 import { getGameWinners } from '../../utilities';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-interface GameCompleteDialogProps {
+export interface GameCompleteDialogProps extends GameStateDialogProps {
     players: PlayerId[];
     scores: GameState['scores'];
-    stage: GAME_STAGE;
 }
 
 function GameCompleteDialog(props: GameCompleteDialogProps) {
     const {
         players,
         scores,
-        stage,
+        ...rest
     } = props;
-
-    const [dismissed, setDismissed] = useState(false);
 
     const winners = useMemo(() => getGameWinners(players, scores), [players, scores])
 
-    const gameComplete = stage === GAME_STAGE.COMPLETE;
-
-    useEffect(() => {
-        setDismissed(false);
-    }, [stage]);
-
     return (
-        <Dialog
-            open={gameComplete && !dismissed}
-            onClick={() => setDismissed(true)}
-        >
+        <Dialog {...rest}>
             <DialogTitle>Game is complete!</DialogTitle>
             <DialogContent>
                 <div className='game-complete-dialog__podium'>

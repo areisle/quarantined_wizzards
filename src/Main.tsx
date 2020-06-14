@@ -11,12 +11,12 @@ import { PlayerDeck } from './components/PlayerDeck';
 import { JoinGameDialog } from './components/JoinGameDialog';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
-import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
 import { GAME_STAGE, TOTAL_CARDS } from './types';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
 import { AllBetsInDialog } from './components/AllBetsInDialog';
 import { GameCompleteDialog } from './components/GameCompleteDialog';
 import { Menu } from './components/Menu';
+import { useGameStateDialogs, DIALOG_TYPE } from './components/useGameStateDialog';
 
 function Main() {
     const {
@@ -70,6 +70,28 @@ function Main() {
         setDeckOpen(false);
     }, []);
 
+    const {
+        currentDialog,
+        dismissCurrentDialog,
+    } = useGameStateDialogs({
+        stage,
+        trickNumber,
+        trumpSuit,
+        trickWinner,
+        gameCode,
+        playerId,
+    });
+
+    const handleStartGame = useCallback(() => {
+        startNewGame();
+        dismissCurrentDialog();
+    }, [dismissCurrentDialog, startNewGame]);
+
+    const handleJoinGame = useCallback((username) => {
+        joinGame(username);
+        dismissCurrentDialog();
+    }, [dismissCurrentDialog, joinGame]);
+
     return (
         <div
             className={`
@@ -79,78 +101,80 @@ function Main() {
         >
             <Header
                 onScoreBoardOpen={() => setBoardOpen(true)}
-                trumpSuit={trumpSuit}
                 roundNumber={roundNumber}
-                trickNumber={trickNumber}
                 stage={stage}
                 totalRounds={TOTAL_CARDS / players.length}
+                trickNumber={trickNumber}
+                trumpSuit={trumpSuit}
             />
             <GameBoard
                 onOpenBettingDialog={() => setBetOpen(true)}
             />
             <Footer
-                onAllPlayersIn={allPlayersIn}
-                showAllInButton={isSetup && playerId === players[0]}
                 disabled={players.length < 3}
-                showReadyButton={showReadyButton}
-                onReady={readyForNextTrick}
                 gameCode={gameCode}
+                onAllPlayersIn={allPlayersIn}
+                onReady={readyForNextTrick}
+                showAllInButton={isSetup && playerId === players[0]}
+                showReadyButton={showReadyButton}
             />
             <PlayerDeck
-                onPlaceCard={playCard}
-                cards={cards}
-                stage={stage}
-                playerId={playerId}
                 activePlayer={activePlayer}
-                open={deckOpen}
-                onOpen={handleOpenDeck}
+                cards={cards}
                 onClose={handleCloseDeck}
+                onOpen={handleOpenDeck}
+                onPlaceCard={playCard}
+                open={deckOpen}
+                playerId={playerId}
+                stage={stage}
             />
             <Menu
-                open={scoreboardOpen}
                 onClose={handleCloseScoreBoard}
+                open={scoreboardOpen}
             />
             <BettingDialog
-                open={betDialogOpen}
-                onClose={() => setBetOpen(false)}
-                onBetPlaced={handleBetSelected}
                 max={roundNumber + 1}
+                onBetPlaced={handleBetSelected}
+                onClose={() => setBetOpen(false)}
+                open={betDialogOpen}
             />
             <TrickWonDialog
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.TRICK_COMPLETE}
                 playerNumber={players.indexOf(trickWinner as string)}
-                winner={trickWinner}
-                round={roundNumber}
-                trick={trickNumber}
                 players={players}
+                round={roundNumber}
                 scores={scores}
+                trick={trickNumber}
+                winner={trickWinner}
             />
             <JoinGameDialog
-                open={Boolean(gameCode && playerId === null)}
-                onJoin={joinGame}
+                onJoin={handleJoinGame}
+                open={currentDialog === DIALOG_TYPE.JOIN_GAME}
             />
             <StartGameDialog
-                open={!gameCode}
-                onStart={startNewGame}
-            />
-            <ChooseTrumpDialog
-                open={false}
-                onStart={startNewGame}
+                onStart={handleStartGame}
+                open={currentDialog === DIALOG_TYPE.START_GAME}
             />
             <TrumpChosenDialog
-                stage={stage}
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.TRUMP_CHOSEN}
                 trumpSuit={trumpSuit}
             />
             <AllBetsInDialog
-                roundNumber={roundNumber}
-                trickNumber={trickNumber}
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.ALL_BETS_IN}
                 players={players}
+                roundNumber={roundNumber}
                 scores={scores}
                 stage={stage}
+                trickNumber={trickNumber}
             />
             <GameCompleteDialog
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.GAME_COMPLETE}
                 players={players}
                 scores={scores}
-                stage={stage}
             />
         </div>
     )

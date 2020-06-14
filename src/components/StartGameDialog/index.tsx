@@ -10,16 +10,16 @@ import {
     TextFieldProps,
     DialogContent,
 } from '@material-ui/core';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-interface StartGameDialogProps {
-    open: boolean;
+export interface StartGameDialogProps extends GameStateDialogProps {
     onStart: (newGameId: string) => void;
 }
 
 function StartGameDialog(props: StartGameDialogProps) {
     const {
-        open,
         onStart,
+        ...rest
     } = props;
 
     const [gameId, setGameId] = useState('');
@@ -43,7 +43,7 @@ function StartGameDialog(props: StartGameDialogProps) {
 
     return (
         <Dialog
-            open={open}
+            {...rest}
             className="start-join-game"
         >
             <DialogTitle>
