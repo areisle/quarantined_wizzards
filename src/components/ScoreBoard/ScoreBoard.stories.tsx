@@ -17,13 +17,13 @@ export default {
 export const Betting = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
+        variant='overall'
     />
 );
 
 export const Playing = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.PLAYING}
         scores={[
             {
                 areisle: { bet: 1 },
@@ -31,13 +31,14 @@ export const Playing = (props: ScoreBoardProps) => (
                 nreisle: { bet: 0 },
             }
         ]}
+        stage={GAME_STAGE.PLAYING}
+        variant='overall'
     />
 );
 
 export const BetweenTricks = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.BETWEEN_TRICKS}
         scores={[
             {
                 areisle: { bet: 1, taken: 0 },
@@ -45,15 +46,16 @@ export const BetweenTricks = (props: ScoreBoardProps) => (
                 nreisle: { bet: 0, taken: 0 },
             }
         ]}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
+        variant='overall'
     />
 );
 
 export const EndOfRound3 = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.BETWEEN_TRICKS}
         roundNumber={2}
-        trickNumber={2}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
         scores={[
             {
                 areisle: { bet: 1, taken: 0 },
@@ -71,6 +73,8 @@ export const EndOfRound3 = (props: ScoreBoardProps) => (
                 nreisle: { bet: 2, taken: 3 },
             },
         ]}
+        trickNumber={2}
+        variant='overall'
     />
 );
 
@@ -85,6 +89,7 @@ export const MaxPlayers = (props: ScoreBoardProps) => (
             'kreisle',
             'freisle'
         ]}
+        variant='overall'
     />
 );
 
@@ -95,5 +100,38 @@ export const LongNames = (props: ScoreBoardProps) => (
             'blargh monkeys the second',
             'hello my name is????',
         ]}
+        variant='overall'
+    />
+);
+
+
+export const BetVariant = (props: ScoreBoardProps) => (
+    <ScoreBoard
+        {...props}
+        scores={[
+            {
+                areisle: { bet: 1, taken: 0 },
+                creisle: { bet: 1, taken: 1, },
+                nreisle: { bet: 0, taken: 0 },
+            }
+        ]}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
+        variant='bet'
+    />
+);
+
+
+export const RoundVariant = (props: ScoreBoardProps) => (
+    <ScoreBoard
+        {...props}
+        scores={[
+            {
+                areisle: { bet: 1, taken: 0 },
+                creisle: { bet: 1, taken: 1, },
+                nreisle: { bet: 0, taken: 0 },
+            }
+        ]}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
+        variant='round'
     />
 );
