@@ -5,14 +5,15 @@ import {
     Typography,
 } from '@material-ui/core';
 import isNil from 'lodash.isnil';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { GAME_STAGE, GameState, PlayerId } from '../../types';
 import { PlayerAvatar } from '../Avatar';
 import { TrophyIcon } from '../icons';
 import { ScoreBoard } from '../ScoreBoard';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-interface TrickWonDialogProps {
+export interface TrickWonDialogProps extends GameStateDialogProps {
     winner: PlayerId | null;
     playerNumber: number | null;
     trick: number;
@@ -29,20 +30,14 @@ function TrickWonDialog(props: TrickWonDialogProps) {
         trick,
         players,
         scores,
+        ...rest
     } = props;
-
-    const [dismissed, setDismissed] = useState(false);
 
     const roundComplete = trick === round;
 
-    useEffect(() => {
-        setDismissed(false);
-    }, [round, trick]);
-
     return (
         <Dialog
-            onClick={() => setDismissed(true)}
-            open={Boolean(winner) && !dismissed}
+            {...rest}
         >
             {(roundComplete) && (
                 <DialogTitle>

@@ -9,15 +9,16 @@ import {
 } from '@material-ui/core';
 import React, { useState } from 'react';
 
-interface JoinGameDialogProps {
-    open: boolean;
+import { GameStateDialogProps } from '../useGameStateDialog';
+
+export interface JoinGameDialogProps extends GameStateDialogProps {
     onJoin: (username: string) => void;
 }
 
 function JoinGameDialog(props: JoinGameDialogProps) {
     const {
-        open,
         onJoin,
+        ...rest
     } = props;
     const [username, setUsername] = useState<string | null>(null);
 
@@ -31,9 +32,7 @@ function JoinGameDialog(props: JoinGameDialogProps) {
     };
 
     return (
-        <Dialog
-            open={open}
-        >
+        <Dialog {...rest}>
             <DialogTitle>
                 Welcome to Quarantined Wizzards!
             </DialogTitle>

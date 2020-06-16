@@ -3,40 +3,30 @@ import './index.scss';
 import {
     Dialog,
     DialogContent,
+    DialogProps,
     DialogTitle,
 } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { GAME_STAGE, SUIT } from '../../types';
-import { usePrevious } from '../../utilities';
+import { SUIT } from '../../types';
 import { SuitIcon } from '../icons';
 import { PlayingCard } from '../PlayingCard';
+import { GameStateDialogProps } from '../useGameStateDialog';
 
-interface TrumpChosenDialogProps {
+export interface TrumpChosenDialogProps extends GameStateDialogProps, Omit<DialogProps, 'onClose'> {
     trumpSuit: SUIT | null;
-    stage: GAME_STAGE;
 }
 
 function TrumpChosenDialog(props: TrumpChosenDialogProps) {
     const {
         trumpSuit,
-        stage,
+        ...rest
     } = props;
-
-    const prevTrump = usePrevious(trumpSuit);
-    const [open, setOpen] = useState(false);
-
-    useEffect(() => {
-        if (!open && trumpSuit !== prevTrump && stage === GAME_STAGE.BETTING) {
-            setOpen(true);
-        }
-    }, [open, prevTrump, stage, trumpSuit]);
 
     return (
         <Dialog
+            {...rest}
             className='trump-chosen-dialog'
-            onClose={() => setOpen(false)}
-            open={open}
         >
             <DialogTitle>
                 A new trump suit has been chosen
