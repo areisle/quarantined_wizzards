@@ -1,15 +1,15 @@
 import './index.scss';
 import '../Avatar/index.scss';
 
-import React, { useState, useEffect } from 'react';
 import {
+    NativeSelect,
     Table,
+    TableBody,
     TableCell,
     TableHead,
     TableRow,
-    TableBody,
-    NativeSelect,
 } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
 
 import { GAME_STAGE, GameState } from '../../types';
 import { getRoundScore, getScore } from '../../utilities';
@@ -35,8 +35,8 @@ function ScoreBoard(props: ScoreBoardProps) {
     const [selectedRound, setSelectedRound] = useState(roundNumber);
 
     const handleSwapSelectedRound = (e: any) => {
-        setSelectedRound(Number(e.target.value))
-    }
+        setSelectedRound(Number(e.target.value));
+    };
 
     useEffect(() => {
         setSelectedRound(roundNumber);
@@ -69,21 +69,21 @@ function ScoreBoard(props: ScoreBoardProps) {
                 <TableCell align='right'>{showBet && bet}</TableCell>
                 {showRoundScores && (
                     <>
-                    <TableCell align='right'>{taken || 0}</TableCell>
-                    <TableCell align='right'>{roundDone && roundTotal}</TableCell>
-                    {showOverall && (
-                        <TableCell align='right'>
-                            {getScore(
-                                scores,
-                                playerId,
-                                roundDone ? roundNumber : roundNumber - 1,
-                            )}
-                        </TableCell>
-                    )}
+                        <TableCell align='right'>{taken || 0}</TableCell>
+                        <TableCell align='right'>{roundDone && roundTotal}</TableCell>
+                        {showOverall && (
+                            <TableCell align='right'>
+                                {getScore(
+                                    scores,
+                                    playerId,
+                                    roundDone ? roundNumber : roundNumber - 1,
+                                )}
+                            </TableCell>
+                        )}
                     </>
                 )}
             </TableRow>
-        )
+        );
     });
 
     return (
@@ -95,24 +95,26 @@ function ScoreBoard(props: ScoreBoardProps) {
             <TableHead>
                 {showOverall && (
                     <TableRow>
-                        <TableCell></TableCell>
+                        <TableCell />
                         <TableCell colSpan={3}>
                             <NativeSelect
-                                value={selectedRound}
-                                onChange={handleSwapSelectedRound}
                                 fullWidth={true}
+                                onChange={handleSwapSelectedRound}
+                                value={selectedRound}
                             >
                                 {Array(roundNumber + 1).fill(null).map((_, index) => (
                                     <option
                                         key={index}
                                         value={index}
                                     >
-                                        round {index + 1}
+                                        round
+                                        {' '}
+                                        {index + 1}
                                     </option>
                                 ))}
                             </NativeSelect>
                         </TableCell>
-                        <TableCell></TableCell>
+                        <TableCell />
                     </TableRow>
                 )}
                 <TableRow>
@@ -120,9 +122,9 @@ function ScoreBoard(props: ScoreBoardProps) {
                     <TableCell className='table-cell--skinny'>bet</TableCell>
                     {showRoundScores && (
                         <>
-                    <TableCell className='table-cell--skinny'>taken</TableCell>
-                    <TableCell className='table-cell--skinny'>total</TableCell>
-                    </>
+                            <TableCell className='table-cell--skinny'>taken</TableCell>
+                            <TableCell className='table-cell--skinny'>total</TableCell>
+                        </>
                     )}
                     {showOverall && (
                         <TableCell>overall total</TableCell>
@@ -131,9 +133,9 @@ function ScoreBoard(props: ScoreBoardProps) {
             </TableHead>
             <TableBody>{rows}</TableBody>
         </Table>
-    )
+    );
 }
 
 export {
     ScoreBoard,
-}
+};

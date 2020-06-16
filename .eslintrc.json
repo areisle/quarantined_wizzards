@@ -1,0 +1,55 @@
+{
+    "extends": [
+        "react-app",
+        "airbnb"
+    ],
+    "plugins": [
+        "simple-import-sort",
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "consistent-return": "off",
+        "indent": [
+            "error",
+            4
+        ],
+        "max-len": "warn",
+        "no-param-reassign": "off",
+        "no-restricted-syntax": ["error", "WithStatement", "BinaryExpression[operator=' in ']"],
+        "no-unused-expressions": "off",
+        "no-unused-vars": "off",
+        "prefer-const": "warn",
+        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^(React|_)" }],
+        "react/no-array-index-key": "off",
+        "react/jsx-indent": [
+            "error",
+            4
+        ],
+        "react/jsx-indent-props": [
+            "error",
+            4
+        ],
+        "react/jsx-filename-extension": "off",
+        "react/jsx-props-no-spreading": "off",
+        "jsx-quotes": [
+            "error",
+            "prefer-single"
+        ],
+        "react/jsx-boolean-value": [
+            "error",
+            "always"
+        ],
+        "react/jsx-sort-props": "warn",
+        "import/extensions": "off",
+        "import/prefer-default-export": "off",
+        // auto-fix import order
+        "simple-import-sort/sort": "error"
+    },
+    "settings": {
+        "import/resolver": {
+            // use <root>/tsconfig.json
+            "typescript": {}
+        }
+    }
+}

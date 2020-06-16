@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
-import { ScoreBoard } from '../ScoreBoard';
-import { GameState, GAME_STAGE } from '../../types';
+import React, { useEffect, useState } from 'react';
+
+import { GAME_STAGE, GameState } from '../../types';
 import { usePrevious } from '../../utilities';
+import { ScoreBoard } from '../ScoreBoard';
 
 type AllBetsInDialogProps = Pick<GameState, 'scores' | 'players' | 'stage' | 'roundNumber' | 'trickNumber'>;
 
@@ -30,26 +31,26 @@ function AllBetsInDialog(props: AllBetsInDialogProps) {
 
     return (
         <Dialog
-            open={open}
             onClose={() => setOpen(false)}
+            open={open}
         >
             <DialogTitle>
                 All bets have been placed!
             </DialogTitle>
             <DialogContent>
                 <ScoreBoard
-                    scores={scores}
-                    roundNumber={roundNumber}
                     players={players}
+                    roundNumber={roundNumber}
+                    scores={scores}
                     stage={stage}
                     trickNumber={trickNumber}
                     variant='bet'
                 />
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export {
     AllBetsInDialog,
-}
+};

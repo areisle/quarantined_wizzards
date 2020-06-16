@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
-    Typography,
     DialogTitle,
+    Typography,
 } from '@material-ui/core';
 import isNil from 'lodash.isnil';
+import React, { useEffect, useState } from 'react';
+
+import { GAME_STAGE, GameState, PlayerId } from '../../types';
 import { PlayerAvatar } from '../Avatar';
-import { PlayerId, GameState, GAME_STAGE } from '../../types';
-import { ScoreBoard } from '../ScoreBoard';
 import { TrophyIcon } from '../icons';
+import { ScoreBoard } from '../ScoreBoard';
 
 interface TrickWonDialogProps {
     winner: PlayerId | null;
@@ -40,11 +41,17 @@ function TrickWonDialog(props: TrickWonDialogProps) {
 
     return (
         <Dialog
-            open={Boolean(winner) && !dismissed}
             onClick={() => setDismissed(true)}
+            open={Boolean(winner) && !dismissed}
         >
             {(roundComplete) && (
-                <DialogTitle>Round {round + 1} is complete!</DialogTitle>
+                <DialogTitle>
+                    Round
+                    {' '}
+                    {round + 1}
+                    {' '}
+                    is complete!
+                </DialogTitle>
             )}
             <DialogContent>
                 <PlayerAvatar
@@ -52,27 +59,31 @@ function TrickWonDialog(props: TrickWonDialogProps) {
                     style={{
                         width: 200,
                         height: 200,
-                        margin: '0 auto'
+                        margin: '0 auto',
                     }}
                 >
                     <TrophyIcon />
                 </PlayerAvatar>
-                <Typography align='center'>{winner} has won the trick!</Typography>
+                <Typography align='center'>
+                    {winner}
+                    {' '}
+                    has won the trick!
+                </Typography>
                 {(roundComplete) && (
                     <ScoreBoard
-                        scores={scores}
                         players={players}
                         roundNumber={round}
-                        trickNumber={trick}
+                        scores={scores}
                         stage={GAME_STAGE.BETWEEN_TRICKS}
+                        trickNumber={trick}
                         variant='round'
                     />
                 )}
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export {
     TrickWonDialog,
-}
+};

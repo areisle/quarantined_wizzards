@@ -1,19 +1,20 @@
-import path from 'path';
+import express from 'express';
 import { Server } from 'http';
-import express from "express";
-import socket from 'socket.io';
-import * as db from './db';
+import path from 'path';
+import socketio from 'socket.io';
+
 import {
-    SERVER_EVENTS,
-    USER_EVENTS,
-    RoundStartedParams,
     CardPlayedParams,
+    RoundStartedParams,
+    SERVER_EVENTS,
     TrickStartedParams,
+    USER_EVENTS,
 } from '../src/types';
+import * as db from './db';
 
 const app = express();
 const http = new Server(app);
-const io = socket(http);
+const io = socketio(http);
 
 app.use(express.static(path.join(__dirname, '../../build')));
 
@@ -28,8 +29,8 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
     console.log(`listening on localhost:${port}`);
     // WARNING: app.listen(80) will NOT work here!
 
-    app.get('/', function (req, res) {
-        res.sendFile(__dirname + '/tester.html');
+    app.get('/', (req, res) => {
+        res.sendFile(`${__dirname}/tester.html`);
     });
 
     const startRoundEvents = async (gameId: string, firstRound: boolean = false) => {
@@ -39,7 +40,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
             : db.startRound(redis, gameId));
         const activeUser = await db.whosTurnIsIt(redis, gameId);
 
-        await Promise.all(Object.keys(cards).map(async playerId => {
+        await Promise.all(Object.keys(cards).map(async (playerId) => {
             const socketId = await db.getPlayerSocket(redis, gameId, playerId);
 
             if (!socketId) {
@@ -51,8 +52,8 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 cards: cards[playerId],
                 roundNumber,
                 trump,
-                trickLeader: activeUser
-            }
+                trickLeader: activeUser,
+            };
 
             io.to(socketId).emit(
                 SERVER_EVENTS.ROUND_STARTED,
@@ -63,7 +64,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
         io.to(gameId).emit(SERVER_EVENTS.TRUMP_CHANGED, trump);
     };
 
-    io.on('connection', function (socket) {
+    io.on('connection', (socket) => {
         /**
          * @param {function} onSuccess callback which is passed the newly created gameId
          */
@@ -139,17 +140,17 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
         socket.on(USER_EVENTS.PLAY_CARD, async (gameId: string, playerId: string, { suit: cardSuit, number: cardValue }, onSuccess, onError) => {
             try {
                 await db.playerExists(redis, gameId, playerId);
-                
+
                 const { trickWinner, newLeadSuit } = await db.playCard(
-                    redis, gameId, playerId, cardSuit, cardValue
+                    redis, gameId, playerId, cardSuit, cardValue,
                 );
 
                 onSuccess?.();
 
                 const data: CardPlayedParams = {
                     card: { suit: cardSuit, number: cardValue },
-                    playerId
-                }
+                    playerId,
+                };
 
                 io.to(gameId).emit(SERVER_EVENTS.CARD_PLAYED, data);
 
@@ -178,13 +179,13 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
          */
         socket.on(USER_EVENTS.PLACE_BET, async (gameId: string, playerId: string, bet: number, onSuccess, onError) => {
             try {
-                const [roundNumber,] = await Promise.all([
+                const [roundNumber] = await Promise.all([
                     db.getCurrentRound(redis, gameId),
                     db.playerExists(redis, gameId, playerId),
                 ]);
                 const [allBetsIn, trickLeader] = await Promise.all([
                     db.setPlayerBet(redis, gameId, playerId, roundNumber, bet),
-                    db.getTrickLeader(redis, gameId, roundNumber, 0)
+                    db.getTrickLeader(redis, gameId, roundNumber, 0),
                 ]);
 
                 onSuccess?.();
@@ -225,10 +226,10 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 ]);
 
                 if (!trickComplete) {
-                    throw new Error(`Player (${playerId}) cannot say ready before the current trick (${trickNumber}) is complete`)
+                    throw new Error(`Player (${playerId}) cannot say ready before the current trick (${trickNumber}) is complete`);
                 }
                 await db.setPlayerReady(redis, gameId, roundNumber, trickNumber, playerId);
-                const [players, playersReady,] = await Promise.all([
+                const [players, playersReady] = await Promise.all([
                     db.getGamePlayers(redis, gameId),
                     db.getPlayersReady(redis, gameId, roundNumber, trickNumber),
                 ]);
@@ -269,16 +270,14 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 io.to(socket.id).emit(SERVER_EVENTS.ERROR, err.toString());
             }
         });
-
     });
-
 
     return {
         db: redis,
         close: () => {
             http.close();
             db.close(redis);
-        }
+        },
     };
 };
 

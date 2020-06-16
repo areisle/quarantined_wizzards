@@ -1,11 +1,14 @@
 import './index.scss';
 
-import React, { useState, useCallback, useContext, useEffect } from 'react';
-import { PlayingCard } from '../PlayingCard';
-import SwipeableViews from 'react-swipeable-views';
-import { GameContext } from '../../Context';
 import { Button } from '@material-ui/core';
+import React, {
+    useCallback, useContext, useEffect, useState,
+} from 'react';
+import SwipeableViews from 'react-swipeable-views';
+
+import { GameContext } from '../../Context';
 import { GAME_STAGE } from '../../types';
+import { PlayingCard } from '../PlayingCard';
 
 interface PlayerDeckProps {
     onPlaceCard: (cardIndex: number) => void;
@@ -62,66 +65,66 @@ function PlayerDeck(props: PlayerDeckProps) {
         <PlayingCard
             key={index}
             {...card}
-            selected={index === selectedIndex && open}
             onClick={(e) => {
                 setIndex(index);
                 if (open) {
                     e.stopPropagation();
                 }
             }}
+            selected={index === selectedIndex && open}
         />
     ));
 
-    const swipeableCards = cards.map((card, index) => {
-        return (
-            <div
-                key={index}
-                className='card-preview__wrapper'
+    const swipeableCards = cards.map((card, index) => (
+        <div
+            key={index}
+            className='card-preview__wrapper'
+        >
+            <PlayingCard
+                {...card}
+                onClick={(e) => e.stopPropagation()}
+                size='large'
             >
-                <PlayingCard
-                    {...card}
-                    size='large'
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {showPlaceCard && (
-                        <Button
-                            onClick={() => handlePlaceCard(index)}
-                            variant='contained'
-                            color='primary'
-                        >
-                            Place Card
-                        </Button>
-                    )}
-                </PlayingCard>
-            </div>
-        )
-    });
+                {showPlaceCard && (
+                    <Button
+                        color='primary'
+                        onClick={() => handlePlaceCard(index)}
+                        variant='contained'
+                    >
+                        Place Card
+                    </Button>
+                )}
+            </PlayingCard>
+        </div>
+    ));
 
     return (
         <div
-            id='playing-cards-deck'
             className={`playing-cards-deck playing-cards-deck--${open ? 'open' : 'closed'}`}
+            id='playing-cards-deck'
             onClick={handleClose}
+            role='presentation'
         >
-                <div className='playing-cards-deck__card-preview'>
-                    <SwipeableViews
-                        index={selectedIndex}
-                        onChangeIndex={handleChangeIndex}
-                        animateTransitions={animate}
-                    >
-                        {swipeableCards}
-                    </SwipeableViews>
-                </div>
+            <div className='playing-cards-deck__card-preview'>
+                <SwipeableViews
+                    animateTransitions={animate}
+                    index={selectedIndex}
+                    onChangeIndex={handleChangeIndex}
+                >
+                    {swipeableCards}
+                </SwipeableViews>
+            </div>
             <div
                 className='playing-cards-deck__list'
                 onClick={handleOpen}
+                role='presentation'
             >
                 {playingCards}
             </div>
         </div>
-    )
+    );
 }
 
 export {
-    PlayerDeck
-}
+    PlayerDeck,
+};

@@ -1,11 +1,12 @@
 import React from 'react';
+
 import { SuitIcon, SuitIconProps } from '..';
 import { SUIT } from '../../../types';
 
 export default {
     component: SuitIcon,
     title: 'icons/SuitIcon',
-}
+};
 
 export const Spades = (props: SuitIconProps) => (
     <SuitIcon
@@ -15,7 +16,7 @@ export const Spades = (props: SuitIconProps) => (
 
 Spades.args = {
     variant: SUIT.SPADES,
-}
+};
 
 export const Wizard = (props: SuitIconProps) => (
     <SuitIcon
@@ -44,7 +45,6 @@ export const Clubs = (props: SuitIconProps) => (
         variant={SUIT.CLUBS}
     />
 );
-
 
 export const Hearts = (props: SuitIconProps) => (
     <SuitIcon

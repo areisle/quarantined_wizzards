@@ -1,12 +1,13 @@
 import './index.scss';
 
-import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
-import { SUIT, GAME_STAGE } from '../../types';
+import React, { useEffect, useState } from 'react';
+
+import { GAME_STAGE, SUIT } from '../../types';
 import { usePrevious } from '../../utilities';
 import { SuitIcon } from '../icons';
 import { PlayingCard } from '../PlayingCard';
@@ -33,31 +34,31 @@ function TrumpChosenDialog(props: TrumpChosenDialogProps) {
 
     return (
         <Dialog
-            open={open}
-            onClose={() => setOpen(false)}
             className='trump-chosen-dialog'
+            onClose={() => setOpen(false)}
+            open={open}
         >
             <DialogTitle>
                 A new trump suit has been chosen
             </DialogTitle>
             <DialogContent>
-                    {trumpSuit && (
-                        <PlayingCard
-                            suit={trumpSuit}
-                        >
-                            <div className='trump-chosen-dialog__icon-wrapper'>
+                {trumpSuit && (
+                    <PlayingCard
+                        suit={trumpSuit}
+                    >
+                        <div className='trump-chosen-dialog__icon-wrapper'>
 
                             <SuitIcon
                                 variant={trumpSuit}
                             />
-                </div>
-                        </PlayingCard>
-                    )}
+                        </div>
+                    </PlayingCard>
+                )}
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export {
     TrumpChosenDialog,
-}
+};

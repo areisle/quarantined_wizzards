@@ -76,7 +76,11 @@
     "@storybook/addons": "^6.0.0-beta.26",
     "@storybook/preset-create-react-app": "^3.0.1",
     "@storybook/react": "^6.0.0-beta.26",
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
     "babel-loader": "^8.1.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-simple-import-sort": "^5.0.3",
     "get-port": "^5.1.1",
     "jest-circus": "^25.3.0",
     "ts-jest": "^25.3.1"

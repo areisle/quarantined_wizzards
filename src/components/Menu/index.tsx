@@ -1,18 +1,18 @@
 import './index.scss';
 
-import React, { useContext, useState } from 'react';
-import { GameContext } from '../../Context';
 import {
-    Dialog,
-    DialogContent,
-    DialogActions,
     Button,
-    Tabs,
-    Tab,
+    Dialog,
+    DialogActions,
+    DialogContent,
     DialogTitle,
+    Tab,
+    Tabs,
 } from '@material-ui/core';
-
 import { Refresh } from '@material-ui/icons';
+import React, { useContext, useState } from 'react';
+
+import { GameContext } from '../../Context';
 import { Rules } from '../Rules';
 import { ScoreBoard } from '../ScoreBoard';
 
@@ -46,42 +46,42 @@ function Menu(props: MenuProps) {
     const handleRefresh = (e: React.MouseEvent) => {
         e.stopPropagation();
         refreshGameData();
-    }
+    };
 
     return (
         <Dialog
-            open={open}
-            onClose={onClose}
             className='game-menu'
+            onClose={onClose}
+            open={open}
         >
             <DialogTitle
                 disableTypography={true}
             >
 
-            <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-            >
-                <Tab value={TAB.SCORES} label='Scores' />
-                <Tab value={TAB.RULES} label='Rules' />
-            </Tabs>
+                <Tabs
+                    indicatorColor='primary'
+                    onChange={handleTabChange}
+                    textColor='primary'
+                    value={activeTab}
+                >
+                    <Tab label='Scores' value={TAB.SCORES} />
+                    <Tab label='Rules' value={TAB.RULES} />
+                </Tabs>
             </DialogTitle>
-             <DialogContent>
-            {(activeTab === TAB.SCORES) && (
-                <ScoreBoard
-                    scores={scores}
-                    trickNumber={trickNumber}
-                    roundNumber={roundNumber}
-                    players={players}
-                    stage={stage}
-                    variant='overall'
-                />
-            )}
-            {(activeTab === TAB.RULES) && (
-                <Rules />
-            )}
+            <DialogContent>
+                {(activeTab === TAB.SCORES) && (
+                    <ScoreBoard
+                        players={players}
+                        roundNumber={roundNumber}
+                        scores={scores}
+                        stage={stage}
+                        trickNumber={trickNumber}
+                        variant='overall'
+                    />
+                )}
+                {(activeTab === TAB.RULES) && (
+                    <Rules />
+                )}
             </DialogContent>
             <DialogActions>
                 <Button
@@ -92,9 +92,9 @@ function Menu(props: MenuProps) {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 }
 
 export {
     Menu,
-}
+};

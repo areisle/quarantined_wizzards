@@ -1,4 +1,6 @@
 import IORedis, { Redis } from 'ioredis';
+
+import { GAME_STAGE, GameState, SUIT } from '../../src/types';
 import {
     addPlayer,
     createGame,
@@ -22,6 +24,7 @@ import {
     getTrickCardsByPlayer,
     getTrickLeader,
     getTrickWinners,
+    getTrumpSuit,
     playCard,
     setCurrentRound,
     setCurrentTrick,
@@ -30,24 +33,22 @@ import {
     setPlayerReady,
     startRound,
     whosTurnIsIt,
-    getTrumpSuit,
 } from './round';
-import { GameState, GAME_STAGE, SUIT } from '../../src/types';
 
 const TOTAL_CARDS = 60;
 const MIN_PLAYERS = 3;
-
 
 const connect = async () => {
     const redis = new IORedis(process.env.REDIS_URL);
     try {
         await redis.connect();
-    } catch (err) { }
+    } catch (err) {
+        // pass
+    }
     return redis;
 };
 
-
-const getGameState = async (redis: Redis, gameId: string, playerId: string): Promise<Partial<GameState>> => {
+const getGameState = async (redis: Redis, gameId: string, currPlayerId: string): Promise<Partial<GameState>> => {
     const [currentRound, currentTrick, players, gameStarted] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
@@ -55,7 +56,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
         getGameStarted(redis, gameId),
     ]);
     const rounds: number[] = [];
-    for (let roundNumber = 0; roundNumber < currentRound + 1; roundNumber++) {
+    for (let roundNumber = 0; roundNumber < currentRound + 1; roundNumber += 1) {
         rounds.push(roundNumber);
     }
 
@@ -69,12 +70,12 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
         trumpSuit,
         readyPlayers,
     ] = await Promise.all([
-        Promise.all(rounds.map(async roundNumber => getPlayerBets(redis, gameId, roundNumber))),
-        Promise.all(rounds.map(async roundNumber => getTrickWinners(redis, gameId, roundNumber))),
+        Promise.all(rounds.map(async (roundNumber) => getPlayerBets(redis, gameId, roundNumber))),
+        Promise.all(rounds.map(async (roundNumber) => getTrickWinners(redis, gameId, roundNumber))),
         getTrickCardsByPlayer(redis, gameId, currentRound, currentTrick),
         getTrickLeader(redis, gameId, currentRound, currentTrick),
         whosTurnIsIt(redis, gameId),
-        getPlayerCards(redis, gameId, playerId, currentRound),
+        getPlayerCards(redis, gameId, currPlayerId, currentRound),
         getTrumpSuit(redis, gameId, currentRound),
         getPlayersReady(redis, gameId, currentRound, currentTrick),
     ]);
@@ -87,7 +88,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
                 bet: bets[playerIndex] >= 0
                     ? bets[playerIndex]
                     : null,
-                taken: 0
+                taken: 0,
             };
         });
 
@@ -101,14 +102,14 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
     const ready: GameState['ready'] = {};
     players.forEach((playerId) => {
         ready[playerId] = readyPlayers.includes(playerId);
-    })
+    });
 
     let stage = GAME_STAGE.SETTING_UP;
 
     if (gameStarted) {
         if (Object.keys(trickCards).length === players.length) {
             stage = GAME_STAGE.BETWEEN_TRICKS;
-        } else if (Object.values(scores[currentRound]).every(b => b.bet !== null)) {
+        } else if (Object.values(scores[currentRound]).every((b) => b.bet !== null)) {
             stage = GAME_STAGE.PLAYING;
         } else {
             stage = GAME_STAGE.BETTING;
@@ -118,7 +119,7 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
     return {
         activePlayer,
         cards,
-        players: players,
+        players,
         ready,
         roundNumber: currentRound,
         scores,
@@ -127,10 +128,9 @@ const getGameState = async (redis: Redis, gameId: string, playerId: string): Pro
         trickLeader: trickLeader || null,
         trickNumber: currentTrick,
         trumpSuit: trumpSuit as SUIT,
-        trickWinner: trickWinners[currentRound]?.[currentTrick] || null
+        trickWinner: trickWinners[currentRound]?.[currentTrick] || null,
     };
 };
-
 
 /**
  * This starts the game. At this point all the players are in. It will
@@ -143,7 +143,7 @@ const startGame = async (redis: Redis, gameId: string) => {
     ]);
 
     if (gameIsStarted) {
-        throw new Error(`cannot start a game that has already begun`);
+        throw new Error('cannot start a game that has already begun');
     }
     if (players.length < MIN_PLAYERS) {
         throw new Error(`Too few players (${players.length}) in game (${gameId}). Waiting for another player to join`);
@@ -156,8 +156,8 @@ const startGame = async (redis: Redis, gameId: string) => {
     ]);
 
     // set the dealers and trick leaders for each round
-    const setDealers = []
-    for (let roundNumber = 0; roundNumber < rounds; roundNumber++) {
+    const setDealers = [];
+    for (let roundNumber = 0; roundNumber < rounds; roundNumber += 1) {
         const dealer = roundNumber % players.length;
         const trickLeader = dealer === 0
             ? players.length - 1

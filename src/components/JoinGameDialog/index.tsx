@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
     Button,
     Dialog,
@@ -8,6 +7,7 @@ import {
     TextField,
     TextFieldProps,
 } from '@material-ui/core';
+import React, { useState } from 'react';
 
 interface JoinGameDialogProps {
     open: boolean;
@@ -22,13 +22,13 @@ function JoinGameDialog(props: JoinGameDialogProps) {
     const [username, setUsername] = useState<string | null>(null);
 
     const handleChange: TextFieldProps['onChange'] = (e) => {
-        const value = e.target.value;
+        const { value } = e.target;
         setUsername(value || null);
-    }
+    };
 
     const handleBetPlaced = () => {
         onJoin(username as string);
-    }
+    };
 
     return (
         <Dialog
@@ -39,28 +39,28 @@ function JoinGameDialog(props: JoinGameDialogProps) {
             </DialogTitle>
             <DialogContent>
                 <TextField
-                    value={username || ''}
-                    label='Enter a username for your player'
-                    onChange={handleChange}
-                    id='username'
                     aria-label='username'
                     fullWidth={true}
+                    id='username'
+                    label='Enter a username for your player'
+                    onChange={handleChange}
+                    value={username || ''}
                 />
             </DialogContent>
             <DialogActions>
                 <Button
+                    color='primary'
                     disabled={!username}
                     onClick={handleBetPlaced}
-                    color='primary'
                     variant='contained'
                 >
                     Join game
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 }
 
 export {
     JoinGameDialog,
-}
+};

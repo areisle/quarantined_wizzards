@@ -1,8 +1,9 @@
 import './index.scss';
 
-import React from 'react';
-import { GameState, GAME_STAGE } from '../../types';
 import { IconButton } from '@material-ui/core';
+import React from 'react';
+
+import { GAME_STAGE, GameState } from '../../types';
 import { ScoreBoardIcon, SuitIcon } from '../icons';
 
 export interface HeaderProps {
@@ -32,13 +33,29 @@ function Header(props: HeaderProps) {
             {!isSetup && (
                 <>
                     <ul className='game-header__stats'>
-                        <li>trump: {trumpSuit && (<SuitIcon variant={trumpSuit} aria-label={trumpSuit} />)}</li>
-                        <li>round: {roundNumber + 1} / {totalRounds}</li>
-                        <li>trick: {isBetting ? 'waiting for bets...' : trickNumber + 1}</li>
+                        <li>
+                            trump:
+                            {' '}
+                            {trumpSuit && (<SuitIcon aria-label={trumpSuit} variant={trumpSuit} />)}
+                        </li>
+                        <li>
+                            round:
+                            {' '}
+                            {roundNumber + 1}
+                            {' '}
+                            /
+                            {' '}
+                            {totalRounds}
+                        </li>
+                        <li>
+                            trick:
+                            {' '}
+                            {isBetting ? 'waiting for bets...' : trickNumber + 1}
+                        </li>
                     </ul>
                     <IconButton
-                        size='small'
                         onClick={onScoreBoardOpen}
+                        size='small'
                     >
                         <ScoreBoardIcon
                             fontSize='large'
@@ -47,9 +64,9 @@ function Header(props: HeaderProps) {
                 </>
             )}
         </header>
-    )
+    );
 }
 
 export {
     Header,
-}
+};
