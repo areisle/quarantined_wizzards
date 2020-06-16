@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React from 'react';
 import { useEffect, useRef } from "react";
 import { GameState, PlayerId, ScoreWithTotal } from "./types";
 
@@ -13,7 +15,7 @@ function usePrevious<T = unknown>(value: T) {
 }
 
 function getRoundScore(
-    scores: GameState['scores'], 
+    scores: GameState['scores'],
     playerId: PlayerId,
     roundNumber: number,
 ): ScoreWithTotal {
@@ -37,7 +39,7 @@ function getRoundScore(
 }
 
 function getScore(
-    scores: GameState['scores'], 
+    scores: GameState['scores'],
     playerId: PlayerId,
     roundNumber: number,
 ) {
@@ -76,7 +78,7 @@ function getGameWinners(players: PlayerId[], scores: GameState['scores']) {
 /**
  * copy to clipboard that works on ios
  * https://stackoverflow.com/questions/40147676/javascript-copy-to-clipboard-on-safari
- * @param text 
+ * @param text
  */
 function copyToClipboard(text: string) {
     const isOS = navigator.userAgent.match(/ipad|iphone/i);

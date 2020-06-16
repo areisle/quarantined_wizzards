@@ -1,14 +1,14 @@
 import './index.scss';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Dialog, 
+import {
+    Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 import { getGameWinners } from '../../utilities';
 
 interface GameCompleteDialogProps {
@@ -18,7 +18,7 @@ interface GameCompleteDialogProps {
 }
 
 function GameCompleteDialog(props: GameCompleteDialogProps) {
-    const { 
+    const {
         players,
         scores,
         stage,
@@ -35,7 +35,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
     }, [stage]);
 
     return (
-        <Dialog 
+        <Dialog
             open={gameComplete && !dismissed}
             onClick={() => setDismissed(true)}
         >
@@ -47,7 +47,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
                             player={winners.first + 1}
                         >
                             <TrophyIcon variant='gold' />
-                            
+
                         </PlayerAvatar>
                         <div className='podium__block'>
                             {players[winners.first]}
@@ -58,7 +58,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
                             player={winners.second + 1}
                         >
                             <TrophyIcon variant='silver' />
-                            
+
                         </PlayerAvatar>
                         <div className='podium__block'>
                             {players[winners.second]}
@@ -69,7 +69,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
                             player={winners.third + 1}
                         >
                             <TrophyIcon variant='bronze' />
-                            
+
                         </PlayerAvatar>
                         <div className='podium__block'>
                             {players[winners.third]}

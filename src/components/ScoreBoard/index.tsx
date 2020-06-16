@@ -2,11 +2,11 @@ import './index.scss';
 import '../Avatar/index.scss';
 
 import React, { useState, useEffect } from 'react';
-import { 
-    Table, 
-    TableCell, 
-    TableHead, 
-    TableRow, 
+import {
+    Table,
+    TableCell,
+    TableHead,
+    TableRow,
     TableBody,
     NativeSelect,
 } from '@material-ui/core';
@@ -14,7 +14,11 @@ import {
 import { GAME_STAGE, GameState } from '../../types';
 import { getRoundScore, getScore } from '../../utilities';
 
-type ScoreBoardProps = {
+export type ScoreBoardProps = {
+    /**
+     * view of scoreboard
+     * @default overall
+     */
     variant?: 'round' | 'bet' | 'overall';
 } & Pick<GameState, 'scores' | 'players' | 'trickNumber' | 'roundNumber' | 'stage'>;
 
@@ -27,7 +31,7 @@ function ScoreBoard(props: ScoreBoardProps) {
         trickNumber,
         stage,
     } = props;
-    
+
     const [selectedRound, setSelectedRound] = useState(roundNumber);
 
     const handleSwapSelectedRound = (e: any) => {
@@ -70,8 +74,8 @@ function ScoreBoard(props: ScoreBoardProps) {
                     {showOverall && (
                         <TableCell align='right'>
                             {getScore(
-                                scores, 
-                                playerId, 
+                                scores,
+                                playerId,
                                 roundDone ? roundNumber : roundNumber - 1,
                             )}
                         </TableCell>
@@ -83,7 +87,7 @@ function ScoreBoard(props: ScoreBoardProps) {
     });
 
     return (
-        <Table 
+        <Table
             className='score-board'
             onClick={(e) => e.stopPropagation()}
             stickyHeader={true}
@@ -99,7 +103,7 @@ function ScoreBoard(props: ScoreBoardProps) {
                                 fullWidth={true}
                             >
                                 {Array(roundNumber + 1).fill(null).map((_, index) => (
-                                    <option 
+                                    <option
                                         key={index}
                                         value={index}
                                     >

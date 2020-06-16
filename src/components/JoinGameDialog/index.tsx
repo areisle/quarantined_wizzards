@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-    Button, 
-    Dialog, 
-    DialogActions, 
-    DialogContent, 
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
     DialogTitle,
-    TextField, 
+    TextField,
     TextFieldProps,
 } from '@material-ui/core';
 
@@ -15,8 +15,8 @@ interface JoinGameDialogProps {
 }
 
 function JoinGameDialog(props: JoinGameDialogProps) {
-    const { 
-        open, 
+    const {
+        open,
         onJoin,
     } = props;
     const [username, setUsername] = useState<string | null>(null);
@@ -31,7 +31,7 @@ function JoinGameDialog(props: JoinGameDialogProps) {
     }
 
     return (
-        <Dialog 
+        <Dialog
             open={open}
         >
             <DialogTitle>

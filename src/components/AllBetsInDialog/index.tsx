@@ -18,7 +18,7 @@ function AllBetsInDialog(props: AllBetsInDialogProps) {
         roundNumber,
         trickNumber,
     } = props;
-    
+
     const prevStage = usePrevious(stage);
     const [open, setOpen] = useState(false);
 

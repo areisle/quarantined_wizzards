@@ -8,7 +8,7 @@ import { Done } from '@material-ui/icons';
 import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
 import { GAME_STAGE, Card } from '../../types';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -36,7 +36,7 @@ interface GameBoardProps {
 
 function GameBoard(props: GameBoardProps) {
     const { onOpenBettingDialog } = props;
-    const { 
+    const {
         activePlayer,
         playerId,
         players,
@@ -48,7 +48,7 @@ function GameBoard(props: GameBoardProps) {
         ready,
         trickWinner,
     } = useContext(GameContext);
-    
+
     const isSetup = stage === GAME_STAGE.SETTING_UP;
     const isPlaying = stage === GAME_STAGE.PLAYING;
     const isBetting = stage === GAME_STAGE.BETTING;
@@ -60,7 +60,7 @@ function GameBoard(props: GameBoardProps) {
         let content: ReactNode = null;
         const isActive = activePlayer === username;
         const isCurrent = playerId === username;
-        
+
         if (isSetup) {
             content = (
                 <Typography>{username}</Typography>
@@ -93,8 +93,8 @@ function GameBoard(props: GameBoardProps) {
             content = (
                 <>
                     {isCurrent ? 'you\'ve placed your bet' : `${username} has placed their bet`}
-                    <Done 
-                        fontSize='large' 
+                    <Done
+                        fontSize='large'
                         style={{
                             fontSize: '3rem',
                             fill: 'limegreen',
@@ -111,7 +111,7 @@ function GameBoard(props: GameBoardProps) {
                 />
             )
         } else if (isPlaying && isActive && isCurrent) {
-            
+
             content = (
                 <Typography>it's your turn to play a card...</Typography>
             );
@@ -134,8 +134,8 @@ function GameBoard(props: GameBoardProps) {
             content = (
                 <>
                     {isCurrent ? 'you\'re ready' : `${username} is ready`}
-                    <Done 
-                        fontSize='large' 
+                    <Done
+                        fontSize='large'
                         style={{
                             fontSize: '3rem',
                             fill: 'limegreen',
@@ -162,7 +162,7 @@ function GameBoard(props: GameBoardProps) {
     });
 
     return (
-        <div 
+        <div
             className={`
                 game-board
                 game-board--${isSetup ? MAX_NUMBER_OF_PLAYERS : players.length}-players

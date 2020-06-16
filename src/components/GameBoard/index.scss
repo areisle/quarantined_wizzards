@@ -23,7 +23,7 @@
     row-gap: var(--grid-row-gap);
 
     &--5-players, &--6-players {
-        grid-template-areas: 
+        grid-template-areas:
             'avatar-1 avatar-2'
             'avatar-6 avatar-3'
             'avatar-5 avatar-4';
@@ -32,7 +32,7 @@
 
     @media (min-aspect-ratio: #{$landscape-min-aspect-ratio}) {
         &--5-players, &--6-players {
-            grid-template-areas: 
+            grid-template-areas:
                 'avatar-1 avatar-2 avatar-3'
                 'avatar-6 avatar-5 avatar-4';
             grid-template-columns: repeat(3, var(--avatar-size));
@@ -41,7 +41,7 @@
     }
 
     &--3-players, &--4-players {
-        grid-template-areas: 
+        grid-template-areas:
             'avatar-1 avatar-2'
             'avatar-4 avatar-3';
         grid-template-rows: repeat(2, var(--avatar-size));

@@ -1,14 +1,14 @@
 import './index.scss';
 
 import React, { useState, useEffect } from 'react';
-import { 
-    Dialog, 
-    DialogContent, 
+import {
+    Dialog,
+    DialogContent,
     DialogTitle,
 } from '@material-ui/core';
 import { SUIT, GAME_STAGE } from '../../types';
 import { usePrevious } from '../../utilities';
-import { SuitIcon } from '../../icons';
+import { SuitIcon } from '../icons';
 import { PlayingCard } from '../PlayingCard';
 
 interface TrumpChosenDialogProps {
@@ -21,7 +21,7 @@ function TrumpChosenDialog(props: TrumpChosenDialogProps) {
         trumpSuit,
         stage,
     } = props;
-    
+
     const prevTrump = usePrevious(trumpSuit);
     const [open, setOpen] = useState(false);
 
@@ -30,9 +30,9 @@ function TrumpChosenDialog(props: TrumpChosenDialogProps) {
             setOpen(true);
         }
     }, [open, prevTrump, stage, trumpSuit]);
-    
+
     return (
-        <Dialog 
+        <Dialog
             open={open}
             onClose={() => setOpen(false)}
             className='trump-chosen-dialog'

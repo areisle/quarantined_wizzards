@@ -50,7 +50,7 @@ function GameContextProvider(props: { children: ReactNode }) {
     const [snackbar, setSnackbar] = useState<SnackbarState>({
         open: false,
     });
-    
+
     const {
         gameCode,
         playerId,
@@ -64,7 +64,7 @@ function GameContextProvider(props: { children: ReactNode }) {
         const storedId = getPlayerId(gameCode);
 
         if (!storedId) { return; }
-        
+
         socket?.emit(USER_EVENTS.REJOIN_GAME, gameCode, storedId, (gameState: RejoinGameParams) => {
             dispatch({
                 type: USER_EVENTS.REJOIN_GAME,
@@ -241,8 +241,8 @@ function GameContextProvider(props: { children: ReactNode }) {
     return (
         <GameContext.Provider value={value}>
             {children}
-            <Snackbar 
-                open={snackbar.open} 
+            <Snackbar
+                open={snackbar.open}
                 onClose={() => setSnackbar({ open: false })}
             >
                 <SnackbarContent

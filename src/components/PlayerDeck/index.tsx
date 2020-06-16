@@ -13,11 +13,11 @@ interface PlayerDeckProps {
 
 function PlayerDeck(props: PlayerDeckProps) {
     const { onPlaceCard } = props;
-    const { 
-        cards, 
+    const {
+        cards,
         stage,
         playerId,
-        activePlayer, 
+        activePlayer,
     } = useContext(GameContext);
 
     const [open, setOpen] = useState(false);
@@ -49,7 +49,7 @@ function PlayerDeck(props: PlayerDeckProps) {
     }, [onPlaceCard]);
 
     useEffect(() => {
-        if (open) {       
+        if (open) {
             setAnimate(true);
         }
     }, [open]);
@@ -59,10 +59,10 @@ function PlayerDeck(props: PlayerDeckProps) {
     }
 
     const playingCards = cards.map((card, index) => (
-        <PlayingCard 
-            key={index} 
-            {...card} 
-            selected={index === selectedIndex && open} 
+        <PlayingCard
+            key={index}
+            {...card}
+            selected={index === selectedIndex && open}
             onClick={(e) => {
                 setIndex(index);
                 if (open) {
@@ -74,7 +74,7 @@ function PlayerDeck(props: PlayerDeckProps) {
 
     const swipeableCards = cards.map((card, index) => {
         return (
-            <div 
+            <div
                 key={index}
                 className='card-preview__wrapper'
             >
@@ -98,13 +98,13 @@ function PlayerDeck(props: PlayerDeckProps) {
     });
 
     return (
-        <div 
+        <div
             id='playing-cards-deck'
             className={`playing-cards-deck playing-cards-deck--${open ? 'open' : 'closed'}`}
             onClick={handleClose}
         >
                 <div className='playing-cards-deck__card-preview'>
-                    <SwipeableViews 
+                    <SwipeableViews
                         index={selectedIndex}
                         onChangeIndex={handleChangeIndex}
                         animateTransitions={animate}

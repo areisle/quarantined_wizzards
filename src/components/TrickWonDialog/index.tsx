@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Dialog, 
+import {
+    Dialog,
     DialogContent,
     Typography,
     DialogTitle,
@@ -9,7 +9,7 @@ import isNil from 'lodash.isnil';
 import { PlayerAvatar } from '../Avatar';
 import { PlayerId, GameState, GAME_STAGE } from '../../types';
 import { ScoreBoard } from '../ScoreBoard';
-import { TrophyIcon } from '../../icons';
+import { TrophyIcon } from '../icons';
 
 interface TrickWonDialogProps {
     winner: PlayerId | null;
@@ -21,7 +21,7 @@ interface TrickWonDialogProps {
 }
 
 function TrickWonDialog(props: TrickWonDialogProps) {
-    const { 
+    const {
         winner,
         playerNumber,
         round,
@@ -39,7 +39,7 @@ function TrickWonDialog(props: TrickWonDialogProps) {
     }, [round, trick]);
 
     return (
-        <Dialog 
+        <Dialog
             open={Boolean(winner) && !dismissed}
             onClick={() => setDismissed(true)}
         >

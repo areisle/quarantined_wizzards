@@ -41,7 +41,7 @@ $needs-extra-vertical-space: "(max-aspect-ratio: #{$landscape-min-aspect-ratio})
 
         @for $number from 1 through $players__max-count {
             .main--player-#{$number} & .playing-card {
-                box-shadow: 
+                box-shadow:
                     -2px -2px 10px 0px rgba(0, 0, 0, 0.5),
                     -2px -2px 10px 0px #{nth($players__colours, $number)};
             }
@@ -81,7 +81,7 @@ $needs-extra-vertical-space: "(max-aspect-ratio: #{$landscape-min-aspect-ratio})
 
     &--closed &__list {
         pointer-events: all;
-        
+
         @media #{$needs-extra-vertical-space} {
             transform: translateY(calc(100% - #{$card-deck__height--closed}));
         }

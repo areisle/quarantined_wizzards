@@ -2,10 +2,10 @@ import './index.scss';
 
 import React from 'react';
 import { Button, Typography } from '@material-ui/core';
-import { CopyIcon } from '../../icons';
+import { CopyIcon } from '../icons';
 import { copyToClipboard } from '../../utilities';
 
-interface FooterProps {
+export interface FooterProps {
     onAllPlayersIn: () => void;
     showAllInButton: boolean;
     disabled: boolean;
@@ -27,7 +27,7 @@ function Footer(props: FooterProps) {
     const handleAddToClipboard = () => {
         if (!gameCode) { return; }
         copyToClipboard(window.location.href);
-    }
+    };
 
     return (
         <footer className='game-footer'>
