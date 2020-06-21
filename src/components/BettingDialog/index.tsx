@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
     Button,
     Dialog,
@@ -8,6 +7,7 @@ import {
     TextField,
     TextFieldProps,
 } from '@material-ui/core';
+import React, { useState } from 'react';
 
 interface BettingDialogProps {
     open: boolean;
@@ -26,7 +26,7 @@ function BettingDialog(props: BettingDialogProps) {
     const [bet, setBet] = useState<number | null>(null);
 
     const handleChange: TextFieldProps['onChange'] = (e) => {
-        const value = e.target.value;
+        const { value } = e.target;
         setBet(value ? Number(value) : null);
     };
 
@@ -43,43 +43,43 @@ function BettingDialog(props: BettingDialogProps) {
 
     return (
         <Dialog
-            open={open}
             onClose={onClose}
+            open={open}
         >
             <DialogTitle>
                 Enter the number of tricks you think you can win
             </DialogTitle>
             <DialogContent>
                 <TextField
-                    value={bet ?? ''}
-                    onChange={handleChange}
-                    type='number'
-                    id='bet'
                     aria-label='bet'
+                    autoFocus={true}
+                    fullWidth={true}
+                    id='bet'
                     inputProps={{
                         step: 1,
                         max,
                         min: 0,
                     }}
+                    onChange={handleChange}
                     onKeyPress={handleOnKeyPress}
-                    fullWidth={true}
-                    autoFocus={true}
+                    type='number'
+                    value={bet ?? ''}
                 />
             </DialogContent>
             <DialogActions>
                 <Button
-                    disabled={bet === null || bet > max || bet < 0 }
-                    onClick={handleBetPlaced}
                     color='primary'
+                    disabled={bet === null || bet > max || bet < 0}
+                    onClick={handleBetPlaced}
                     variant='contained'
                 >
                     Place bet
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 }
 
 export {
     BettingDialog,
-}
+};

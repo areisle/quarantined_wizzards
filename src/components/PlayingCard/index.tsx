@@ -1,6 +1,7 @@
 import './index.scss';
 
 import React, { HTMLProps } from 'react';
+
 import { Card, SUIT } from '../../types';
 import { SuitIcon } from '../icons';
 
@@ -41,7 +42,7 @@ function Marker(props: Card) {
             />
             {displayNumber}
         </div>
-    )
+    );
 }
 
 function PlayingCard(props: PlayingCardProps) {
@@ -59,16 +60,16 @@ function PlayingCard(props: PlayingCardProps) {
             {...rest}
             className={`playing-card playing-card--${size} ${selected ? 'playing-card--selected' : ''}`}
         >
-            <Marker suit={suit} number={number} />
+            <Marker number={number} suit={suit} />
             <div className='playing-card__content'>
                 {children}
             </div>
-            <Marker suit={suit} number={number} />
+            <Marker number={number} suit={suit} />
         </div>
-    )
+    );
 }
 
 export {
     PlayingCard,
     Marker,
-}
+};

@@ -1,7 +1,7 @@
 import './index.scss';
 
 import { Star } from '@material-ui/icons';
-import React, { ReactNode, HTMLProps } from 'react';
+import React, { HTMLProps, ReactNode } from 'react';
 
 export interface PlayerAvatarProps {
     /** the number of the player */
@@ -44,7 +44,7 @@ function PlayerAvatar(props: PlayerAvatarProps) {
             className={`
                 avatar
                 avatar--square
-                ${player ? `avatar--player-${player}`: ''}
+                ${player ? `avatar--player-${player}` : ''}
                 ${active ? 'avatar--active' : ''}
                 ${leader ? 'avatar--leader' : ''}
                 ${empty ? 'avatar--empty' : ''}
@@ -59,9 +59,9 @@ function PlayerAvatar(props: PlayerAvatarProps) {
                 />
             )}
         </div>
-    )
+    );
 }
 
 export {
     PlayerAvatar,
-}
+};

@@ -1,10 +1,11 @@
 import React from 'react';
+
 import { TrophyIcon, TrophyIconProps } from '..';
 
 export default {
     component: TrophyIcon,
-    title: 'icons/TrophyIcon'
-}
+    title: 'icons/TrophyIcon',
+};
 
 export const Gold = (props: TrophyIconProps) => (
     <TrophyIcon {...props} />

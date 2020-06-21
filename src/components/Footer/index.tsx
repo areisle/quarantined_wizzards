@@ -1,9 +1,10 @@
 import './index.scss';
 
-import React from 'react';
 import { Button, Typography } from '@material-ui/core';
-import { CopyIcon } from '../icons';
+import React from 'react';
+
 import { copyToClipboard } from '../../utilities';
+import { CopyIcon } from '../icons';
 
 export interface FooterProps {
     onAllPlayersIn: () => void;
@@ -35,8 +36,8 @@ function Footer(props: FooterProps) {
                 <>
                     <Button
                         color='primary'
-                        onClick={onAllPlayersIn}
                         disabled={disabled}
+                        onClick={onAllPlayersIn}
                         variant='contained'
                     >
                         All players in
@@ -48,10 +49,15 @@ function Footer(props: FooterProps) {
                     </Typography>
                     <Button
                         endIcon={<CopyIcon />}
-                        variant='outlined'
                         onClick={handleAddToClipboard}
+                        variant='outlined'
                     >
-                        game code: <span style={{ textTransform: 'none' }}> {gameCode}</span>
+                        game code:
+                        {' '}
+                        <span style={{ textTransform: 'none' }}>
+                            {' '}
+                            {gameCode}
+                        </span>
                     </Button>
                 </>
             )}
@@ -59,8 +65,8 @@ function Footer(props: FooterProps) {
                 <>
                     <Button
                         color='primary'
-                        onClick={onReady}
                         disabled={disabled}
+                        onClick={onReady}
                         variant='contained'
                     >
                         Ready for next trick/round
@@ -68,9 +74,9 @@ function Footer(props: FooterProps) {
                 </>
             )}
         </footer>
-    )
+    );
 }
 
 export {
     Footer,
-}
+};

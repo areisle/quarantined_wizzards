@@ -1,15 +1,16 @@
 import './index.scss';
 
-import React from 'react';
 import {
     Button,
     Dialog,
     DialogActions,
-    DialogTitle,
     DialogContent,
+    DialogTitle,
 } from '@material-ui/core';
-import { Marker } from '../PlayingCard';
+import React from 'react';
+
 import { SUIT } from '../../types';
+import { Marker } from '../PlayingCard';
 
 interface ChooseTrumpDialogProps {
     open: boolean;
@@ -37,17 +38,17 @@ function ChooseTrumpDialog(props: ChooseTrumpDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button
-                    onClick={onStart}
                     color='primary'
+                    onClick={onStart}
                     variant='contained'
                 >
                     Select Suit
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 }
 
 export {
     ChooseTrumpDialog,
-}
+};

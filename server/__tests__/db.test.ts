@@ -1,12 +1,7 @@
-import ioClient from 'socket.io-client';
-import getPort from 'get-port';
-import { SERVER_EVENTS, USER_EVENTS, SUIT } from '../../src/types';
-
-import { server as createServer } from '../';
+import { SUIT } from '../../src/types';
 import * as db from '../db';
 
 const shortid = require('shortid');
-
 
 let redis;
 let gameId;
@@ -27,7 +22,6 @@ beforeEach(() => {
 afterEach(async () => {
     await db.deleteGame(redis, gameId);
 });
-
 
 describe('setPlayerCards sorts cards on set', () => {
     test('ace before king of same suit', async () => {

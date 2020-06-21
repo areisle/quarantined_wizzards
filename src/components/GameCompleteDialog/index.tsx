@@ -1,15 +1,16 @@
 import './index.scss';
 
-import React, { useState, useEffect, useMemo } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@material-ui/core';
-import { PlayerAvatar } from '../Avatar';
-import { PlayerId, GameState, GAME_STAGE } from '../../types';
-import { TrophyIcon } from '../icons';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { GAME_STAGE, GameState, PlayerId } from '../../types';
 import { getGameWinners } from '../../utilities';
+import { PlayerAvatar } from '../Avatar';
+import { TrophyIcon } from '../icons';
 
 interface GameCompleteDialogProps {
     players: PlayerId[];
@@ -26,7 +27,7 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
 
     const [dismissed, setDismissed] = useState(false);
 
-    const winners = useMemo(() => getGameWinners(players, scores), [players, scores])
+    const winners = useMemo(() => getGameWinners(players, scores), [players, scores]);
 
     const gameComplete = stage === GAME_STAGE.COMPLETE;
 
@@ -36,8 +37,8 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
 
     return (
         <Dialog
-            open={gameComplete && !dismissed}
             onClick={() => setDismissed(true)}
+            open={gameComplete && !dismissed}
         >
             <DialogTitle>Game is complete!</DialogTitle>
             <DialogContent>
@@ -78,9 +79,9 @@ function GameCompleteDialog(props: GameCompleteDialogProps) {
                 </div>
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export {
     GameCompleteDialog,
-}
+};

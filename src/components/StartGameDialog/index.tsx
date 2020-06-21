@@ -1,15 +1,15 @@
 import './index.scss';
 
-import React, { useState, useCallback } from 'react';
 import {
     Button,
     Dialog,
     DialogActions,
+    DialogContent,
     DialogTitle,
     TextField,
     TextFieldProps,
-    DialogContent,
 } from '@material-ui/core';
+import React, { useCallback, useState } from 'react';
 
 interface StartGameDialogProps {
     open: boolean;
@@ -27,11 +27,13 @@ function StartGameDialog(props: StartGameDialogProps) {
     const handleGameIdChange: TextFieldProps['onChange'] = (event) => {
         let gameCode = event?.target?.value;
         try {
-            const url = new URL(gameCode)
+            const url = new URL(gameCode);
             if (url.searchParams.get('game')) {
                 gameCode = url.searchParams.get('game') as string;
             }
-        } catch (err) { }
+        } catch (err) {
+            // pass
+        }
         setGameId(gameCode);
     };
 
@@ -43,20 +45,22 @@ function StartGameDialog(props: StartGameDialogProps) {
 
     return (
         <Dialog
+            className='start-join-game'
             open={open}
-            className="start-join-game"
         >
             <DialogTitle>
                 Welcome to Quarantined Wizzards!
             </DialogTitle>
             <DialogContent>
-                {isJoining && (<TextField
-                    onChange={handleGameIdChange}
-                    label="Enter a URL or game ID"
-                    fullWidth
-                />)}
+                {isJoining && (
+                    <TextField
+                        fullWidth={true}
+                        label='Enter a URL or game ID'
+                        onChange={handleGameIdChange}
+                    />
+                )}
             </DialogContent>
-            <DialogActions className="start-join-game__actions">
+            <DialogActions className='start-join-game__actions'>
                 {!isJoining && (
                     <Button onClick={() => setIsJoining(true)}>join existing game</Button>
                 )}
@@ -64,20 +68,19 @@ function StartGameDialog(props: StartGameDialogProps) {
                     <Button onClick={() => setIsJoining(false)}>back</Button>
                 )}
                 <Button
-                    onClick={handleJoinGame}
                     color='primary'
+                    onClick={handleJoinGame}
                     variant='contained'
                 >
                     {isJoining
-                        ? "join game"
-                        : "start a new game"
-                    }
+                        ? 'join game'
+                        : 'start a new game'}
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 }
 
 export {
     StartGameDialog,
-}
+};

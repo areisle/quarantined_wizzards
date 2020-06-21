@@ -1,12 +1,11 @@
-import ioClient from 'socket.io-client';
 import getPort from 'get-port';
-import { SERVER_EVENTS, USER_EVENTS, SUIT } from '../../src/types';
+import ioClient from 'socket.io-client';
 
-import { server as createServer } from '../';
+import { server as createServer } from '..';
+import { SERVER_EVENTS, SUIT, USER_EVENTS } from '../../src/types';
 import * as db from '../db';
 
 Error.stackTraceLimit = Infinity;
-
 
 const SUITS = [SUIT.WIZARD, SUIT.JESTER, SUIT.HEARTS, SUIT.SPADES, SUIT.DIAMONDS, SUIT.CLUBS];
 const playerIds = ['blargh', 'monkeys', 'fishmonger'];
@@ -16,21 +15,15 @@ let clientSocket;
 let server;
 let redis;
 
-const promisifyEventEmitter = (eventName, ...args) => {
-    return new Promise((resolve) => {
-        clientSocket.emit(eventName, ...args, resolve);
+const promisifyEventEmitter = (eventName, ...args) => new Promise((resolve) => {
+    clientSocket.emit(eventName, ...args, resolve);
+});
+
+const promisifyEventListener = (event) => new Promise((resolve) => {
+    clientSocket.on(event, (resp) => {
+        resolve(resp);
     });
-};
-
-
-const promisifyEventListener = (event) => {
-    return new Promise((resolve) => {
-        clientSocket.on(event, (resp) => {
-            resolve(resp);
-        });
-    });
-};
-
+});
 
 beforeAll(async () => {
     port = await getPort();
@@ -68,7 +61,6 @@ describe('game events', () => {
     });
 
     describe(USER_EVENTS.JOIN_GAME, () => {
-
         test('callback', async () => {
             const playerId = await promisifyEventEmitter(USER_EVENTS.JOIN_GAME, gameId, 'blargh');
             expect(playerId).toBe('blargh');
@@ -83,7 +75,6 @@ describe('game events', () => {
     });
 
     describe('rejoin-game', () => {
-
         beforeEach(async () => {
             await promisifyEventEmitter(USER_EVENTS.JOIN_GAME, gameId, 'blargh');
         });
@@ -113,15 +104,14 @@ describe('game events', () => {
     });
 
     describe('get-users', () => {
-
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, name
+            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map((name) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, name,
             )));
         });
 
         test('callback', async () => {
-            const players = await promisifyEventEmitter(USER_EVENTS.GET_PLAYERS, gameId)
+            const players = await promisifyEventEmitter(USER_EVENTS.GET_PLAYERS, gameId);
             expect(players).toHaveProperty('length', 3);
             expect(players).toEqual(playerIds);
         });
@@ -129,8 +119,8 @@ describe('game events', () => {
 
     describe(USER_EVENTS.START_GAME, () => {
         beforeEach(async () => {
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, playerId
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, playerId,
             )));
         });
 
@@ -159,7 +149,6 @@ describe('game events', () => {
             expect(cards).toHaveProperty('length', 1);
             expect(roundNumber).toEqual(0);
             expect(SUITS).toContain(trump);
-
         });
 
         test('error on join after game start', async () => {
@@ -168,7 +157,7 @@ describe('game events', () => {
             await startListener;
             const listener = promisifyEventListener(SERVER_EVENTS.ERROR);
             clientSocket.emit(USER_EVENTS.JOIN_GAME, gameId, 'skjhgjshgs');
-            const resp: any = await listener;
+            await listener;
         });
 
         test('error on start game after game started', async () => {
@@ -177,14 +166,14 @@ describe('game events', () => {
             await startListener;
             const listener = promisifyEventListener(SERVER_EVENTS.ERROR);
             clientSocket.emit(USER_EVENTS.START_GAME, gameId);
-            const resp: any = await listener;
+            await listener;
         });
     });
 
     describe('trick-started', () => {
         beforeEach(async () => {
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, playerId
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, playerId,
             )));
             await promisifyEventEmitter(USER_EVENTS.START_GAME, gameId);
 
@@ -193,22 +182,20 @@ describe('game events', () => {
         });
 
         test('gets trick-started when last bet is placed', async () => {
-            clientSocket.on()
+            clientSocket.on();
             await promisifyEventEmitter(USER_EVENTS.PLACE_BET, gameId, playerIds[2], 1);
-
-        })
-    })
+        });
+    });
 
     describe(USER_EVENTS.PLAY_CARD, () => {
-
         beforeEach(async () => {
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, playerId
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, playerId,
             )));
             await promisifyEventEmitter(USER_EVENTS.START_GAME, gameId);
 
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.PLACE_BET, gameId, playerId, 1
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.PLACE_BET, gameId, playerId, 1,
             )));
         });
 
@@ -230,7 +217,7 @@ describe('game events', () => {
 
         test('card-played', (done) => {
             clientSocket.on(SERVER_EVENTS.CARD_PLAYED, (resp) => {
-                expect(resp).toEqual({ card: { suit: SUIT.CLUBS, number: 1 }, playerId: playerIds[playerIds.length - 1] })
+                expect(resp).toEqual({ card: { suit: SUIT.CLUBS, number: 1 }, playerId: playerIds[playerIds.length - 1] });
                 done();
             });
             clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[playerIds.length - 1], { suit: SUIT.CLUBS, number: 1 });
@@ -238,7 +225,7 @@ describe('game events', () => {
 
         test('card-played (error)', (done) => {
             clientSocket.on(SERVER_EVENTS.ERROR, (msg) => {
-                expect(msg).toContain('Invalid play: It is not this users (blargh) turn. Waiting for another player (fishmonger) to complete their turn')
+                expect(msg).toContain('Invalid play: It is not this users (blargh) turn. Waiting for another player (fishmonger) to complete their turn');
                 done();
             });
             clientSocket.emit(USER_EVENTS.PLAY_CARD, gameId, playerIds[0], { suit: SUIT.CLUBS, number: 1 });
@@ -250,13 +237,13 @@ describe('game events', () => {
                     USER_EVENTS.PLAY_CARD,
                     gameId,
                     playerIds[2],
-                    { suit: SUIT.CLUBS, number: 5 }
+                    { suit: SUIT.CLUBS, number: 5 },
                 );
                 await promisifyEventEmitter(
                     USER_EVENTS.PLAY_CARD,
                     gameId,
                     playerIds[0],
-                    { suit: SUIT.CLUBS, number: 6 }
+                    { suit: SUIT.CLUBS, number: 6 },
                 );
             });
 
@@ -303,10 +290,9 @@ describe('game events', () => {
     });
 
     describe(USER_EVENTS.PLACE_BET, () => {
-
         beforeEach(async () => {
-            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map(name => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, name
+            await Promise.all(['blargh', 'monkeys', 'fishmonger'].map((name) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, name,
             )));
             await promisifyEventEmitter(USER_EVENTS.START_GAME, gameId);
         });
@@ -336,13 +322,13 @@ describe('game events', () => {
 
     describe('players-ready', () => {
         beforeEach(async () => {
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.JOIN_GAME, gameId, playerId
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.JOIN_GAME, gameId, playerId,
             )));
             await promisifyEventEmitter(USER_EVENTS.START_GAME, gameId);
 
-            await Promise.all(playerIds.map(playerId => promisifyEventEmitter(
-                USER_EVENTS.PLACE_BET, gameId, playerId, 1
+            await Promise.all(playerIds.map((playerId) => promisifyEventEmitter(
+                USER_EVENTS.PLACE_BET, gameId, playerId, 1,
             )));
 
             for (const playerIndex of [2, 0, 1]) {
@@ -364,7 +350,7 @@ describe('game events', () => {
 
         test(SERVER_EVENTS.ROUND_STARTED, async () => {
             const listener = promisifyEventListener(SERVER_EVENTS.ROUND_STARTED);
-            await Promise.all(playerIds.map(async playerId => promisifyEventEmitter(USER_EVENTS.READY_FOR_NEXT_TRICK, gameId, playerId)));
+            await Promise.all(playerIds.map(async (playerId) => promisifyEventEmitter(USER_EVENTS.READY_FOR_NEXT_TRICK, gameId, playerId)));
             const resp: any = await listener;
             expect(resp).toHaveProperty('cards');
         });

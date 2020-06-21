@@ -1,7 +1,8 @@
 import React from 'react';
-import { PlayingCard, PlayingCardProps } from '.';
+
 import { SUIT } from '../../types';
 import { TrophyIcon } from '../icons';
+import { PlayingCard, PlayingCardProps } from '.';
 
 export default {
     component: PlayingCard,
@@ -9,88 +10,88 @@ export default {
     args: {
         suit: SUIT.DIAMONDS,
         number: 7,
-    }
-}
+    },
+};
 
 export const Example = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-   />
+    />
 );
 
 export const Selected = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
         selected={true}
-   />
+    />
 );
 
 export const Large = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        size={'large'}
-   />
+        size='large'
+    />
 );
 
 export const FlexibleSize = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        size={'flexible'}
-   />
+        size='flexible'
+    />
 );
 
 export const WithContent = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-   >
-       <TrophyIcon />
-   </PlayingCard>
+    >
+        <TrophyIcon />
+    </PlayingCard>
 );
 
 export const Wizard = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.WIZARD}
         number={null}
-   />
+        suit={SUIT.WIZARD}
+    />
 );
 
 export const Jester = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.JESTER}
         number={null}
-   />
+        suit={SUIT.JESTER}
+    />
 );
 
 export const Ace = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.SPADES}
         number={1}
-   />
+        suit={SUIT.SPADES}
+    />
 );
 
 export const King = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.HEARTS}
         number={13}
-   />
+        suit={SUIT.HEARTS}
+    />
 );
 
 export const Queen = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.CLUBS}
         number={12}
-   />
+        suit={SUIT.CLUBS}
+    />
 );
 
 export const Jack = (props: PlayingCardProps) => (
-   <PlayingCard
+    <PlayingCard
         {...props}
-        suit={SUIT.DIAMONDS}
         number={11}
-   />
+        suit={SUIT.DIAMONDS}
+    />
 );

@@ -1,14 +1,16 @@
+/* eslint-disable react/no-array-index-key */
 import './index.scss';
 
-import React, { useContext, ReactNode } from 'react';
-import { PlayerAvatar } from '../Avatar';
-import { GameContext } from '../../Context';
-import isNil from 'lodash.isnil';
-import { Done } from '@material-ui/icons';
-import { PlayingCard } from '../PlayingCard';
 import { Button, Typography } from '@material-ui/core';
-import { GAME_STAGE, Card } from '../../types';
+import { Done } from '@material-ui/icons';
+import isNil from 'lodash.isnil';
+import React, { ReactNode, useContext } from 'react';
+
+import { GameContext } from '../../Context';
+import { Card, GAME_STAGE } from '../../types';
+import { PlayerAvatar } from '../Avatar';
 import { TrophyIcon } from '../icons';
+import { PlayingCard } from '../PlayingCard';
 
 const MAX_NUMBER_OF_PLAYERS = 6;
 
@@ -21,13 +23,13 @@ function Fillers(props: { players: number, show: boolean; }) {
     const shells = new Array(MAX_NUMBER_OF_PLAYERS - players).fill(null).map((_, index) => (
         <PlayerAvatar
             key={index + players}
-            player={index + players + 1}
             empty={true}
+            player={index + players + 1}
         />
-    ))
+    ));
     return (
         <>{shells}</>
-    )
+    );
 }
 
 interface GameBoardProps {
@@ -64,31 +66,35 @@ function GameBoard(props: GameBoardProps) {
         if (isSetup) {
             content = (
                 <Typography>{username}</Typography>
-            )
+            );
         } else if (isBetting && isNil(bet) && isCurrent) {
             content = (
                 <>
-                <Button
-                    onClick={onOpenBettingDialog}
-                    color='primary'
-                    variant='contained'
-                >
-                    Place bet
-                </Button>
-                {(trickLeader === username) && (
-                    <Typography>(trick leader)</Typography>
-                )}
-                </>
-            )
-        } else if (isBetting && isNil(bet)) {
-            content = (
-                <>
-                    <Typography>{username} is placing their bet...</Typography>
+                    <Button
+                        color='primary'
+                        onClick={onOpenBettingDialog}
+                        variant='contained'
+                    >
+                        Place bet
+                    </Button>
                     {(trickLeader === username) && (
                         <Typography>(trick leader)</Typography>
                     )}
                 </>
-                );
+            );
+        } else if (isBetting && isNil(bet)) {
+            content = (
+                <>
+                    <Typography>
+                        {username}
+                        {' '}
+                        is placing their bet...
+                    </Typography>
+                    {(trickLeader === username) && (
+                        <Typography>(trick leader)</Typography>
+                    )}
+                </>
+            );
         } else if (isBetting) {
             content = (
                 <>
@@ -98,38 +104,41 @@ function GameBoard(props: GameBoardProps) {
                         style={{
                             fontSize: '3rem',
                             fill: 'limegreen',
-                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))',
                         }}
                     />
                 </>
-            )
+            );
         } else if (isPlaying && trickCards[username]) {
             content = (
                 <PlayingCard
                     {...trickCards[username] as Card}
                     size='flexible'
                 />
-            )
+            );
         } else if (isPlaying && isActive && isCurrent) {
-
             content = (
-                <Typography>it's your turn to play a card...</Typography>
+                <Typography>it&apos;s your turn to play a card...</Typography>
             );
         } else if (isPlaying && isActive) {
             content = (
-                <Typography>{username} is playing a card...</Typography>
-            )
+                <Typography>
+                    {username}
+                    {' '}
+                    is playing a card...
+                </Typography>
+            );
         } else if (isBetweenTricks && playerId && !ready[playerId]) {
             content = (
                 <PlayingCard
                     {...trickCards[username] as Card}
                     size='flexible'
                 >
-                    {username=== trickWinner && (
+                    {username === trickWinner && (
                         <TrophyIcon />
                     )}
                 </PlayingCard>
-            )
+            );
         } else if (isBetweenTricks && ready[username]) {
             content = (
                 <>
@@ -139,15 +148,20 @@ function GameBoard(props: GameBoardProps) {
                         style={{
                             fontSize: '3rem',
                             fill: 'limegreen',
-                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))'
+                            filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0))',
                         }}
                     />
                 </>
-            )
+            );
         } else if (isBetweenTricks) {
             content = (
-                <Typography>waiting for {username}...</Typography>
-            )
+                <Typography>
+                    waiting for
+                    {' '}
+                    {username}
+                    ...
+                </Typography>
+            );
         }
         return (
             <PlayerAvatar
@@ -158,7 +172,7 @@ function GameBoard(props: GameBoardProps) {
             >
                 {content}
             </PlayerAvatar>
-        )
+        );
     });
 
     return (
@@ -174,9 +188,9 @@ function GameBoard(props: GameBoardProps) {
                 show={stage === GAME_STAGE.SETTING_UP}
             />
         </div>
-    )
+    );
 }
 
 export {
     GameBoard,
-}
+};

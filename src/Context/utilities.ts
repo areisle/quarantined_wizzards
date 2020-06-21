@@ -1,5 +1,6 @@
-import { PlayerId } from "../types";
 import isEqual from 'lodash.isequal';
+
+import { PlayerId } from '../types';
 
 type handler<T> = (state: T, payload: any) => T;
 
@@ -18,17 +19,15 @@ const setQueryStringParam = (key: string, value: unknown) => {
     const params = new URLSearchParams(window.location.search);
     params.append(key, String(value));
     window.location.search = params.toString();
-}
+};
 
 const storage = process.env.NODE_ENV === 'development' ? sessionStorage : localStorage;
 
-const getPlayerId = (gameCode: string) => {
-    return storage.getItem(`game-${gameCode}`);
-}
+const getPlayerId = (gameCode: string) => storage.getItem(`game-${gameCode}`);
 
 const setPlayerId = (gameCode: string | null, playerId: PlayerId) => {
     storage.setItem(`game-${gameCode}`, playerId);
-}
+};
 
 /**
  * returns an array less the first occurence of the item
@@ -44,8 +43,8 @@ function removeFirst<T = any>(array: T[], item: any): T[] {
                 return false;
             }
         }
-        return true
-    })
+        return true;
+    });
 }
 
 export {
@@ -54,4 +53,4 @@ export {
     getPlayerId,
     setPlayerId,
     removeFirst,
-}
+};

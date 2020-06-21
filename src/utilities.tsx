@@ -1,7 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React from 'react';
-import { useEffect, useRef } from "react";
-import { GameState, PlayerId, ScoreWithTotal } from "./types";
+import React, { useEffect, useRef } from 'react';
+
+import { GameState, PlayerId, ScoreWithTotal } from './types';
 
 function usePrevious<T = unknown>(value: T) {
     const ref = useRef<T>();
@@ -22,8 +21,8 @@ function getRoundScore(
     let score = null;
 
     const { bet, taken } = scores[roundNumber]?.[playerId] || {};
-    let numBet = bet || 0;
-    let numTaken = taken || 0;
+    const numBet = bet || 0;
+    const numTaken = taken || 0;
 
     if (numBet === numTaken) {
         score = numBet * 10 + 20;
@@ -45,7 +44,7 @@ function getScore(
 ) {
     let score = 0;
 
-    for (let i=0; i <= roundNumber; i++) {
+    for (let i = 0; i <= roundNumber; i += 1) {
         score += getRoundScore(scores, playerId, i).total ?? 0;
     }
 
@@ -65,15 +64,14 @@ function getGameWinners(players: PlayerId[], scores: GameState['scores']) {
         first,
         second,
         third,
-    ] = totalScores.sort((a, b) => b.score - a.score).map(a => a.playerIndex);
+    ] = totalScores.sort((a, b) => b.score - a.score).map((a) => a.playerIndex);
 
     return {
         first,
         second,
         third,
-    }
+    };
 }
-
 
 /**
  * copy to clipboard that works on ios
@@ -116,4 +114,4 @@ export {
     getScore,
     getGameWinners,
     copyToClipboard,
-}
+};

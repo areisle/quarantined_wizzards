@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Footer, FooterProps } from '.';
 
 export default {
@@ -9,8 +10,8 @@ export default {
         disabled: false,
         showAllInButton: false,
         showReadyButton: false,
-    }
-}
+    },
+};
 
 export const SettingUp = (props: FooterProps) => (
     <Footer
@@ -20,7 +21,7 @@ export const SettingUp = (props: FooterProps) => (
 
 SettingUp.args = {
     showAllInButton: true,
-}
+};
 
 export const NotEnoughPlayers = (props: FooterProps) => (
     <Footer

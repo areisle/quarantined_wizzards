@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScoreBoard, ScoreBoardProps } from '.';
+
 import { GAME_STAGE } from '../../types';
+import { ScoreBoard, ScoreBoardProps } from '.';
 
 export default {
     component: ScoreBoard,
@@ -11,8 +12,8 @@ export default {
         stage: GAME_STAGE.BETTING,
         roundNumber: 0,
         trickNumber: 0,
-    }
-}
+    },
+};
 
 export const Betting = (props: ScoreBoardProps) => (
     <ScoreBoard
@@ -23,54 +24,54 @@ export const Betting = (props: ScoreBoardProps) => (
 export const Playing = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.PLAYING}
         scores={[
             {
                 areisle: { bet: 1 },
                 creisle: { bet: 1 },
                 nreisle: { bet: 0 },
-            }
+            },
         ]}
+        stage={GAME_STAGE.PLAYING}
     />
 );
 
 export const BetweenTricks = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.BETWEEN_TRICKS}
         scores={[
             {
                 areisle: { bet: 1, taken: 0 },
-                creisle: { bet: 1, taken: 1, },
+                creisle: { bet: 1, taken: 1 },
                 nreisle: { bet: 0, taken: 0 },
-            }
+            },
         ]}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
     />
 );
 
 export const EndOfRound3 = (props: ScoreBoardProps) => (
     <ScoreBoard
         {...props}
-        stage={GAME_STAGE.BETWEEN_TRICKS}
         roundNumber={2}
-        trickNumber={2}
         scores={[
             {
                 areisle: { bet: 1, taken: 0 },
-                creisle: { bet: 1, taken: 1, },
+                creisle: { bet: 1, taken: 1 },
                 nreisle: { bet: 0, taken: 0 },
             },
             {
                 areisle: { bet: 1, taken: 1 },
-                creisle: { bet: 2, taken: 1, },
+                creisle: { bet: 2, taken: 1 },
                 nreisle: { bet: 0, taken: 0 },
             },
             {
                 areisle: { bet: 1, taken: 0 },
-                creisle: { bet: 0, taken: 0, },
+                creisle: { bet: 0, taken: 0 },
                 nreisle: { bet: 2, taken: 3 },
             },
         ]}
+        stage={GAME_STAGE.BETWEEN_TRICKS}
+        trickNumber={2}
     />
 );
 
@@ -83,7 +84,7 @@ export const MaxPlayers = (props: ScoreBoardProps) => (
             'nreisle',
             'mreisle',
             'kreisle',
-            'freisle'
+            'freisle',
         ]}
     />
 );

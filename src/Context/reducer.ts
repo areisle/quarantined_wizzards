@@ -1,7 +1,20 @@
-import { createReducer, removeFirst } from './utilities';
-import produce from "immer"
+import produce from 'immer';
 import update from 'lodash.update';
-import { GameState, PlayerId, BetPlacedParams, CardPlayedParams, RoundStartedParams, TrickStartedParams, RejoinGameParams, SERVER_EVENTS, USER_EVENTS, GAME_STAGE, SUIT } from '../types';
+
+import {
+    BetPlacedParams,
+    CardPlayedParams,
+    GAME_STAGE,
+    GameState,
+    PlayerId,
+    RejoinGameParams,
+    RoundStartedParams,
+    SERVER_EVENTS,
+    SUIT,
+    TrickStartedParams,
+    USER_EVENTS,
+} from '../types';
+import { createReducer, removeFirst } from './utilities';
 
 const initialState: GameState = {
     players: [],
@@ -18,7 +31,7 @@ const initialState: GameState = {
     activePlayer: null,
     trumpSuit: null,
     gameCode: (new URLSearchParams(window.location.search)).get('game'),
-}
+};
 
 const gameReducer = createReducer<GameState>({
     [SERVER_EVENTS.TRUMP_CHANGED]: (state, trumpSuit: SUIT) => ({
@@ -26,17 +39,15 @@ const gameReducer = createReducer<GameState>({
         trumpSuit,
         stage: GAME_STAGE.BETTING,
     }),
-    [SERVER_EVENTS.TRICK_WON]: (state, playerId: PlayerId) => {
-        return produce(state, (draft) => {
-            update(
-                draft,
-                ['scores', state.roundNumber, playerId, 'taken'],
-                (previous) => (previous || 0) + 1,
-            );
-            draft.trickWinner = playerId;
-            draft.stage = GAME_STAGE.BETWEEN_TRICKS
-        });
-    },
+    [SERVER_EVENTS.TRICK_WON]: (state, playerId: PlayerId) => produce(state, (draft) => {
+        update(
+            draft,
+            ['scores', state.roundNumber, playerId, 'taken'],
+            (previous) => (previous || 0) + 1,
+        );
+        draft.trickWinner = playerId;
+        draft.stage = GAME_STAGE.BETWEEN_TRICKS;
+    }),
     [SERVER_EVENTS.ACTIVE_PLAYER_CHANGED]: (state, activePlayer: PlayerId) => ({
         ...state,
         activePlayer,
@@ -48,7 +59,7 @@ const gameReducer = createReducer<GameState>({
                 draft,
                 ['scores', state.roundNumber, playerId, 'bet'],
                 () => bet,
-            )
+            );
         });
     },
     [SERVER_EVENTS.PLAYERS_CHANGED]: (state, players: PlayerId[]) => ({
@@ -101,23 +112,19 @@ const gameReducer = createReducer<GameState>({
         ready: {
             ...state.ready,
             [playerId]: true,
-        }
+        },
     }),
-    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams) => {
-        return {
-            ...state,
-            ...gameState,
-        }
-    },
-    [SERVER_EVENTS.GAME_COMPLETE]: (state) => {
-        return {
-            ...state,
-            stage: GAME_STAGE.COMPLETE,
-        }
-    },
-})
+    [USER_EVENTS.REJOIN_GAME]: (state, gameState: RejoinGameParams) => ({
+        ...state,
+        ...gameState,
+    }),
+    [SERVER_EVENTS.GAME_COMPLETE]: (state) => ({
+        ...state,
+        stage: GAME_STAGE.COMPLETE,
+    }),
+});
 
 export {
     gameReducer,
     initialState,
-}
+};
