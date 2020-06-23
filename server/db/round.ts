@@ -3,7 +3,6 @@ import { Redis } from 'ioredis';
 import {
     Card, GameState, PlayerId, SUIT,
 } from '../../src/types';
-import { getGamePlayers } from '.';
 import { createDeck, shuffleYourDeck, sortCards } from './deck';
 import { getPlayerIndex, getPlayers } from './game';
 
@@ -349,7 +348,7 @@ const currentTrickIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
-        getGamePlayers(redis, gameId),
+        getPlayers(redis, gameId),
     ]);
     const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
     return Boolean(trickCards.length === players.length);
@@ -359,7 +358,7 @@ const currentRoundIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
-        getGamePlayers(redis, gameId),
+        getPlayers(redis, gameId),
     ]);
     const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
     return Boolean(trickCards.length === players.length && trickNumber === roundNumber);

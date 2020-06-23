@@ -172,7 +172,7 @@ const startGame = async (redis: Redis, gameId: string) => {
 const close = (redis: Redis) => redis?.quit();
 
 export {
-    addPlayer as addPlayerToGame,
+    addPlayer,
     close,
     connect,
     createGame,
@@ -185,7 +185,7 @@ export {
     getGameState,
     getPlayerCards,
     getPlayerIndex,
-    getPlayers as getGamePlayers,
+    getPlayers,
     getPlayerSocket,
     getPlayersReady,
     getTrickLeader,
