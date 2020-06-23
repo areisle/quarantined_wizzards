@@ -45,15 +45,11 @@ const setCurrentTrick = async (redis: Redis, gameId: string, trickNumber: number
 
 /**
  * get the remaining cards for a given player
- * @param {string} gameId
- * @param {Nuber} playerId
- * @param {Number?} roundNumber assumes the current roundNumber if this is not given
+ * @param gameId
+ * @param playerId
  */
-const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, chosenRoundNumber: number) => {
-    let roundNumber = chosenRoundNumber;
-    if (roundNumber === undefined) {
-        roundNumber = await getCurrentRound(redis, gameId);
-    }
+const getPlayerCards = async (redis: Redis, gameId: string, playerId: string) => {
+    const roundNumber = await getCurrentRound(redis, gameId);
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-p${playerId}-cards`, 0, -1);
     return cards.map((card) => {
         const [suit, value] = card.split('-') as [SUIT, string];
@@ -279,7 +275,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     // check if the user should play a different card
     let [leadSuit, playersCards, trickCards, trickCardsByPlayer, bets] = await Promise.all([
         getLeadSuit(redis, gameId, roundNumber, trickNumber),
-        getPlayerCards(redis, gameId, playerId, roundNumber),
+        getPlayerCards(redis, gameId, playerId),
         getTrickCards(redis, gameId, roundNumber, trickNumber),
         getTrickCardsByPlayer(redis, gameId, roundNumber, trickNumber),
         getPlayerBets(redis, gameId, roundNumber),

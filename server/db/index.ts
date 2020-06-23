@@ -75,7 +75,7 @@ const getGameState = async (redis: Redis, gameId: string, currPlayerId: string):
         getTrickCardsByPlayer(redis, gameId, currentRound, currentTrick),
         getTrickLeader(redis, gameId, currentRound, currentTrick),
         whosTurnIsIt(redis, gameId),
-        getPlayerCards(redis, gameId, currPlayerId, currentRound),
+        getPlayerCards(redis, gameId, currPlayerId),
         getTrumpSuit(redis, gameId, currentRound),
         getPlayersReady(redis, gameId, currentRound, currentTrick),
     ]);
