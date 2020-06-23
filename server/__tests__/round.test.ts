@@ -1,4 +1,5 @@
-import { SUIT, Card } from '../../src/types';
+import { Card, SUIT } from '../../src/types';
+
 const { removeFirstMatch } = require('../db/round');
 
 describe('removeFirstMatch', () => {
@@ -6,7 +7,7 @@ describe('removeFirstMatch', () => {
         const cards: Card[] = [{ suit: SUIT.JESTER, number: null }, { suit: SUIT.JESTER, number: null }];
         const newCards: Card[] = removeFirstMatch(cards, SUIT.JESTER, null);
         expect(newCards).toEqual([
-            { suit: SUIT.JESTER, number: null }
+            { suit: SUIT.JESTER, number: null },
         ]);
     });
 
@@ -22,7 +23,7 @@ describe('removeFirstMatch', () => {
         const cards: Card[] = [{ suit: SUIT.JESTER, number: null }, { suit: SUIT.CLUBS, number: 1 }];
         const newCards: Card[] = removeFirstMatch(cards, SUIT.JESTER, null);
         expect(newCards).toEqual([
-            { suit: SUIT.CLUBS, number: 1 }
+            { suit: SUIT.CLUBS, number: 1 },
         ]);
-    })
-})
+    });
+});

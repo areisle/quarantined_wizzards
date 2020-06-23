@@ -25,17 +25,19 @@ afterEach(async () => {
 
 describe('setPlayerCards sorts cards on set', () => {
     test('ace before king of same suit', async () => {
+        await db.setCurrentRound(redis, gameId, 0);
         await db.setPlayerCards(redis, gameId, playerId, 0, [
             { suit: SUIT.CLUBS, number: 13 },
             { suit: SUIT.CLUBS, number: 1 },
         ]);
-        const result = await db.getPlayerCards(redis, gameId, playerId, 0);
+        const result = await db.getPlayerCards(redis, gameId, playerId);
         expect(result).toEqual([
             { suit: SUIT.CLUBS, number: 1 },
             { suit: SUIT.CLUBS, number: 13 },
         ]);
     });
     test('wizards leftmost', async () => {
+        await db.setCurrentRound(redis, gameId, 0);
         await db.setPlayerCards(redis, gameId, playerId, 0, [
             { suit: SUIT.JESTER, number: null },
             { suit: SUIT.CLUBS, number: 1 },
@@ -44,10 +46,11 @@ describe('setPlayerCards sorts cards on set', () => {
             { suit: SUIT.WIZARD, number: null },
             { suit: SUIT.DIAMONDS, number: 1 },
         ]);
-        const result = await db.getPlayerCards(redis, gameId, playerId, 0);
+        const result = await db.getPlayerCards(redis, gameId, playerId);
         expect(result[0]).toEqual({ suit: SUIT.WIZARD, number: null });
     });
     test('jesters after wizards', async () => {
+        await db.setCurrentRound(redis, gameId, 0);
         await db.setPlayerCards(redis, gameId, playerId, 0, [
             { suit: SUIT.JESTER, number: null },
             { suit: SUIT.CLUBS, number: 1 },
@@ -56,17 +59,18 @@ describe('setPlayerCards sorts cards on set', () => {
             { suit: SUIT.WIZARD, number: null },
             { suit: SUIT.DIAMONDS, number: 1 },
         ]);
-        const result = await db.getPlayerCards(redis, gameId, playerId, 0);
+        const result = await db.getPlayerCards(redis, gameId, playerId);
         expect(result[1]).toEqual({ suit: SUIT.JESTER, number: null });
     });
     test('order suits independant of values', async () => {
+        await db.setCurrentRound(redis, gameId, 0);
         await db.setPlayerCards(redis, gameId, playerId, 0, [
             { suit: SUIT.CLUBS, number: 10 },
             { suit: SUIT.HEARTS, number: 1 },
             { suit: SUIT.SPADES, number: 2 },
             { suit: SUIT.DIAMONDS, number: 11 },
         ]);
-        const result = await db.getPlayerCards(redis, gameId, playerId, 0);
+        const result = await db.getPlayerCards(redis, gameId, playerId);
         expect(result).toEqual([
             { suit: SUIT.SPADES, number: 2 },
             { suit: SUIT.HEARTS, number: 1 },
