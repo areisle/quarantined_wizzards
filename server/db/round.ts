@@ -3,59 +3,8 @@ import { Redis } from 'ioredis';
 import {
     Card, GameState, PlayerId, SUIT,
 } from '../../src/types';
-import { getGamePlayers } from '.';
+import { createDeck, shuffleYourDeck, sortCards } from './deck';
 import { getPlayerIndex, getPlayers } from './game';
-
-const sortCards = (cards: Card[]) => {
-    const suitOrder: Record<SUIT, number> = {
-        [SUIT.WIZARD]: 0,
-        [SUIT.JESTER]: 1,
-        [SUIT.SPADES]: 2,
-        [SUIT.HEARTS]: 3,
-        [SUIT.CLUBS]: 4,
-        [SUIT.DIAMONDS]: 5,
-    };
-
-    // sort the cards first
-    const compareCards = (card1: Card, card2: Card) => {
-        if (card1.suit === card2.suit) {
-            if (card1.number === 1) {
-                return -1;
-            } if (card2.number === 1) {
-                return 1;
-            }
-            return card2.number - card1.number; // high cards first
-        }
-        return suitOrder[card1.suit] - suitOrder[card2.suit];
-    };
-    return cards.sort(compareCards);
-};
-
-const createDeck = () => {
-    const cards: Card[] = [];
-
-    for (const specialSuit of [SUIT.WIZARD, SUIT.JESTER]) {
-        for (let value = 0; value < 4; value += 1) {
-            cards.push({ suit: specialSuit, number: null });
-        }
-    }
-
-    for (const suit of [SUIT.SPADES, SUIT.CLUBS, SUIT.HEARTS, SUIT.DIAMONDS]) {
-        for (let value = 1; value < 14; value += 1) {
-            cards.push({ suit, number: value });
-        }
-    }
-    return cards;
-};
-
-// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-const shuffleYourDeck = (array: Card[]) => {
-    for (let i = array.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-};
 
 const getTrumpSuit = async (redis: Redis, gameId: string, roundNumber: number) => redis.get(`${gameId}-r${roundNumber}-trump`) as Promise<SUIT>;
 
@@ -95,15 +44,11 @@ const setCurrentTrick = async (redis: Redis, gameId: string, trickNumber: number
 
 /**
  * get the remaining cards for a given player
- * @param {string} gameId
- * @param {Nuber} playerId
- * @param {Number?} roundNumber assumes the current roundNumber if this is not given
+ * @param gameId
+ * @param playerId
  */
-const getPlayerCards = async (redis: Redis, gameId: string, playerId: string, chosenRoundNumber: number) => {
-    let roundNumber = chosenRoundNumber;
-    if (roundNumber === undefined) {
-        roundNumber = await getCurrentRound(redis, gameId);
-    }
+const getPlayerCards = async (redis: Redis, gameId: string, playerId: string) => {
+    const roundNumber = await getCurrentRound(redis, gameId);
     const cards = await redis.lrange(`${gameId}-r${roundNumber}-p${playerId}-cards`, 0, -1);
     return cards.map((card) => {
         const [suit, value] = card.split('-') as [SUIT, string];
@@ -329,7 +274,7 @@ const playCard = async (redis: Redis, gameId: string, playerId: string, cardSuit
     // check if the user should play a different card
     let [leadSuit, playersCards, trickCards, trickCardsByPlayer, bets] = await Promise.all([
         getLeadSuit(redis, gameId, roundNumber, trickNumber),
-        getPlayerCards(redis, gameId, playerId, roundNumber),
+        getPlayerCards(redis, gameId, playerId),
         getTrickCards(redis, gameId, roundNumber, trickNumber),
         getTrickCardsByPlayer(redis, gameId, roundNumber, trickNumber),
         getPlayerBets(redis, gameId, roundNumber),
@@ -403,7 +348,7 @@ const currentTrickIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
-        getGamePlayers(redis, gameId),
+        getPlayers(redis, gameId),
     ]);
     const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
     return Boolean(trickCards.length === players.length);
@@ -413,7 +358,7 @@ const currentRoundIsComplete = async (redis: Redis, gameId: string) => {
     const [roundNumber, trickNumber, players] = await Promise.all([
         getCurrentRound(redis, gameId),
         getCurrentTrick(redis, gameId),
-        getGamePlayers(redis, gameId),
+        getPlayers(redis, gameId),
     ]);
     const trickCards = await getTrickCards(redis, gameId, roundNumber, trickNumber);
     return Boolean(trickCards.length === players.length && trickNumber === roundNumber);

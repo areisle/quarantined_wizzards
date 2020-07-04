@@ -81,10 +81,10 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
         socket.on(USER_EVENTS.JOIN_GAME, async (gameId: string, playerId: string, onSuccess, onError) => {
             try {
                 socket.join(gameId);
-                await db.addPlayerToGame(redis, gameId, playerId);
+                await db.addPlayer(redis, gameId, playerId);
                 const [, players] = await Promise.all([
                     db.setPlayerSocket(redis, gameId, playerId, socket.id),
-                    db.getGamePlayers(redis, gameId),
+                    db.getPlayers(redis, gameId),
                 ]);
                 onSuccess?.(playerId);
                 io.to(gameId).emit(SERVER_EVENTS.PLAYERS_CHANGED, players);
@@ -212,7 +212,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
         });
 
         socket.on(USER_EVENTS.GET_PLAYERS, async (gameId, onSuccess) => {
-            const players = await db.getGamePlayers(redis, gameId);
+            const players = await db.getPlayers(redis, gameId);
             onSuccess?.(players);
         });
 
@@ -230,7 +230,7 @@ const server = async ({ port = 3000 }: { port: string | number }) => {
                 }
                 await db.setPlayerReady(redis, gameId, roundNumber, trickNumber, playerId);
                 const [players, playersReady] = await Promise.all([
-                    db.getGamePlayers(redis, gameId),
+                    db.getPlayers(redis, gameId),
                     db.getPlayersReady(redis, gameId, roundNumber, trickNumber),
                 ]);
 

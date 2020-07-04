@@ -333,7 +333,7 @@ describe('game events', () => {
 
             for (const playerIndex of [2, 0, 1]) {
                 const playerId = playerIds[playerIndex];
-                const cards = await db.getPlayerCards(redis, gameId, playerId, 0);
+                const cards = await db.getPlayerCards(redis, gameId, playerId);
                 await promisifyEventEmitter(USER_EVENTS.PLAY_CARD, gameId, playerId, cards[0]);
             }
         });
