@@ -1,10 +1,9 @@
 import './Main.scss';
 
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
 import { AllBetsInDialog } from './components/AllBetsInDialog';
 import { BettingDialog } from './components/BettingDialog';
-import { ChooseTrumpDialog } from './components/ChooseTrumpDialog';
 import { Footer } from './components/Footer';
 import { GameBoard } from './components/GameBoard';
 import { GameCompleteDialog } from './components/GameCompleteDialog';
@@ -15,12 +14,15 @@ import { PlayerDeck } from './components/PlayerDeck';
 import { StartGameDialog } from './components/StartGameDialog';
 import { TrickWonDialog } from './components/TrickWonDialog';
 import { TrumpChosenDialog } from './components/TrumpChosenDialog';
+import { DIALOG_TYPE, useGameStateDialogs } from './components/useGameStateDialog';
 import { GameContext } from './Context';
 import { GAME_STAGE, TOTAL_CARDS } from './types';
 
 function Main() {
     const {
+        activePlayer,
         allPlayersIn,
+        cards,
         gameCode,
         joinGame,
         placeBet,
@@ -40,6 +42,7 @@ function Main() {
 
     const [scoreboardOpen, setBoardOpen] = useState(false);
     const [betDialogOpen, setBetOpen] = useState(false);
+    const [deckOpen, setDeckOpen] = useState(false);
 
     const playerNumber = players.indexOf(playerId as string) + 1;
 
@@ -58,6 +61,36 @@ function Main() {
         setBetOpen(false);
         placeBet(bet);
     };
+
+    const handleOpenDeck = useCallback(() => {
+        setDeckOpen(true);
+    }, []);
+
+    const handleCloseDeck = useCallback(() => {
+        setDeckOpen(false);
+    }, []);
+
+    const {
+        currentDialog,
+        dismissCurrentDialog,
+    } = useGameStateDialogs({
+        stage,
+        trickNumber,
+        trumpSuit,
+        trickWinner,
+        gameCode,
+        playerId,
+    });
+
+    const handleStartGame = useCallback(() => {
+        startNewGame();
+        dismissCurrentDialog();
+    }, [dismissCurrentDialog, startNewGame]);
+
+    const handleJoinGame = useCallback((username) => {
+        joinGame(username);
+        dismissCurrentDialog();
+    }, [dismissCurrentDialog, joinGame]);
 
     return (
         <div
@@ -86,7 +119,14 @@ function Main() {
                 showReadyButton={showReadyButton}
             />
             <PlayerDeck
+                activePlayer={activePlayer}
+                cards={cards}
+                onClose={handleCloseDeck}
+                onOpen={handleOpenDeck}
                 onPlaceCard={playCard}
+                open={deckOpen}
+                playerId={playerId}
+                stage={stage}
             />
             <Menu
                 onClose={handleCloseScoreBoard}
@@ -99,6 +139,8 @@ function Main() {
                 open={betDialogOpen}
             />
             <TrickWonDialog
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.TRICK_COMPLETE}
                 playerNumber={players.indexOf(trickWinner as string)}
                 players={players}
                 round={roundNumber}
@@ -107,22 +149,21 @@ function Main() {
                 winner={trickWinner}
             />
             <JoinGameDialog
-                onJoin={joinGame}
-                open={Boolean(gameCode && playerId === null)}
+                onJoin={handleJoinGame}
+                open={currentDialog === DIALOG_TYPE.JOIN_GAME}
             />
             <StartGameDialog
-                onStart={startNewGame}
-                open={!gameCode}
-            />
-            <ChooseTrumpDialog
-                onStart={startNewGame}
-                open={false}
+                onStart={handleStartGame}
+                open={currentDialog === DIALOG_TYPE.START_GAME}
             />
             <TrumpChosenDialog
-                stage={stage}
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.TRUMP_CHOSEN}
                 trumpSuit={trumpSuit}
             />
             <AllBetsInDialog
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.ALL_BETS_IN}
                 players={players}
                 roundNumber={roundNumber}
                 scores={scores}
@@ -130,9 +171,10 @@ function Main() {
                 trickNumber={trickNumber}
             />
             <GameCompleteDialog
+                onClose={dismissCurrentDialog}
+                open={currentDialog === DIALOG_TYPE.GAME_COMPLETE}
                 players={players}
                 scores={scores}
-                stage={stage}
             />
         </div>
     );

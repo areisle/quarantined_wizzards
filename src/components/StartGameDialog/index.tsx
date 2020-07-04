@@ -11,15 +11,16 @@ import {
 } from '@material-ui/core';
 import React, { useCallback, useState } from 'react';
 
-interface StartGameDialogProps {
-    open: boolean;
+import { GameStateDialogProps } from '../useGameStateDialog';
+
+export interface StartGameDialogProps extends GameStateDialogProps {
     onStart: (newGameId: string) => void;
 }
 
 function StartGameDialog(props: StartGameDialogProps) {
     const {
-        open,
         onStart,
+        ...rest
     } = props;
 
     const [gameId, setGameId] = useState('');
@@ -45,8 +46,8 @@ function StartGameDialog(props: StartGameDialogProps) {
 
     return (
         <Dialog
+            {...rest}
             className='start-join-game'
-            open={open}
         >
             <DialogTitle>
                 Welcome to Quarantined Wizzards!

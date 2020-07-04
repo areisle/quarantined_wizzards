@@ -1,29 +1,39 @@
 import './index.scss';
 
 import { Button } from '@material-ui/core';
-import React, {
-    useCallback, useContext, useEffect, useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SwipeableViews from 'react-swipeable-views';
 
-import { GameContext } from '../../Context';
-import { GAME_STAGE } from '../../types';
+import { GAME_STAGE, GameState } from '../../types';
 import { PlayingCard } from '../PlayingCard';
 
-interface PlayerDeckProps {
-    onPlaceCard: (cardIndex: number) => void;
+export interface PlayerDeckProps {
+    onPlaceCard?: (cardIndex: number) => void;
+    onOpen?: () => void;
+    onClose?: () => void;
+    /**
+     * whether the deck is open or not
+     * @default false
+     */
+    open?: boolean;
+    cards: GameState['cards'];
+    stage: GameState['stage'];
+    playerId: GameState['playerId'];
+    activePlayer: GameState['activePlayer'];
 }
 
 function PlayerDeck(props: PlayerDeckProps) {
-    const { onPlaceCard } = props;
     const {
+        onPlaceCard,
         cards,
         stage,
         playerId,
         activePlayer,
-    } = useContext(GameContext);
+        onOpen,
+        onClose,
+        open,
+    } = props;
 
-    const [open, setOpen] = useState(false);
     const [selectedIndex, setIndex] = useState(0);
     const [animate, setAnimate] = useState(false);
 
@@ -38,18 +48,18 @@ function PlayerDeck(props: PlayerDeckProps) {
 
     const handleOpen = useCallback((e) => {
         e.stopPropagation();
-        setOpen(true);
-    }, []);
+        onOpen?.();
+    }, [onOpen]);
 
     const handleClose = useCallback(() => {
         setAnimate(false);
-        setOpen(false);
-    }, []);
+        onClose?.();
+    }, [onClose]);
 
     const handlePlaceCard = useCallback((card: number) => {
-        setOpen(false);
-        onPlaceCard(card);
-    }, [onPlaceCard]);
+        onClose?.();
+        onPlaceCard?.(card);
+    }, [onClose, onPlaceCard]);
 
     useEffect(() => {
         if (open) {
